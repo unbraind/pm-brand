@@ -6,9 +6,7 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:15.958Z"
-updated_at: "2026-10-16T23:39:34.144Z"
-assignee: codex-sol
-claim_principal: codex-sol
+updated_at: "2026-10-16T23:49:58.031Z"
 author: codex-agent
 parent: pm-brand-kit
 comments[6]{created_at,author,text}:
@@ -25,6 +23,7 @@ files[4]{path,scope}:
   test/assets.test.ts,project
 tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   node --test test/assets.test.ts,project,codex-agent,"2026-10-16T22:51:06.420Z",local_mutation,kit/fonts-mark-tokens
-docs[1]{path,scope}:
+docs[2]{path,scope}:
+  "https://github.com/unbraind/pm-brand/tree/c4bab0ea21f29f9b5d849f693426f2e225c95a54/round1",project
   README.md,project
 body: ""

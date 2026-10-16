@@ -6,15 +6,14 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:31.556Z"
-updated_at: "2026-10-16T23:37:09.356Z"
-assignee: codex-sol
-claim_principal: codex-sol
+updated_at: "2026-10-16T23:50:06.221Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[3]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-10-16T22:45:30.304Z",codex-agent,"Measured 68 contract comparisons: all text and focus comparisons pass; 10 border comparisons fail 3:1 (light canary/rose; canceled rule borders in both themes). Contract retained unchanged. Proposed minimal changes and complete ratios will be recorded in docs/contrast.md and the PR; owner decision required. No AA claim for those borders."
   "2026-10-16T22:51:12.062Z",codex-agent,"Concrete proposal: light in-progress border #A28928, light blocked border #B96A82, canceled border var(--pm-graphite) in both themes. These retain all base palette values and meet 3:1 against chip fills, paper and sheet. Proposed values have dedicated tests; implementation awaits owner approval."
   "2026-10-16T23:37:04.518Z",codex-sol,"Round 1 implements the orchestrator decision. All 68 pairs are classified: 36 text pairs (4.5:1), four focus pairs (3:1), 28 decorative chip-border comparisons with no minimum. docs/contrast.md lists the ten decorative ratios below the 3:1 reference and their reason. Tests preserve canary, rose and rule tokens and enforce every text/focus threshold."
+  "2026-10-16T23:49:49.564Z",codex-sol,"Final round 1 evidence: the two contrast tests pass, all 36 text and four focus pairs meet their required minima, all 28 chip-border pairs are decorative, and the ten sub-3 reference ratios are documented. No palette changes. CONTRACT.md records the orchestrator decision. Ready for orchestrator verification."
 files[3]{path,scope}:
   scripts/contrast-report.ts,project
   src/contrast.ts,project
