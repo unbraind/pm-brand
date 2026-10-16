@@ -6,9 +6,9 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-16T23:25:30.629Z"
+updated_at: "2026-10-16T23:26:47.014Z"
 author: codex-agent
-comments[7]{created_at,author,text}:
+comments[8]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
   "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
   "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
@@ -16,6 +16,7 @@ comments[7]{created_at,author,text}:
   "2026-10-16T23:17:33.049Z",codex-agent,"Node 22 CI passed all 13 tests and four 100% coverage dimensions, then exposed npm 10 running prepare during pack --ignore-scripts. Preparation now routes build and merge-driver output to stderr, preserving stdout as pack JSON. Node 26, Bun and CodeQL already passed the previous head; the npm 10 compatibility correction is being verified before final checks."
   "2026-10-16T23:21:05.948Z",codex-agent,"npm 10.9.8 compatibility proof passed: restoring the previous prepare command reproduces non-JSON pack output; the corrected stderr-only preparation produces valid JSON with all 46 files. A real Node 22.23.1 npm release:check now passes all 13 tests, 100/100/100/100 coverage, and both packed consumers. Existing npm/Bun gates remain unchanged."
   "2026-10-16T23:25:22.201Z",codex-agent,"Exact-commit consumption check exposed a Bun default-policy gap: Git installation succeeds while blocked dependency preparation leaves the compiled entry absent. Compiled modules are now tracked, with a clean-build byte comparison and tracked-output drift gate. CI will install the exact pushed commit with both npm and Bun and exercise every public export, without changing dependency trust settings."
+  "2026-10-16T23:26:44.705Z",codex-agent,Real npm Git installation additionally confirmed its preparation uses a source archive without Git metadata. The prepare hook now installs clone-local merge drivers only when the package itself has a Git marker; compilation still runs. This avoids ancestor discovery and supports Git archives. Surface consumers should use the final PR head rather than the early milestone for Git installation.
 files[6]{path,scope}:
   .github/workflows/ci.yml,project
   .github/workflows/release.yml,project
