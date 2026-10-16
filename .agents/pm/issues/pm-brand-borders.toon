@@ -1,0 +1,14 @@
+id: pm-brand-borders
+title: Approve contract changes for low-contrast status borders
+description: "Ten seed-contract chip-border comparisons fail the 3:1 floor. Proposed changes affect status border tokens only: light canary #A28928, light rose #B96A82, canceled graphite in both themes. See docs/contrast.md. Await owner approval; no base palette changes have been applied."
+type: Issue
+status: open
+priority: 2
+tags: []
+created_at: "2026-10-16T22:52:11.956Z"
+updated_at: "2026-10-16T22:52:19.643Z"
+author: codex-agent
+parent: pm-brand-contrast
+docs[1]{path,scope}:
+  docs/contrast.md,project
+body: ""

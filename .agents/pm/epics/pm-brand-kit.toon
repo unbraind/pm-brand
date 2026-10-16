@@ -6,12 +6,18 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-16T22:42:44.045Z"
-assignee: codex-agent
-claim_principal: codex-agent
+updated_at: "2026-10-16T23:03:41.999Z"
 author: codex-agent
-comments[1]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
-docs[1]{path,scope}:
+  "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
+  "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
+  "2026-10-16T23:03:36.406Z",codex-agent,"Final implementation includes 44 tokens per theme, path-based image generators, optional native rendering, strict checks across source/scripts/tests, 100/100/100/100 source coverage, 46 intended packed files, and an Unreleased changelog via the existing pm-changelog no-pending-release option. No pm-changelog feature gap. Release workflow remains owner-gated and repository variables were not changed."
+files[3]{path,scope}:
+  .github/workflows/ci.yml,project
+  .github/workflows/release.yml,project
+  scripts/revert-proof.ts,project
+docs[2]{path,scope}:
   CONTRACT.md,project
+  README.md,project
 body: ""

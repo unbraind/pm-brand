@@ -20,7 +20,22 @@
     "./logo/*": "./logo/*",
     "./icons/*": "./icons/*",
     "./CONTRACT.md": "./CONTRACT.md",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./banner": {
+      "types": "./dist/banner.d.ts",
+      "import": "./dist/banner.js",
+      "default": "./dist/banner.js"
+    },
+    "./og": {
+      "types": "./dist/og.d.ts",
+      "import": "./dist/og.js",
+      "default": "./dist/og.js"
+    },
+    "./contrast": {
+      "types": "./dist/contrast.d.ts",
+      "import": "./dist/contrast.js",
+      "default": "./dist/contrast.js"
+    }
   },
   "files": [
     "dist/",
@@ -32,12 +47,14 @@
     "CONTRACT.md",
     "README.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "docs/contrast.md"
   ],
   "devDependencies": {
     "@babel/eslint-parser": "8.0.7",
     "@babel/plugin-syntax-typescript": "8.0.3",
     "@resvg/resvg-js": "2.6.2",
+    "@types/bun": "1.4.3",
     "@types/node": "26.6.5",
     "@unbrained/pm-cli": "2026.10.15",
     "c8": "12.0.0",
@@ -55,7 +72,23 @@
     "prepack": "npm run build",
     "fonts:build": "node scripts/fonts.ts && node scripts/font-paths.ts",
     "assets:build": "node scripts/marks.ts",
-    "font-budget": "node scripts/font-budget.ts"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.check.json",
+    "test": "npm run build && node --test test/*.test.ts",
+    "lint": "node scripts/lint.ts",
+    "docstring": "node scripts/docstrings.ts",
+    "coverage": "npm run build && node scripts/coverage.ts",
+    "font-budget": "node scripts/font-budget.ts",
+    "identity:check": "node scripts/identity.ts",
+    "audit:prod": "node scripts/audit.ts",
+    "pack:dry-run": "node scripts/pack.ts",
+    "prepublishOnly": "node scripts/release-held.ts",
+    "changelog": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded",
+    "changelog:full": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded",
+    "changelog:check": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded --check",
+    "release:notes": "pm-changelog --pm-root .agents/pm --mode replace --stdout --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded",
+    "release:check": "npm run identity:check && pm health --strict-exit --require-merge-drivers && npm run typecheck && npm run lint && npm run build && npm run docstring && npm run font-budget && npm run assets:check && npm run coverage && npm run audit:prod && npm run pack:dry-run && npm run changelog:check && npm run test:install",
+    "test:install": "node scripts/acceptance.ts",
+    "assets:check": "node scripts/assets-check.ts"
   },
   "docstringGate": {
     "sources": [

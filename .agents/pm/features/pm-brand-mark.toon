@@ -6,13 +6,16 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:15.958Z"
-updated_at: "2026-10-16T22:42:29.795Z"
-assignee: codex-agent
-claim_principal: codex-agent
+updated_at: "2026-10-16T23:04:05.094Z"
 author: codex-agent
 parent: pm-brand-kit
+comments[2]{created_at,author,text}:
+  "2026-10-16T22:52:48.600Z",codex-agent,"Asset tests verify all path-only mark/lockup variants, five PNG dimensions, and every pixel outside the maskable safe circle. Removing the back sheet from the single geometry function makes asset assertions fail; restoring the function regenerates the exact original outputs."
+  "2026-10-16T23:00:54.778Z",codex-agent,"Final visual correction: monochrome rear outlines now use occlusion masks derived from the same sheet geometry, so they do not cross the top sheet. A dedicated pixel test checks occlusion and inherited currentColor. Reverting only the mark function to Milestone 1 and rebuilding assets makes that assertion fail. All originals restored."
 files[3]{path,scope}:
   icons/favicon.svg,project
   logo/mark.svg,project
   scripts/marks.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test test/assets.test.ts,project,codex-agent,"2026-10-16T22:51:06.420Z",local_mutation,kit/fonts-mark-tokens
 body: ""

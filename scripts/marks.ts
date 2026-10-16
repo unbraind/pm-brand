@@ -18,11 +18,24 @@ function textPaths(text: string, role: string, x: number, y: number, size: numbe
     return path;
   }).join('');
 }
+/** Sheet dimensions and placements shared by colour fills and monochrome occlusion. */
+const sheetGeometry = { width: 180, height: 174, radius: 6, back: [54, 58], middle: [34, 35], top: [14, 12] } as const;
+/** Serialize one sheet using the same geometry for drawing and occlusion masks. */
+function sheetRect(position: readonly [number, number], fill: string, attributes = ''): string {
+  return `<rect${attributes} x="${position[0]}" y="${position[1]}" width="${sheetGeometry.width}" height="${sheetGeometry.height}" rx="${sheetGeometry.radius}" fill="${fill}"/>`;
+}
 /** Shared three-sheet silhouette; the top sheet and outlines adapt to the variant. */
 function mark(variant: 'light' | 'dark' | 'mono'): string {
   const ink = variant === 'mono' ? 'currentColor' : variant === 'dark' ? '#E7EAF3' : '#1B2340';
   const top = variant === 'mono' ? 'none' : variant === 'dark' ? '#171F37' : '#FFFFFF';
-  return `<g stroke="${ink}" stroke-width="5" stroke-linejoin="round"><rect x="54" y="58" width="180" height="174" rx="6" fill="${variant === 'mono' ? 'none' : '#DE7F9C'}"/><rect x="34" y="35" width="180" height="174" rx="6" fill="${variant === 'mono' ? 'none' : '#E9C53A'}"/><rect x="14" y="12" width="180" height="174" rx="6" fill="${top}"/></g><g fill="${ink}">${textPaths('pm', 'mark', 31, 132, 78)}</g>`;
+  const rose = variant === 'mono' ? 'none' : variant === 'dark' ? '#D07E97' : '#DE7F9C';
+  const canary = variant === 'mono' ? 'none' : variant === 'dark' ? '#D7B53A' : '#E9C53A';
+  const maskBase = '<rect width="248" height="248" fill="white"/>';
+  const maskInk = ' stroke="black" stroke-width="5"';
+  const masks = variant === 'mono' ? `<defs><mask id="pm-mono-back" maskUnits="userSpaceOnUse" x="0" y="0" width="248" height="248">${maskBase}${sheetRect(sheetGeometry.middle, 'black', maskInk)}</mask><mask id="pm-mono-middle" maskUnits="userSpaceOnUse" x="0" y="0" width="248" height="248">${maskBase}${sheetRect(sheetGeometry.top, 'black', maskInk)}</mask></defs>` : '';
+  const backMask = variant === 'mono' ? ' mask="url(#pm-mono-back)"' : '';
+  const middleMask = variant === 'mono' ? ' mask="url(#pm-mono-middle)"' : '';
+  return `${masks}<g stroke="${ink}" stroke-width="5" stroke-linejoin="round">${sheetRect(sheetGeometry.back, rose, backMask)}${sheetRect(sheetGeometry.middle, canary, middleMask)}${sheetRect(sheetGeometry.top, top)}</g><g fill="${ink}">${textPaths('pm', 'mark', 31, 132, 78)}</g>`;
 }
 /** A standalone font-free SVG wrapper. */
 function svg(body: string, width: number, height: number, title: string): string {
