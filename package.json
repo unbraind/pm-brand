@@ -1,0 +1,21 @@
+{
+  "name": "pm-brand",
+  "version": "2026.10.17",
+  "description": "The Triplicate brand kit for pm: design tokens, fonts, mark and icons shared by every pm surface",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unbraind/pm-brand.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "tokens.css",
+    "CONTRACT.md",
+    "README.md",
+    "LICENSE"
+  ]
+}

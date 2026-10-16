@@ -1,0 +1,99 @@
+/*
+ * pm-brand tokens: the Triplicate identity shared by every pm surface.
+ * Contract: CONTRACT.md in this package.
+ * Every name carries the --pm- prefix so it never collides with a host app.
+ */
+:root {
+  --pm-paper: #F3F5F8;
+  --pm-sheet: #FFFFFF;
+  --pm-carbon: #1B2340;
+  --pm-graphite: #535B70;
+  --pm-rule: rgba(27, 35, 64, .14);
+  --pm-canary: #E9C53A;
+  --pm-canary-wash: #FBF1C6;
+  --pm-rose: #DE7F9C;
+  --pm-rose-wash: #F9DDE5;
+  --pm-stamp: #5B3FC4;
+  --pm-stamp-wash: #ECE7FB;
+  --pm-on-stamp: #FFFFFF;
+  --pm-danger: #B42E3A;
+
+  --pm-status-open-fg: var(--pm-carbon);
+  --pm-status-open-bg: var(--pm-sheet);
+  --pm-status-open-border: var(--pm-carbon);
+  --pm-status-in_progress-fg: var(--pm-carbon);
+  --pm-status-in_progress-bg: var(--pm-canary-wash);
+  --pm-status-in_progress-border: var(--pm-canary);
+  --pm-status-blocked-fg: var(--pm-carbon);
+  --pm-status-blocked-bg: var(--pm-rose-wash);
+  --pm-status-blocked-border: var(--pm-rose);
+  --pm-status-closed-fg: var(--pm-stamp);
+  --pm-status-closed-bg: var(--pm-sheet);
+  --pm-status-closed-border: var(--pm-stamp);
+  --pm-status-canceled-fg: var(--pm-graphite);
+  --pm-status-canceled-bg: transparent;
+  --pm-status-canceled-border: var(--pm-rule);
+
+  --pm-font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --pm-font-caption: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --pm-font-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --pm-font-mono: "Martian Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --pm-step--1: .82rem;
+  --pm-step-0: 1rem;
+  --pm-step-1: 1.2rem;
+  --pm-step-2: 1.6rem;
+  --pm-step-3: 2.3rem;
+  --pm-step-4: clamp(2.4rem, 6vw, 4.1rem);
+
+  --pm-radius: 6px;
+  --pm-radius-sm: 3px;
+  --pm-focus: 2px solid var(--pm-stamp);
+  --pm-focus-offset: 3px;
+  --pm-ease: cubic-bezier(.2, .7, .2, 1);
+  --pm-dur: .7s;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --pm-paper: #0F1528;
+    --pm-sheet: #171F37;
+    --pm-carbon: #E7EAF3;
+    --pm-graphite: #A2A9BD;
+    --pm-rule: rgba(231, 234, 243, .14);
+    --pm-canary: #D7B53A;
+    --pm-canary-wash: #3A331C;
+    --pm-rose: #D07E97;
+    --pm-rose-wash: #3D2432;
+    --pm-stamp: #A894FF;
+    --pm-stamp-wash: #2A2450;
+    --pm-on-stamp: #0F1528;
+    --pm-danger: #F07A84;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --pm-paper: #0F1528;
+  --pm-sheet: #171F37;
+  --pm-carbon: #E7EAF3;
+  --pm-graphite: #A2A9BD;
+  --pm-rule: rgba(231, 234, 243, .14);
+  --pm-canary: #D7B53A;
+  --pm-canary-wash: #3A331C;
+  --pm-rose: #D07E97;
+  --pm-rose-wash: #3D2432;
+  --pm-stamp: #A894FF;
+  --pm-stamp-wash: #2A2450;
+  --pm-on-stamp: #0F1528;
+  --pm-danger: #F07A84;
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --pm-dur: 0s;
+  }
+}
