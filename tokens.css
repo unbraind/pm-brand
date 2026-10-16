@@ -34,10 +34,10 @@
   --pm-status-canceled-bg: transparent;
   --pm-status-canceled-border: var(--pm-rule);
 
-  --pm-font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-  --pm-font-caption: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-  --pm-font-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --pm-font-mono: "Martian Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --pm-font-display: "Archivo", "Archivo Fallback", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --pm-font-caption: "Archivo", "Archivo Fallback", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --pm-font-body: "Public Sans", "Public Sans Fallback", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --pm-font-mono: "Martian Mono", "Martian Mono Fallback", "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --pm-step--1: .82rem;
   --pm-step-0: 1rem;

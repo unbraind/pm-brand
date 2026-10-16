@@ -1,0 +1,18 @@
+id: pm-brand-mark
+title: "Generated mark, lockups and icons"
+description: ""
+type: Feature
+status: in_progress
+priority: 2
+tags: []
+created_at: "2026-10-16T22:30:15.958Z"
+updated_at: "2026-10-16T22:42:29.795Z"
+assignee: codex-agent
+claim_principal: codex-agent
+author: codex-agent
+parent: pm-brand-kit
+files[3]{path,scope}:
+  icons/favicon.svg,project
+  logo/mark.svg,project
+  scripts/marks.ts,project
+body: ""

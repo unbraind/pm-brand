@@ -9,13 +9,81 @@
   "license": "MIT",
   "type": "module",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./tokens.css": "./tokens.css",
+    "./fonts.css": "./fonts.css",
+    "./fonts/*": "./fonts/*",
+    "./logo/*": "./logo/*",
+    "./icons/*": "./icons/*",
+    "./CONTRACT.md": "./CONTRACT.md",
     "./package.json": "./package.json"
   },
   "files": [
+    "dist/",
     "tokens.css",
+    "fonts.css",
+    "fonts/",
+    "logo/",
+    "icons/",
     "CONTRACT.md",
     "README.md",
-    "LICENSE"
-  ]
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "devDependencies": {
+    "@babel/eslint-parser": "8.0.7",
+    "@babel/plugin-syntax-typescript": "8.0.3",
+    "@resvg/resvg-js": "2.6.2",
+    "@types/node": "26.6.5",
+    "@unbrained/pm-cli": "2026.10.15",
+    "c8": "12.0.0",
+    "eslint": "10.13.0",
+    "pm-changelog": "2026.10.12",
+    "pm-ops": "2026.10.14",
+    "typescript": "7.0.2"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build && pm merge install",
+    "prepack": "npm run build",
+    "fonts:build": "node scripts/fonts.ts && node scripts/font-paths.ts",
+    "assets:build": "node scripts/marks.ts",
+    "font-budget": "node scripts/font-budget.ts"
+  },
+  "docstringGate": {
+    "sources": [
+      "src",
+      "scripts"
+    ]
+  },
+  "coverageGate": {
+    "sources": [
+      "src"
+    ],
+    "tests": [
+      "test/*.test.ts"
+    ],
+    "thresholds": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "ignore": []
+  },
+  "peerDependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  },
+  "peerDependenciesMeta": {
+    "@resvg/resvg-js": {
+      "optional": true
+    }
+  }
 }

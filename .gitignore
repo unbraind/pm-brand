@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.cache/
+*.tgz
+.agents/pm/locks/
+.agents/pm/cache/
+
+# pm-cli:runtime-cache:start
+.agents/pm/runtime/
+.agents/pm/search/*
+.agents/pm/locks/
+.agents/pm/transactions/
+.agents/pm/checkpoints/
+!.agents/pm/search/eval-queries.json
+# pm-cli:runtime-cache:end
