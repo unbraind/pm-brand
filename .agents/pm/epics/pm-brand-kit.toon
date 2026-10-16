@@ -6,16 +6,19 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-16T23:10:33.959Z"
+updated_at: "2026-10-16T23:21:07.600Z"
 author: codex-agent
-comments[4]{created_at,author,text}:
+comments[6]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
   "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
   "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
   "2026-10-16T23:03:36.406Z",codex-agent,"Final implementation includes 44 tokens per theme, path-based image generators, optional native rendering, strict checks across source/scripts/tests, 100/100/100/100 source coverage, 46 intended packed files, and an Unreleased changelog via the existing pm-changelog no-pending-release option. No pm-changelog feature gap. Release workflow remains owner-gated and repository variables were not changed."
-files[3]{path,scope}:
+  "2026-10-16T23:17:33.049Z",codex-agent,"Node 22 CI passed all 13 tests and four 100% coverage dimensions, then exposed npm 10 running prepare during pack --ignore-scripts. Preparation now routes build and merge-driver output to stderr, preserving stdout as pack JSON. Node 26, Bun and CodeQL already passed the previous head; the npm 10 compatibility correction is being verified before final checks."
+  "2026-10-16T23:21:05.948Z",codex-agent,"npm 10.9.8 compatibility proof passed: restoring the previous prepare command reproduces non-JSON pack output; the corrected stderr-only preparation produces valid JSON with all 46 files. A real Node 22.23.1 npm release:check now passes all 13 tests, 100/100/100/100 coverage, and both packed consumers. Existing npm/Bun gates remain unchanged."
+files[4]{path,scope}:
   .github/workflows/ci.yml,project
   .github/workflows/release.yml,project
+  scripts/prepare.ts,project
   scripts/revert-proof.ts,project
 docs[2]{path,scope}:
   CONTRACT.md,project

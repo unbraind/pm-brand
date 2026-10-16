@@ -68,7 +68,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build && pm merge install",
+    "prepare": "node scripts/prepare.ts",
     "prepack": "npm run build",
     "fonts:build": "node scripts/fonts.ts && node scripts/font-paths.ts",
     "assets:build": "node scripts/marks.ts",
