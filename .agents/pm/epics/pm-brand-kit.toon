@@ -6,7 +6,7 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-16T23:03:41.999Z"
+updated_at: "2026-10-16T23:10:33.959Z"
 author: codex-agent
 comments[4]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."

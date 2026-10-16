@@ -6,12 +6,13 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:15.958Z"
-updated_at: "2026-10-16T23:04:05.094Z"
+updated_at: "2026-10-16T23:10:29.459Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[2]{created_at,author,text}:
+comments[3]{created_at,author,text}:
   "2026-10-16T22:52:48.600Z",codex-agent,"Asset tests verify all path-only mark/lockup variants, five PNG dimensions, and every pixel outside the maskable safe circle. Removing the back sheet from the single geometry function makes asset assertions fail; restoring the function regenerates the exact original outputs."
   "2026-10-16T23:00:54.778Z",codex-agent,"Final visual correction: monochrome rear outlines now use occlusion masks derived from the same sheet geometry, so they do not cross the top sheet. A dedicated pixel test checks occlusion and inherited currentColor. Reverting only the mark function to Milestone 1 and rebuilding assets makes that assertion fail. All originals restored."
+  "2026-10-16T23:10:13.646Z",codex-agent,"Clean-checkout correction: the generator now imports tracked src/font-data.ts instead of reading an untracked font-build cache. The asset gate creates a fresh directory with only tracked generator/data inputs and verifies all 16 outputs byte-for-byte. The previous generator fails this gate with missing-cache evidence; the corrected generator passes."
 files[3]{path,scope}:
   icons/favicon.svg,project
   logo/mark.svg,project

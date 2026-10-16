@@ -1,12 +1,13 @@
 /** Generate all mark variants, lockups and raster icons from shared sheet geometry. */
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { fontData } from '../src/font-data.ts';
 import { Resvg } from '@resvg/resvg-js';
 /** One font glyph, measured in the upstream font's units. */
 interface Glyph { d: string; advance: number }
 /** A static instance's outline map. */
 interface Face { em: number; glyphs: Record<string, Glyph> }
 /** Pinned Archivo geometry produced by scripts/font-paths.ts. */
-const faces = JSON.parse(readFileSync('.cache/paths.json', 'utf8')) as Record<string, Face>;
+const faces: Readonly<Record<string, Face>> = fontData;
 /** Build a text run entirely from paths, preserving advances and baselines. */
 function textPaths(text: string, role: string, x: number, y: number, size: number): string {
   const face = faces[role];
