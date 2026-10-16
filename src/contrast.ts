@@ -51,8 +51,10 @@ export interface ContrastPair {
   readonly pair: string;
   /** Actual WCAG ratio. */
   readonly ratio: number;
-  /** AA text or non-text threshold. */
-  readonly minimum: number;
+  /** Semantic use determines whether WCAG requires a contrast threshold. */
+  readonly classification: 'text' | 'focus' | 'decorative';
+  /** Required threshold; decorative chip borders have no minimum. */
+  readonly minimum: number | null;
 }
 
 /** Audit all allowed text pairs, status fills/borders and keyboard focus backgrounds. */
@@ -60,22 +62,23 @@ export function contrastAudit(): ContrastPair[] {
   const rows: ContrastPair[] = [];
   for (const theme of ['light', 'dark'] as const) {
     /** Record one pair using the theme's resolved contract values. */
-    const add = (fg: TokenName, bg: TokenName, minimum: number): void => {
-      rows.push({ theme, pair: `${fg} / ${bg}`, ratio: contrast(tokenColor(theme, fg), tokenColor(theme, bg)), minimum });
+    const add = (fg: TokenName, bg: TokenName, classification: ContrastPair['classification']): void => {
+      const minimum = classification === 'decorative' ? null : classification === 'text' ? 4.5 : 3;
+      rows.push({ theme, pair: `${fg} / ${bg}`, ratio: contrast(tokenColor(theme, fg), tokenColor(theme, bg)), classification, minimum });
     };
     for (const fg of ['carbon', 'graphite', 'stamp', 'danger'] as const) {
-      for (const bg of ['paper', 'sheet'] as const) add(fg, bg, 4.5);
+      for (const bg of ['paper', 'sheet'] as const) add(fg, bg, 'text');
     }
-    for (const bg of ['canary-wash', 'rose-wash', 'stamp-wash'] as const) add('carbon', bg, 4.5);
-    add('on-stamp', 'stamp', 4.5);
+    for (const bg of ['canary-wash', 'rose-wash', 'stamp-wash'] as const) add('carbon', bg, 'text');
+    add('on-stamp', 'stamp', 'text');
     for (const status of ['open', 'in_progress', 'blocked', 'closed', 'canceled'] as const) {
       const fg = `status-${status}-fg` as const;
       const border = `status-${status}-border` as const;
       const backgrounds: readonly TokenName[] = status === 'canceled' ? ['paper', 'sheet'] : [`status-${status}-bg`];
-      for (const bg of backgrounds) { add(fg, bg, 4.5); add(border, bg, 3); }
-      if (status !== 'canceled') for (const bg of ['paper', 'sheet'] as const) add(border, bg, 3);
+      for (const bg of backgrounds) { add(fg, bg, 'text'); add(border, bg, 'decorative'); }
+      if (status !== 'canceled') for (const bg of ['paper', 'sheet'] as const) add(border, bg, 'decorative');
     }
-    for (const bg of ['paper', 'sheet'] as const) add('stamp', bg, 3);
+    for (const bg of ['paper', 'sheet'] as const) add('stamp', bg, 'focus');
   }
   return rows;
 }

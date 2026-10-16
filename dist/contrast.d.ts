@@ -19,8 +19,10 @@ export interface ContrastPair {
     readonly pair: string;
     /** Actual WCAG ratio. */
     readonly ratio: number;
-    /** AA text or non-text threshold. */
-    readonly minimum: number;
+    /** Semantic use determines whether WCAG requires a contrast threshold. */
+    readonly classification: 'text' | 'focus' | 'decorative';
+    /** Required threshold; decorative chip borders have no minimum. */
+    readonly minimum: number | null;
 }
 /** Audit all allowed text pairs, status fills/borders and keyboard focus backgrounds. */
 export declare function contrastAudit(): ContrastPair[];

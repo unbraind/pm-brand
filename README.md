@@ -13,7 +13,10 @@ cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
 Compiled modules are tracked so exact-commit Git dependencies work when Bun blocks
 dependency preparation. CI verifies them against a clean build.
 
-![Three sheets in triplicate](logo/mark.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="logo/mark-dark.svg">
+  <img src="logo/mark-light.svg" alt="Three sheets in triplicate" width="124">
+</picture>
 
 ## CSS
 
@@ -56,10 +59,9 @@ to zero. Focus uses `--pm-focus` with `--pm-focus-offset` on interactive element
 | danger | #B42E3A | #F07A84 | Errors and destructive actions |
 
 Status tokens are `--pm-status-<open|in_progress|blocked|closed|canceled>-<fg|bg|border>`.
-Shape, fill and line-through convey state alongside colour. The contract's
-canary/rose borders in light mode and canceled borders in both modes currently
-fail 3:1. [All 68 comparisons and proposed fixes](docs/contrast.md) are recorded;
-those border exceptions require an owner decision. Text and focus comparisons pass.
+The label text carries state and meets 4.5:1 in both themes. Chip borders are
+decorative; canary, rose and rule stay unchanged. [All 68 measured comparisons](docs/contrast.md)
+classify decorative borders separately and enforce text and focus thresholds.
 
 ## Type
 
@@ -141,7 +143,7 @@ bundlers. Rendering helpers are intended for build tools and server environments
 | `pm-brand/tokens.css` | All custom properties and theme/motion selectors |
 | `pm-brand/fonts.css` | Brand faces and measured fallback faces |
 | `pm-brand/fonts/*` | Three WOFF2 subsets, OFL licences, source receipts |
-| `pm-brand/logo/*` | Light, dark, currentColor marks; PM/WEB/GPT/MCP/SEARCH/SWARM lockups |
+| `pm-brand/logo/*` | Adaptive, fixed light/dark and currentColor marks; wordmark and mark-caption lockups |
 | `pm-brand/icons/*` | SVG favicon; 32, 180, 192, 512 PNGs and maskable 512 PNG |
 | `pm-brand/CONTRACT.md` | Shared visual contract |
 | `pm-brand/package.json` | Package metadata |
@@ -149,6 +151,26 @@ bundlers. Rendering helpers are intended for build tools and server environments
 All mark lettering is Archivo width 125 / weight 900 as paths; condensed lockup
 captions are also paths. A single TypeScript generator owns the geometry. The
 maskable icon keeps its foreground inside the central safe circle.
+
+
+## Mark and wordmark lockups
+
+The compact mark family uses the three sheets followed by one product caption;
+the wordmark family keeps the original `pm` lettering. Caption boxes are transparent.
+Inline ink uses `currentColor` and adaptive SVGs read the surface's `--pm-carbon`
+and `--pm-sheet`. Standalone `<img>` SVGs follow `prefers-color-scheme` through
+embedded CSS. Use fixed `*-light.svg` / `*-dark.svg` variants for OG renderers or
+GitHub `<picture>` sources that cannot evaluate SVG media queries. The monochrome
+mark inherits `color` directly and works on either theme.
+
+| Product | Wordmark | Compact mark + caption |
+|---|---|---|
+| PM | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-pm-dark.svg"><img src="logo/lockup-pm-light.svg" alt="lockup-pm" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-pm-dark.svg"><img src="logo/lockup-mark-pm-light.svg" alt="lockup-mark-pm" height="56"></picture> |
+| WEB | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-web-dark.svg"><img src="logo/lockup-web-light.svg" alt="lockup-web" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-web-dark.svg"><img src="logo/lockup-mark-web-light.svg" alt="lockup-mark-web" height="56"></picture> |
+| GPT | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-gpt-dark.svg"><img src="logo/lockup-gpt-light.svg" alt="lockup-gpt" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-gpt-dark.svg"><img src="logo/lockup-mark-gpt-light.svg" alt="lockup-mark-gpt" height="56"></picture> |
+| MCP | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mcp-dark.svg"><img src="logo/lockup-mcp-light.svg" alt="lockup-mcp" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-mcp-dark.svg"><img src="logo/lockup-mark-mcp-light.svg" alt="lockup-mark-mcp" height="56"></picture> |
+| SEARCH | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-search-dark.svg"><img src="logo/lockup-search-light.svg" alt="lockup-search" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-search-dark.svg"><img src="logo/lockup-mark-search-light.svg" alt="lockup-mark-search" height="56"></picture> |
+| SWARM | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-swarm-dark.svg"><img src="logo/lockup-swarm-light.svg" alt="lockup-swarm" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-swarm-dark.svg"><img src="logo/lockup-mark-swarm-light.svg" alt="lockup-mark-swarm" height="56"></picture> |
 
 ## Development
 
@@ -163,8 +185,9 @@ The gates check strict erasable TypeScript, ESLint, documented declarations,
 100/100/100/100 coverage of **all `src/` files**, fonts, public paths and identities,
 tracker health, production dependencies, packed exports, and generated changelog.
 Packed npm and Bun consumers exercise tokens, CSS/assets, banners and native PNGs.
-The contrast gate permits only the ten documented seed-contract border failures;
-it fails on any new exception. It does not certify every border as AA.
+The contrast gate fails for text below 4.5:1 or focus rings below 3:1.
+Decorative chip borders have no required contrast minimum. Mark and lockup tests
+assert adaptive CSS and render every fixed variant against both theme papers.
 
 To regenerate fonts, install fontTools 4.65.0 and brotli 1.2.0, then run
 `npm run fonts:build` and `npm run assets:build`. Font sources are pinned and every

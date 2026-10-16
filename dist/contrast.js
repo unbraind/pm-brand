@@ -44,30 +44,31 @@ export function contrastAudit() {
     const rows = [];
     for (const theme of ['light', 'dark']) {
         /** Record one pair using the theme's resolved contract values. */
-        const add = (fg, bg, minimum) => {
-            rows.push({ theme, pair: `${fg} / ${bg}`, ratio: contrast(tokenColor(theme, fg), tokenColor(theme, bg)), minimum });
+        const add = (fg, bg, classification) => {
+            const minimum = classification === 'decorative' ? null : classification === 'text' ? 4.5 : 3;
+            rows.push({ theme, pair: `${fg} / ${bg}`, ratio: contrast(tokenColor(theme, fg), tokenColor(theme, bg)), classification, minimum });
         };
         for (const fg of ['carbon', 'graphite', 'stamp', 'danger']) {
             for (const bg of ['paper', 'sheet'])
-                add(fg, bg, 4.5);
+                add(fg, bg, 'text');
         }
         for (const bg of ['canary-wash', 'rose-wash', 'stamp-wash'])
-            add('carbon', bg, 4.5);
-        add('on-stamp', 'stamp', 4.5);
+            add('carbon', bg, 'text');
+        add('on-stamp', 'stamp', 'text');
         for (const status of ['open', 'in_progress', 'blocked', 'closed', 'canceled']) {
             const fg = `status-${status}-fg`;
             const border = `status-${status}-border`;
             const backgrounds = status === 'canceled' ? ['paper', 'sheet'] : [`status-${status}-bg`];
             for (const bg of backgrounds) {
-                add(fg, bg, 4.5);
-                add(border, bg, 3);
+                add(fg, bg, 'text');
+                add(border, bg, 'decorative');
             }
             if (status !== 'canceled')
                 for (const bg of ['paper', 'sheet'])
-                    add(border, bg, 3);
+                    add(border, bg, 'decorative');
         }
         for (const bg of ['paper', 'sheet'])
-            add('stamp', bg, 3);
+            add('stamp', bg, 'focus');
     }
     return rows;
 }

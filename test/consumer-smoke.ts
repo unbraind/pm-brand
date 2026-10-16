@@ -12,5 +12,5 @@ assert.match(banner({ name: 'pm-web', tagline: 'One identity' }), /width="1280"/
 const png = Buffer.from(renderPng(ogImage({ title: 'One identity', eyebrow: 'Triplicate', product: 'pm-web', theme: 'dark' })));
 assert.equal(png.readUInt32BE(16), 1200);
 assert.equal(png.readUInt32BE(20), 630);
-for (const asset of ['tokens.css', 'fonts.css', 'fonts/archivo-latin.woff2', 'fonts/OFL.txt', 'logo/mark.svg', 'icons/icon-512.png', 'CONTRACT.md', 'package.json']) assert.ok(readFileSync(new URL(import.meta.resolve(`pm-brand/${asset}`))).length > 0);
+for (const asset of ['tokens.css', 'fonts.css', 'fonts/archivo-latin.woff2', 'fonts/OFL.txt', 'logo/mark.svg', 'logo/mark-light.svg', 'logo/mark-dark.svg', 'logo/lockup-search.svg', 'logo/lockup-search-light.svg', 'logo/lockup-search-dark.svg', 'logo/lockup-mark-search.svg', 'logo/lockup-mark-search-light.svg', 'logo/lockup-mark-search-dark.svg', 'icons/icon-512.png', 'CONTRACT.md', 'package.json']) assert.ok(readFileSync(new URL(import.meta.resolve(`pm-brand/${asset}`))).length > 0);
 console.log('Public exports, relative fonts, portable SVG and native PNG accepted');
