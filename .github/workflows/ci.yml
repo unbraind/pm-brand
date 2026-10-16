@@ -32,3 +32,5 @@ jobs:
         run: bun run release:check
       - if: matrix.node == 26
         run: bun test ./test/bun.acceptance.ts
+      - if: matrix.node == 26
+        run: npm run test:git

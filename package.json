@@ -86,9 +86,11 @@
     "changelog:full": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded",
     "changelog:check": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded --check",
     "release:notes": "pm-changelog --pm-root .agents/pm --mode replace --stdout --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded",
-    "release:check": "npm run identity:check && pm health --strict-exit --require-merge-drivers && npm run typecheck && npm run lint && npm run build && npm run docstring && npm run font-budget && npm run assets:check && npm run coverage && npm run audit:prod && npm run pack:dry-run && npm run changelog:check && npm run test:install",
+    "release:check": "npm run identity:check && pm health --strict-exit --require-merge-drivers && npm run typecheck && npm run lint && npm run build:check && npm run build && npm run docstring && npm run font-budget && npm run assets:check && npm run coverage && npm run audit:prod && npm run pack:dry-run && npm run changelog:check && npm run test:install",
     "test:install": "node scripts/acceptance.ts",
-    "assets:check": "node scripts/assets-check.ts"
+    "assets:check": "node scripts/assets-check.ts",
+    "build:check": "node scripts/dist-check.ts",
+    "test:git": "node scripts/git-acceptance.ts"
   },
   "docstringGate": {
     "sources": [

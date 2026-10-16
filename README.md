@@ -10,6 +10,9 @@ cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
 { "dependencies": { "pm-brand": "github:unbraind/pm-brand#<40-character-commit>" } }
 ```
 
+Compiled modules are tracked so exact-commit Git dependencies work when Bun blocks
+dependency preparation. CI verifies them against a clean build.
+
 ![Three sheets in triplicate](logo/mark.svg)
 
 ## CSS
