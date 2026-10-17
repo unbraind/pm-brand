@@ -6,9 +6,9 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-17T01:36:28.689Z"
+updated_at: "2026-10-17T02:36:07.670Z"
 author: codex-agent
-comments[22]{created_at,author,text}:
+comments[25]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
   "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
   "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
@@ -31,7 +31,10 @@ comments[22]{created_at,author,text}:
   "2026-10-17T01:29:53.062Z",codex-agent,"Round 3: read both unresolved PR 1 threads in full. Existing-tag mismatch test is valid; cover refusal without tag or release creation. Reuse pm-brand-images for text bounds and performance. Run both release gates, commit explicit paths, push, reply in both threads without resolving, then wait for checks."
   "2026-10-17T01:33:34.250Z",codex-agent,"Candidate boundary review completed: banner and OG fields are capped before XML checks and metadata; title wrapping is bounded; uppercase label expansion passes through the capped ellipsize helper. Existing image snapshots remain unchanged. Focused checks passed 11/11 tests, no skips; typecheck, lint and docstrings passed. Added six tag/main combinations and proved removing tag-commit equality fails. An exploratory coverage run overlapped a temporary mutation and was discarded; all final gates run sequentially after restoration."
   "2026-10-17T01:36:22.995Z",codex-agent,"Round 3 complete locally: both release gates passed, 25/25 tests each, zero skips, 100/100/100/100 src coverage. Typecheck, lint, docstrings, privacy/identity, tracker/history, build/asset parity, font budget, audit and packed npm/Bun consumers passed. Tracker evidence links include text tests and the four-mutation revert proof. Release remains held. Claims released without closing items; next actions are explicit-path commit, push, individual thread replies and final-head check wait."
-files[17]{path,scope}:
+  "2026-10-17T02:30:13.972Z",codex-agent,"Round 4: confirmed the unresolved annotated-tag finding on PR #1 at head c64fb9d. Plan: resolve tag objects to commits with a bounded loop, retain mismatch refusal, drive the workflow shell step with a gh executable stub on PATH, prove regression failures with only workflow behavior reverted, then run npm and Bun release gates."
+  "2026-10-17T02:31:44.207Z",codex-agent,"Round 4 implementation: dereference up to 16 tag objects using the object type and SHA at each hop, require a nonempty commit target, and retain exact verified-commit comparison. PATH-based gh stub covers 17 scenarios with both tested and advanced main tips; focused suite passed 18/18 without skips. Behavioral revert proof caught 4/4 independent mutations: baseline step, removed peeling, removed type guard, and increased depth bound. Workflow restored after every probe."
+  "2026-10-17T02:36:03.795Z",codex-agent,"Round 4 validation complete: npm run release:check and bun run release:check each passed under isolated HOME and clean Git configuration: 41/41 tests, zero skips/cancellations/todos, 100/100/100/100 across all nine source modules. Both gates passed typecheck, lint, compiled and asset parity, docstrings, font budget, production audit, packed npm/Bun consumers and changelog consistency. Linked pm runs passed node --test test/workflows.test.ts (18/18) and node scripts/tag-revert-proof.ts c64fb9da7937c2d239f67357cab325f6a9cff29a (4/4 mutations caught). No pm CLI defects encountered. Releasing the claim without closing the item, then committing, pushing, replying to the unresolved review thread and waiting for exact-head checks. Release remains held."
+files[18]{path,scope}:
   .github/workflows/ci.yml,project
   .github/workflows/release.yml,project
   scripts/contrast-report.ts,project
@@ -42,6 +45,7 @@ files[17]{path,scope}:
   scripts/prepare.ts,project
   scripts/previews.ts,project
   scripts/revert-proof.ts,project
+  scripts/tag-revert-proof.ts,project
   scripts/text-revert-proof.ts,project
   src/contrast.ts,project
   test/consumer-smoke.ts,project
@@ -49,7 +53,7 @@ files[17]{path,scope}:
   test/identity.test.ts,project
   test/previews.test.ts,project
   test/workflows.test.ts,project
-tests[5]:
+tests[7]:
   - command: node scripts/dist-check.ts
     scope: project
     provenance:
@@ -88,9 +92,30 @@ tests[5]:
       created_at: "2026-10-17T00:34:57.875Z"
       source_kind: local_mutation
       source_ref: kit/fonts-mark-tokens
-docs[4]{path,scope}:
-  CONTRACT.md,project
-  docs/contrast.md,project
-  "https://github.com/unbraind/pm-brand/pull/1",project
-  README.md,project
+  - command: node --test test/workflows.test.ts
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-17T02:31:38.646Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+  - command: node scripts/tag-revert-proof.ts c64fb9da7937c2d239f67357cab325f6a9cff29a
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-17T02:31:40.736Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+docs[5]:
+  - path: CONTRACT.md
+    scope: project
+  - path: docs/contrast.md
+    scope: project
+  - path: "https://github.com/unbraind/pm-brand/pull/1"
+    scope: project
+  - path: README.md
+    scope: project
+  - path: scripts/tag-revert-proof.ts
+    scope: project
+    note: Executable round-four behavioral revert evidence
 body: ""

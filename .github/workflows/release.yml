@@ -108,12 +108,23 @@ jobs:
         run: |
           set -euo pipefail
           tag="v$VERSION"
-          existing="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha 2>/dev/null || true)"
+          existing_ref="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object | [.type, .sha] | @tsv' 2>/dev/null || true)"
           if [[ "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" != "$VERIFIED_COMMIT" ]]; then
             echo 'Main advanced after publication; refusing tag/release.' >&2
             exit 1
           fi
-          if [[ -n "$existing" ]]; then
+          if [[ -n "$existing_ref" ]]; then
+            IFS=$'\t' read -r existing_type existing <<< "$existing_ref"
+            # Peel at most 16 tag objects, including nested annotated tags.
+            for ((depth = 0; depth < 16; depth++)); do
+              [[ "$existing_type" == tag ]] || break
+              existing_ref="$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$existing" --jq '.object | [.type, .sha] | @tsv')"
+              IFS=$'\t' read -r existing_type existing <<< "$existing_ref"
+            done
+            if [[ "$existing_type" != commit || -z "$existing" ]]; then
+              echo 'Existing tag does not resolve to a commit within 16 tag objects; refusing tag/release.' >&2
+              exit 1
+            fi
             [[ "$existing" == "$VERIFIED_COMMIT" ]]
           else
             gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" -f "ref=refs/tags/$tag" -f "sha=$VERIFIED_COMMIT"
