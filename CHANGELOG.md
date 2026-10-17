@@ -4,9 +4,9 @@
 
 ### Added
 
+- README banner and OG generators ([pm-brand-images](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-images.toon))
 - Contrast and AA quality gates ([pm-brand-contrast](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-contrast.toon))
 - Generated mark, lockups and icons ([pm-brand-mark](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-mark.toon))
-- README banner and OG generators ([pm-brand-images](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-images.toon))
 - Typed tokens with CSS parity ([pm-brand-tokens](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-tokens.toon))
 - Self-hosted fonts and measured fallbacks ([pm-brand-fonts](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-fonts.toon))
 

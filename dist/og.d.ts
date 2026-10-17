@@ -1,11 +1,11 @@
 import type { Theme } from './tokens.js';
 /** Plain-text content for a 1200 × 630 Open Graph card. */
 export interface OgOptions {
-    /** Primary heading; measured wrapping is capped at three lines. */
+    /** Heading capped at 512 code points at grapheme boundaries, wrapping to at most three lines. */
     readonly title: string;
-    /** Condensed label above the heading. */
+    /** Label capped at 512 code points at grapheme boundaries, also after uppercase conversion. */
     readonly eyebrow: string;
-    /** Product or package name beside the mark. */
+    /** Product name capped at 512 code points without splitting graphemes. */
     readonly product: string;
     /** Explicit palette; defaults to light. */
     readonly theme?: Theme;

@@ -1,8 +1,10 @@
 import { tokens } from './tokens.js';
-import { ellipsize, escapeXml, textPaths } from './text.js';
+import { boundText, ellipsize, escapeXml, textPaths } from './text.js';
 import { imageSvg, imageMark } from './image.js';
 /** Generate a portable, accessible README banner with no external resources. */
 export function banner({ name, tagline, theme = 'light' }) {
+    name = boundText(name);
+    tagline = boundText(tagline);
     escapeXml(name);
     escapeXml(tagline);
     const title = ellipsize(name, 'display', 64, 880);

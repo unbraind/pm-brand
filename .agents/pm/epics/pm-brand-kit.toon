@@ -6,9 +6,9 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-17T00:46:41.824Z"
+updated_at: "2026-10-17T01:36:28.689Z"
 author: codex-agent
-comments[19]{created_at,author,text}:
+comments[22]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
   "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
   "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
@@ -28,7 +28,10 @@ comments[19]{created_at,author,text}:
   "2026-10-17T00:42:50.149Z",codex-agent,"Exact-head CodeQL reported polynomial backtracking in the newly expanded alpha regex (code-scanning alert 1). Reopened the claim to remove overlapping digit repetitions, preserving all supported alpha forms. Added a bounded child-process regression for a 200000-digit malformed alpha. CodeRabbit independently confirmed and resolved all eight original threads after the replies; no resolution API calls were made. Re-run the parser reverts and both full release gates before the follow-up push."
   "2026-10-17T00:43:29.034Z",codex-agent,"Parser follow-up: disjoint integer/decimal and leading-dot alternatives remove overlapping digit quantifiers. node --test test/contrast.test.ts passes 4/4; malformed 200000-digit alpha rejects in a bounded child process (about 124 ms observed). Fix-only revert to ea0ed7f times out and fails exactly the new backtracking regression (3/4 pass); revert to the pre-round-two parser fails exactly decimal acceptance (3/4 pass). Both probes rebuilt dist, then restored the final parser. The first pushed head passed Node 22/26 release checks, native Bun and Git consumers; CodeQL failed solely on the now-corrected alpha regex. Both full gates are being repeated for the final implementation."
   "2026-10-17T00:46:38.440Z",codex-agent,"Final parser implementation passed both repeated pinned-PM release gates with clean Git identity/configuration: npm run release:check and bun run release:check each passed 21/21 tests, zero failures/skips/cancellations/todos, and 100/100/100/100 coverage across all nine src modules. Both packed npm and Bun consumers passed in each gate. Strict health/history/merge drivers, typecheck, lint, documentation, compiled output, assets, font budget, audit and changelog passed. The added bounded malformed-alpha regression passed in both gates; reverting only that correction was proven to fail. Publishing the follow-up commit and then checking exact-head CI/CodeQL; publication remains held, no items closed."
-files[16]{path,scope}:
+  "2026-10-17T01:29:53.062Z",codex-agent,"Round 3: read both unresolved PR 1 threads in full. Existing-tag mismatch test is valid; cover refusal without tag or release creation. Reuse pm-brand-images for text bounds and performance. Run both release gates, commit explicit paths, push, reply in both threads without resolving, then wait for checks."
+  "2026-10-17T01:33:34.250Z",codex-agent,"Candidate boundary review completed: banner and OG fields are capped before XML checks and metadata; title wrapping is bounded; uppercase label expansion passes through the capped ellipsize helper. Existing image snapshots remain unchanged. Focused checks passed 11/11 tests, no skips; typecheck, lint and docstrings passed. Added six tag/main combinations and proved removing tag-commit equality fails. An exploratory coverage run overlapped a temporary mutation and was discarded; all final gates run sequentially after restoration."
+  "2026-10-17T01:36:22.995Z",codex-agent,"Round 3 complete locally: both release gates passed, 25/25 tests each, zero skips, 100/100/100/100 src coverage. Typecheck, lint, docstrings, privacy/identity, tracker/history, build/asset parity, font budget, audit and packed npm/Bun consumers passed. Tracker evidence links include text tests and the four-mutation revert proof. Release remains held. Claims released without closing items; next actions are explicit-path commit, push, individual thread replies and final-head check wait."
+files[17]{path,scope}:
   .github/workflows/ci.yml,project
   .github/workflows/release.yml,project
   scripts/contrast-report.ts,project
@@ -39,6 +42,7 @@ files[16]{path,scope}:
   scripts/prepare.ts,project
   scripts/previews.ts,project
   scripts/revert-proof.ts,project
+  scripts/text-revert-proof.ts,project
   src/contrast.ts,project
   test/consumer-smoke.ts,project
   test/contrast.test.ts,project

@@ -2,16 +2,16 @@
 import { Resvg } from '@resvg/resvg-js';
 import { tokens } from './tokens.js';
 import type { Theme } from './tokens.js';
-import { ellipsize, escapeXml, textPaths, wrapTitle } from './text.js';
+import { boundText, ellipsize, escapeXml, textPaths, wrapTitle } from './text.js';
 import { imageSvg, imageMark } from './image.js';
 
 /** Plain-text content for a 1200 × 630 Open Graph card. */
 export interface OgOptions {
-  /** Primary heading; measured wrapping is capped at three lines. */
+  /** Heading capped at 512 code points at grapheme boundaries, wrapping to at most three lines. */
   readonly title: string;
-  /** Condensed label above the heading. */
+  /** Label capped at 512 code points at grapheme boundaries, also after uppercase conversion. */
   readonly eyebrow: string;
-  /** Product or package name beside the mark. */
+  /** Product name capped at 512 code points without splitting graphemes. */
   readonly product: string;
   /** Explicit palette; defaults to light. */
   readonly theme?: Theme;
@@ -19,6 +19,9 @@ export interface OgOptions {
 
 /** Generate a portable OG image; user text is validated and XML escaped in metadata. */
 export function ogImage({ title, eyebrow, product, theme = 'light' }: OgOptions): string {
+  title = boundText(title);
+  eyebrow = boundText(eyebrow);
+  product = boundText(product);
   for (const text of [title, eyebrow, product]) escapeXml(text);
   const lines = wrapTitle(title, 1040, 64, 3);
   const label = ellipsize(eyebrow.toUpperCase(), 'caption', 24, 1010);

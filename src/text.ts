@@ -7,6 +7,30 @@ interface Glyph { readonly d: string; readonly advance: number }
 /** A single static instance of a brand font. */
 interface Face { readonly em: number; readonly glyphs: Readonly<Record<string, Glyph>> }
 
+/** Maximum code points per image field, keeping only complete graphemes. */
+export const MAX_TEXT_CODE_POINTS = 512;
+/** Unicode grapheme boundaries shared by input bounds and measured truncation. */
+const graphemes = new Intl.Segmenter('en', { granularity: 'grapheme' });
+
+/** Bound work before validation or measurement, with one code point of boundary lookahead. */
+export function boundText(text: string): string {
+  const points: string[] = [];
+  for (const point of text) {
+    points.push(point);
+    if (points.length > MAX_TEXT_CODE_POINTS) break;
+  }
+  const window = points.join('');
+  if (points.length <= MAX_TEXT_CODE_POINTS) return window;
+  let end = 0;
+  let count = 0;
+  for (const { segment, index } of graphemes.segment(window)) {
+    count += [...segment].length;
+    if (count > MAX_TEXT_CODE_POINTS) break;
+    end = index + segment.length;
+  }
+  return window.slice(0, end);
+}
+
 /** Validate XML text and escape every syntax-bearing character before interpolation. */
 export function escapeXml(value: string): string {
   if (/[\u0000-\u001f\u007f-\u009f\ufffe\uffff]|[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/u.test(value)) throw new TypeError('Text contains XML control characters');
@@ -18,10 +42,15 @@ function glyphFor(face: Face, char: string): Glyph {
   return face.glyphs[char] ?? face.glyphs['?'];
 }
 
-/** Measure the same advances that textPaths uses, in SVG pixels. */
-export function textWidth(text: string, role: FontRole, size: number): number {
+/** Measure one glyph; injectable into layout helpers for deterministic work budgets. */
+export function glyphAdvance(char: string, role: FontRole, size: number): number {
   const face: Face = fontData[role];
-  return [...text].reduce((width, char) => width + glyphFor(face, char).advance * size / face.em, 0);
+  return glyphFor(face, char).advance * size / face.em;
+}
+
+/** Measure the same advances that textPaths uses, in SVG pixels. */
+export function textWidth(text: string, role: FontRole, size: number, measure = glyphAdvance): number {
+  return [...text].reduce((width, char) => width + measure(char, role, size), 0);
 }
 
 /** Draw a complete run as paths; no fonts, platform text shaping or network requests are needed. */
@@ -37,17 +66,29 @@ export function textPaths(text: string, role: FontRole, x: number, y: number, si
   }).join('');
 }
 
-/** Fit one line by Unicode code point, adding an ellipsis when necessary. */
-export function ellipsize(text: string, role: FontRole, size: number, width: number): string {
+/** Fit bounded text in linear time using cumulative advances at complete grapheme boundaries. */
+export function ellipsize(text: string, role: FontRole, size: number, width: number, measure = glyphAdvance): string {
+  text = boundText(text);
   escapeXml(text);
-  if (textWidth(text, role, size) <= width) return text;
-  const chars = [...text];
-  while (chars.length > 0 && textWidth(`${chars.join('')}…`, role, size) > width) chars.pop();
-  return `${chars.join('').trimEnd()}…`;
+  const prefixes: { end: number; width: number }[] = [];
+  let advance = 0;
+  for (const { segment, index } of graphemes.segment(text)) {
+    for (const char of segment) advance += measure(char, role, size);
+    prefixes.push({ end: index + segment.length, width: advance });
+  }
+  if (advance <= width) return text;
+  const ellipsis = measure('…', role, size);
+  let end = 0;
+  for (const prefix of prefixes) {
+    if (prefix.width + ellipsis > width) break;
+    end = prefix.end;
+  }
+  return `${text.slice(0, end).trimEnd()}…`;
 }
 
 /** Wrap whole words to a measured width, then ellipsize excess content on the final line. */
 export function wrapTitle(text: string, width: number, size: number, maxLines: number): string[] {
+  text = boundText(text);
   escapeXml(text);
   const words = text.trim().split(/\s+/u);
   const lines: string[] = [];

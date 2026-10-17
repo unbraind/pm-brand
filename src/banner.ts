@@ -1,14 +1,14 @@
 /** README banner generator, using path outlines from the brand fonts. */
 import type { Theme } from './tokens.js';
 import { tokens } from './tokens.js';
-import { ellipsize, escapeXml, textPaths } from './text.js';
+import { boundText, ellipsize, escapeXml, textPaths } from './text.js';
 import { imageSvg, imageMark } from './image.js';
 
 /** Content accepted by the 1280 × 320 README banner. */
 export interface BannerOptions {
-  /** Lowercase package name, such as pm-web. */
+  /** Lowercase package name, such as pm-web; capped at 512 code points without splitting graphemes. */
   readonly name: string;
-  /** Plain-language package description. */
+  /** Plain-language description; capped at 512 code points without splitting graphemes. */
   readonly tagline: string;
   /** Explicit palette; defaults to light. */
   readonly theme?: Theme;
@@ -16,6 +16,8 @@ export interface BannerOptions {
 
 /** Generate a portable, accessible README banner with no external resources. */
 export function banner({ name, tagline, theme = 'light' }: BannerOptions): string {
+  name = boundText(name);
+  tagline = boundText(tagline);
   escapeXml(name);
   escapeXml(tagline);
   const title = ellipsize(name, 'display', 64, 880);

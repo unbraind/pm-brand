@@ -125,7 +125,16 @@ Banners are 1280×320; OG cards are 1200×630. The generators use pinned Archivo
 and Public Sans glyph paths, so their SVGs need no external font or platform text
 renderer. Names and taglines ellipsize; OG titles wrap to at most three measured
 lines. XML syntax is escaped, controls are rejected, and unsupported characters
-render as a question mark while accessible metadata retains the original text.
+render as a question mark while accessible metadata retains the bounded text.
+
+Every text field (`name`, `tagline`, `title`, `eyebrow`, `product`) is capped at
+512 Unicode code points before validation, measurement, or metadata generation.
+Only complete graphemes are retained: a combining sequence or emoji ZWJ sequence
+crossing the cap is dropped in full. The cap reads at most 513 code points,
+including boundary lookahead, even for a single enormous combining sequence.
+Discarded content is neither rendered nor validated. Uppercase OG labels are
+capped again after conversion. Width truncation uses cumulative glyph advances
+in linear time and adds an ellipsis only at a complete grapheme boundary.
 
 `pm-brand/banner` works without native dependencies. `pm-brand/og` and its
 `renderPng` require the optional peer `@resvg/resvg-js` (`npm install @resvg/resvg-js`).
@@ -194,6 +203,9 @@ families use the fixed light and dark SVGs on their matching paper colors.
 Run `node scripts/revert-proof.ts <baseline-ref>` to prove behavioral regressions;
 supply the locally available Milestone 1 commit or ref. Fetch that history first
 when using a shallow checkout. A missing baseline fails before any mutation.
+Run `node scripts/text-revert-proof.ts <pre-fix-ref>` with the round-three parent
+to verify the old truncation exceeds the measurement budget (even with the new
+cap), and that removing the cap or tag mismatch check fails its regression test.
 
 To regenerate fonts, install fontTools 4.65.0 and brotli 1.2.0, then run
 `npm run fonts:build` and `npm run assets:build`. Font sources are pinned and every

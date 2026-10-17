@@ -1,10 +1,13 @@
 /** Open Graph card generation and optional server-side raster rendering. */
 import { Resvg } from '@resvg/resvg-js';
 import { tokens } from './tokens.js';
-import { ellipsize, escapeXml, textPaths, wrapTitle } from './text.js';
+import { boundText, ellipsize, escapeXml, textPaths, wrapTitle } from './text.js';
 import { imageSvg, imageMark } from './image.js';
 /** Generate a portable OG image; user text is validated and XML escaped in metadata. */
 export function ogImage({ title, eyebrow, product, theme = 'light' }) {
+    title = boundText(title);
+    eyebrow = boundText(eyebrow);
+    product = boundText(product);
     for (const text of [title, eyebrow, product])
         escapeXml(text);
     const lines = wrapTitle(title, 1040, 64, 3);
