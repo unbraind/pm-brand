@@ -1,5 +1,10 @@
 # pm-brand · Triplicate
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="banners/pm-brand-dark.svg">
+  <img src="banners/pm-brand.svg" alt="pm-brand: The Triplicate brand kit for pm">
+</picture>
+
 One shared identity for pm-cli.unbrained.dev, pm-web, pm-gpt, pm-mcp and pm-search:
 cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
 [CONTRACT.md](CONTRACT.md) defines the visual grammar and every public token.
@@ -140,6 +145,43 @@ in linear time and adds an ellipsis only at a complete grapheme boundary.
 `renderPng` require the optional peer `@resvg/resvg-js` (`npm install @resvg/resvg-js`).
 The root token export never imports the native renderer and is suitable for web
 bundlers. Rendering helpers are intended for build tools and server environments.
+
+## Committed package banner set
+
+The [reviewed catalog](banners/packages.json) captures the exact npm name and real
+one-line `package.json` description for all 26 public fleet packages except
+pm-cli, including pm-brand. Scoped packages use their repository basename as the
+filename: `@unbrained/pm-web` is `banners/pm-web.svg`.
+
+`npm run banners:build` generates 52 deterministic SVGs: `<repo>.svg` for light
+and `<repo>-dark.svg` for dark. `npm run banners:check`, included in both release
+gates, rejects changed, missing or surplus generated assets. Update the catalog
+from the reviewed public fleet manifests, regenerate, then commit both together.
+No sibling checkouts or network access are needed to check a catalog snapshot.
+
+Use an immutable pm-brand **commit**, with a fixed theme selected by `<picture>`:
+
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)"
+    srcset="https://raw.githubusercontent.com/unbraind/pm-brand/COMMIT/banners/pm-graph-dark.svg">
+  <img alt="pm-graph: Knowledge graph and dependency graph extension for pm CLI workspaces"
+    src="https://raw.githubusercontent.com/unbraind/pm-brand/COMMIT/banners/pm-graph.svg">
+</picture>
+```
+
+Replace `COMMIT` with the reviewed 40-character SHA. These assets are owned and
+committed here; consumer repositories embed them and never copy them.
+
+SVG is the chosen embed format. We compared path-based SVG with 1280×320 PNG on
+GitHub's light and dark backgrounds at 1440, 768 and 390 px, at 1× and 2× pixel
+ratios. Both render correctly; SVG preserves crisp outlines at every scale and
+avoids doubling the raster payload for 2× displays. Fixed variants avoid relying
+on GitHub's image proxy to evaluate an SVG media query. Paths require no font
+request, CSS import, script or foreign object. Long descriptions ellipsize on the
+visible line; the exact full description remains in accessible metadata.
+The before/after gallery uses the existing generator and committed output with
+the same public catalog, so the intended appearance remains identical.
 
 ## Exports and assets
 
