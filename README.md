@@ -1,7 +1,8 @@
 # pm-brand · Triplicate
 
-The shared identity for pm surfaces: form paper, carbon ink, three stacked sheets,
-and violet stamp ink. [The contract](CONTRACT.md) defines every token and type role.
+One shared identity for pm-cli.unbrained.dev, pm-web, pm-gpt, pm-mcp and pm-search:
+cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
+[CONTRACT.md](CONTRACT.md) defines the visual grammar and every public token.
 
 **Release held: depend on an exact commit until the first release.**
 
@@ -9,35 +10,211 @@ and violet stamp ink. [The contract](CONTRACT.md) defines every token and type r
 { "dependencies": { "pm-brand": "github:unbraind/pm-brand#<40-character-commit>" } }
 ```
 
-![The Triplicate mark](logo/mark.svg)
+Compiled modules are tracked so exact-commit Git dependencies work when Bun blocks
+dependency preparation. CI verifies them against a clean build.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="logo/mark-dark.svg">
+  <img src="logo/mark-light.svg" alt="Three sheets in triplicate" width="124">
+</picture>
+
+## CSS
 
 ```css
 @import "pm-brand/tokens.css";
 @import "pm-brand/fonts.css";
 
-body { background: var(--pm-paper); color: var(--pm-carbon); font-family: var(--pm-font-body); }
-h1 { font-family: var(--pm-font-display); font-stretch: 125%; font-weight: 800; }
-```
-
-```ts
-import { tokens, cssVar } from 'pm-brand';
-const paper = tokens.light.paper;
-const background = cssVar('paper'); // var(--pm-paper)
+body {
+  background: var(--pm-paper);
+  color: var(--pm-carbon);
+  font-family: var(--pm-font-body);
+}
+h1 {
+  font-family: var(--pm-font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+}
 ```
 
 Set `data-theme="light"` or `data-theme="dark"` on the root for an explicit
-choice; otherwise the OS preference applies. Reduced motion sets `--pm-dur` to zero.
+choice. Otherwise `prefers-color-scheme` applies. Reduced motion sets `--pm-dur`
+to zero. Focus uses `--pm-focus` with `--pm-focus-offset` on interactive elements.
 
-Archivo supplies display (125% / 800) and caption (75% / 600) roles. Public Sans
-is the body face; Martian Mono is for ids, commands and TOON. Importing fonts.css
-loads only relative, self-hosted WOFF2 assets with swap and measured fallback faces.
-See [font sources, metrics and subset details](fonts/SOURCES.md) and [OFL licences](fonts/OFL.txt).
+## Palette
 
-The package exports `tokens.css`, `fonts.css`, `fonts/*`, `logo/*`, `icons/*`,
-`CONTRACT.md` and `package.json`. The root exports typed values for both themes
-and `cssVar`. All SVG marks and product lockups contain glyph paths, so no font
-needs to be available to display them. Icons include a maskable safe-zone variant.
+| Token suffix | Light | Dark | Role |
+|---|---|---|---|
+| paper | #F3F5F8 | #0F1528 | Page |
+| sheet | #FFFFFF | #171F37 | Items, panels, forms |
+| carbon | #1B2340 | #E7EAF3 | Text, outlines |
+| graphite | #535B70 | #A2A9BD | Secondary text |
+| rule | rgba(27,35,64,.14) | rgba(231,234,243,.14) | Hairlines |
+| canary | #E9C53A | #D7B53A | In progress, second copy |
+| canary-wash | #FBF1C6 | #3A331C | In-progress chip fill |
+| rose | #DE7F9C | #D07E97 | Blocked, third copy |
+| rose-wash | #F9DDE5 | #3D2432 | Blocked chip fill |
+| stamp | #5B3FC4 | #A894FF | Actions, links, focus, closed |
+| stamp-wash | #ECE7FB | #2A2450 | Selection and hover |
+| on-stamp | #FFFFFF | #0F1528 | Text on stamp |
+| danger | #B42E3A | #F07A84 | Errors and destructive actions |
 
-Rebuild fonts with fontTools 4.65.0 and brotli 1.2.0 installed, then
-`npm run fonts:build` and `npm run assets:build`. `npm run font-budget` enforces
-120,000 bytes across the three WOFF2 files. No release is authorized by these commands.
+Status tokens are `--pm-status-<open|in_progress|blocked|closed|canceled>-<fg|bg|border>`.
+The label text carries state and meets 4.5:1 in both themes. Chip borders are
+decorative; canary, rose and rule stay unchanged. [All 68 measured comparisons](docs/contrast.md)
+classify decorative borders separately and enforce text and focus thresholds.
+
+## Type
+
+| Role | Family | Setting |
+|---|---|---|
+| Display | Archivo | 125% width, weight 800; mark weight 900 |
+| Caption | Archivo | 75% width, weight 600, uppercase, .09em tracking |
+| Body | Public Sans | Weights 400–700 |
+| Data | Martian Mono | Weights 400–700, widths 75–112.5% |
+
+Self-hosted normal Latin WOFF2 files use `font-display: swap` and relative URLs.
+Fallback overrides are calculated from shipped font metrics and pinned measured
+Arial/Courier New metrics. No Google Fonts or third-party CDN requests are needed.
+Every requested encoded character available upstream is retained; optional
+unencoded alternates/ligatures are omitted. [Exact sources and metrics](fonts/SOURCES.md).
+
+| Font | Bytes |
+|---|---:|
+| Archivo | 71,544 |
+| Public Sans | 20,756 |
+| Martian Mono | 24,252 |
+| **Total / maximum** | **116,552 / 120,000** |
+
+Code is MIT; fonts and their derived outline data are SIL OFL 1.1. Each family's
+copyright and complete licence are bundled in [fonts/OFL.txt](fonts/OFL.txt).
+
+## TypeScript
+
+```ts
+import { tokens, cssVar } from 'pm-brand';
+
+const paper = tokens.light.paper;              // #F3F5F8
+const body = tokens.dark['font-body'];         // complete font stack
+const outline = cssVar('status-open-border'); // var(--pm-status-open-border)
+const focus = cssVar('--pm-focus');
+```
+
+`tokens.light` and `tokens.dark` contain every contract suffix, including colour,
+status, font, scale, radius, focus and motion tokens. Reference-valued tokens
+remain CSS references. `cssVar` accepts only known suffixes or full `--pm-` names.
+A parity test parses the independent stylesheet in both dark selectors and light
+mode; changing one side alone fails the gate.
+
+## README banners and Open Graph cards
+
+```ts
+import { writeFile } from 'node:fs/promises';
+import { banner } from 'pm-brand/banner';
+import { ogImage, renderPng } from 'pm-brand/og';
+
+await writeFile('banner.svg', banner({
+  name: 'pm-web', tagline: 'Keep every agent on the same page.', theme: 'light',
+}));
+await writeFile('og.png', renderPng(ogImage({
+  title: 'Work orders, in triplicate', eyebrow: 'Project management',
+  product: 'pm-web', theme: 'dark',
+})));
+```
+
+Banners are 1280×320; OG cards are 1200×630. The generators use pinned Archivo
+and Public Sans glyph paths, so their SVGs need no external font or platform text
+renderer. Names and taglines ellipsize; OG titles wrap to at most three measured
+lines. XML syntax is escaped, controls are rejected, and unsupported characters
+render as a question mark while accessible metadata retains the bounded text.
+
+Every text field (`name`, `tagline`, `title`, `eyebrow`, `product`) is capped at
+512 Unicode code points before validation, measurement, or metadata generation.
+Only complete graphemes are retained: a combining sequence or emoji ZWJ sequence
+crossing the cap is dropped in full. The cap reads at most 513 code points,
+including boundary lookahead, even for a single enormous combining sequence.
+Discarded content is neither rendered nor validated. Uppercase OG labels are
+capped again after conversion. Width truncation uses cumulative glyph advances
+in linear time and adds an ellipsis only at a complete grapheme boundary.
+
+`pm-brand/banner` works without native dependencies. `pm-brand/og` and its
+`renderPng` require the optional peer `@resvg/resvg-js` (`npm install @resvg/resvg-js`).
+The root token export never imports the native renderer and is suitable for web
+bundlers. Rendering helpers are intended for build tools and server environments.
+
+## Exports and assets
+
+| Export | Contents |
+|---|---|
+| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName` |
+| `pm-brand/banner` | `banner`, `BannerOptions` |
+| `pm-brand/og` | `ogImage`, `renderPng`, `OgOptions` |
+| `pm-brand/contrast` | WCAG colour parsing, luminance, contrast and complete audit |
+| `pm-brand/tokens.css` | All custom properties and theme/motion selectors |
+| `pm-brand/fonts.css` | Brand faces and measured fallback faces |
+| `pm-brand/fonts/*` | Three WOFF2 subsets, OFL licences, source receipts |
+| `pm-brand/logo/*` | Adaptive, fixed light/dark and currentColor marks; wordmark and mark-caption lockups |
+| `pm-brand/icons/*` | SVG favicon; 32, 180, 192, 512 PNGs and maskable 512 PNG |
+| `pm-brand/CONTRACT.md` | Shared visual contract |
+| `pm-brand/package.json` | Package metadata |
+
+All mark lettering is Archivo width 125 / weight 900 as paths; condensed lockup
+captions are also paths. A single TypeScript generator owns the geometry. The
+maskable icon keeps its foreground inside the central safe circle.
+
+
+## Mark and wordmark lockups
+
+The compact mark family uses the three sheets followed by one product caption;
+the wordmark family keeps the original `pm` lettering. Caption boxes are transparent.
+Inline ink uses `currentColor` and adaptive SVGs read the surface's `--pm-carbon`
+and `--pm-sheet`. Standalone `<img>` SVGs follow `prefers-color-scheme` through
+embedded CSS. Use fixed `*-light.svg` / `*-dark.svg` variants for OG renderers or
+GitHub `<picture>` sources that cannot evaluate SVG media queries. The monochrome
+mark inherits `color` directly and works on either theme.
+
+| Product | Wordmark | Compact mark + caption |
+|---|---|---|
+| PM | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-pm-dark.svg"><img src="logo/lockup-pm-light.svg" alt="lockup-pm" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-pm-dark.svg"><img src="logo/lockup-mark-pm-light.svg" alt="lockup-mark-pm" height="56"></picture> |
+| WEB | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-web-dark.svg"><img src="logo/lockup-web-light.svg" alt="lockup-web" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-web-dark.svg"><img src="logo/lockup-mark-web-light.svg" alt="lockup-mark-web" height="56"></picture> |
+| GPT | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-gpt-dark.svg"><img src="logo/lockup-gpt-light.svg" alt="lockup-gpt" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-gpt-dark.svg"><img src="logo/lockup-mark-gpt-light.svg" alt="lockup-mark-gpt" height="56"></picture> |
+| MCP | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mcp-dark.svg"><img src="logo/lockup-mcp-light.svg" alt="lockup-mcp" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-mcp-dark.svg"><img src="logo/lockup-mark-mcp-light.svg" alt="lockup-mark-mcp" height="56"></picture> |
+| SEARCH | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-search-dark.svg"><img src="logo/lockup-search-light.svg" alt="lockup-search" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-search-dark.svg"><img src="logo/lockup-mark-search-light.svg" alt="lockup-mark-search" height="56"></picture> |
+| SWARM | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-swarm-dark.svg"><img src="logo/lockup-swarm-light.svg" alt="lockup-swarm" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-swarm-dark.svg"><img src="logo/lockup-mark-swarm-light.svg" alt="lockup-mark-swarm" height="56"></picture> |
+
+## Development
+
+```sh
+npm ci
+npm run release:check
+bun run release:check
+bun test ./test/bun.acceptance.ts
+```
+
+The gates check strict erasable TypeScript, ESLint, documented declarations,
+100/100/100/100 coverage of **all `src/` files**, fonts, public paths and identities,
+tracker health, production dependencies, packed exports, and generated changelog.
+Packed npm and Bun consumers exercise tokens, CSS/assets, banners and native PNGs.
+The contrast gate fails for text below 4.5:1 or focus rings below 3:1.
+Decorative chip borders have no required contrast minimum. Mark and lockup tests
+assert adaptive CSS and render every fixed variant against both theme papers.
+
+Generate review PNGs with `node scripts/previews.ts` after building. Both lockup
+families use the fixed light and dark SVGs on their matching paper colors.
+Run `node scripts/revert-proof.ts <baseline-ref>` to prove behavioral regressions;
+supply the locally available Milestone 1 commit or ref. Fetch that history first
+when using a shallow checkout. A missing baseline fails before any mutation.
+Run `node scripts/text-revert-proof.ts <pre-fix-ref>` with the round-three parent
+to verify the old truncation exceeds the measurement budget (even with the new
+cap), and that removing the cap or tag mismatch check fails its regression test.
+
+To regenerate fonts, install fontTools 4.65.0 and brotli 1.2.0, then run
+`npm run fonts:build` and `npm run assets:build`. Font sources are pinned and every
+path-based asset is derived from them. Rebuild image snapshots only after reviewing
+an intentional design change.
+
+`npm run changelog:full` uses pm-changelog's `--no-pending-release`, keeping entries
+under **Unreleased**. The release workflow is dormant unless the owner explicitly
+enables `PM_BRAND_RELEASE_ENABLED`; local publishing is blocked. Dependabot
+scheduling is configured, but auto-merge has its own dormant opt-in while branch
+protection is absent. No release or repository policy changes are authorized by
+these development commands.

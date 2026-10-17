@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 5
+    groups:
+      pm-toolchain:
+        patterns: ['@unbrained/pm-cli', 'pm-*']
+      dependencies:
+        patterns: ['*']
+        exclude-patterns: ['@unbrained/pm-cli', 'pm-*']
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      codeql-action:
+        patterns: ['github/codeql-action*']

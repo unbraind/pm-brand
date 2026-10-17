@@ -6,12 +6,116 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-16T22:42:44.045Z"
-assignee: codex-agent
-claim_principal: codex-agent
+updated_at: "2026-10-17T02:36:07.670Z"
 author: codex-agent
-comments[1]{created_at,author,text}:
+comments[25]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
-docs[1]{path,scope}:
-  CONTRACT.md,project
+  "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
+  "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
+  "2026-10-16T23:03:36.406Z",codex-agent,"Final implementation includes 44 tokens per theme, path-based image generators, optional native rendering, strict checks across source/scripts/tests, 100/100/100/100 source coverage, 46 intended packed files, and an Unreleased changelog via the existing pm-changelog no-pending-release option. No pm-changelog feature gap. Release workflow remains owner-gated and repository variables were not changed."
+  "2026-10-16T23:17:33.049Z",codex-agent,"Node 22 CI passed all 13 tests and four 100% coverage dimensions, then exposed npm 10 running prepare during pack --ignore-scripts. Preparation now routes build and merge-driver output to stderr, preserving stdout as pack JSON. Node 26, Bun and CodeQL already passed the previous head; the npm 10 compatibility correction is being verified before final checks."
+  "2026-10-16T23:21:05.948Z",codex-agent,"npm 10.9.8 compatibility proof passed: restoring the previous prepare command reproduces non-JSON pack output; the corrected stderr-only preparation produces valid JSON with all 46 files. A real Node 22.23.1 npm release:check now passes all 13 tests, 100/100/100/100 coverage, and both packed consumers. Existing npm/Bun gates remain unchanged."
+  "2026-10-16T23:25:22.201Z",codex-agent,"Exact-commit consumption check exposed a Bun default-policy gap: Git installation succeeds while blocked dependency preparation leaves the compiled entry absent. Compiled modules are now tracked, with a clean-build byte comparison and tracked-output drift gate. CI will install the exact pushed commit with both npm and Bun and exercise every public export, without changing dependency trust settings."
+  "2026-10-16T23:26:44.705Z",codex-agent,Real npm Git installation additionally confirmed its preparation uses a source archive without Git metadata. The prepare hook now installs clone-local merge drivers only when the package itself has a Git marker; compilation still runs. This avoids ancestor discovery and supports Git archives. Surface consumers should use the final PR head rather than the early milestone for Git installation.
+  "2026-10-16T23:38:14.833Z",codex-sol,Round 1 preserves the 116552-byte WOFF2 payload and CI per-file table; font-budget now counts only .woff2 files. Rechecking default npm/Bun Git installs after this round. First workaround-free Git commit is bb71fcaa9292bb3c5784d344dc38d2da758caef5 (archive-safe prepare plus tracked dist); no lifecycle opt-out or npm-11-only consumer pin is needed from that commit.
+  "2026-10-16T23:47:22.441Z",codex-sol,"Round 1 linked gates passed: pm test pm-brand-kit --run --progress ran the dist check, npm run release:check and bun run release:check successfully. Both release gates passed 15/15 Node tests with zero skips and 100/100/100/100 coverage across all nine source modules; both packed npm/Bun consumers passed. Native bun test ./test/bun.acceptance.ts passed 2/2. Font table remains 116552/120000 bytes and 47 generated outputs agree. Exact pushed-head Git acceptance and CI are next."
+  "2026-10-16T23:49:34.846Z",codex-sol,"Exact-head CI passed at da6496d8b3832969c2e1f6ae47e429e8fab949b6: Node 22 and Node 26 release gates, Bun release/native acceptance and CodeQL. Node 26 CI used Node 26.12.0, npm 11.20.0 and Bun 1.4.3; npm ignore-scripts=false, no lifecycle opt-out and no Bun trust override. Both scratch Git consumers passed that exact SHA. Evidence: https://github.com/unbraind/pm-brand/actions/runs/38983266551/job/117248790083 . A separate local Git probe is waiting on the archive transport; CI Git acceptance is confirmed."
+  "2026-10-17T00:29:29.487Z",codex-agent,"Round 2: read all eight unresolved CodeRabbit threads on PR #1 in full. Address CI concurrency, post-publish main-tip check, measured report counts, content-based binary detection, fixed-theme previews, derived mutation counts, configurable revert baseline and decimal alpha parsing. Add independent regression tests for binary classification, preview pixels and alpha forms; prove each fails with only its fix reverted. Run npm and Bun release checks, commit explicit paths, push, reply individually without resolving, and wait for checks. Release remains held."
+  "2026-10-17T00:32:34.523Z",codex-agent,"Implementation: PR-only concurrency uses a per-run fallback for pushes so neither active nor pending main runs are canceled. Tag/release checks main again after publication for both new and existing tags. Contrast counts come from measured rows; binary detection uses NUL and fatal UTF-8 decoding, preserving text scanning regardless of extension. Previews cover all 24 fixed lockups on theme paper. Revert proof requires a supplied locally available baseline before mutation; alpha supports decimal numbers, with percentages explicitly unsupported. Added real Git-fixture, rendered PNG, shell-step and parser regressions."
+  "2026-10-17T00:33:10.190Z",codex-agent,"Focused checks passed: 7/7 tests; TypeScript, lint and docstring gates passed (28 declarations across 30 files). Independent fix-only reverts against the pre-round-two HEAD each failed exactly one regression: scripts/identity.ts with node --test test/identity.test.ts (0/1 pass); scripts/previews.ts with node --test test/previews.test.ts (0/1 pass); src/contrast.ts rebuilt with tsc and node --test test/contrast.test.ts (2/3 pass). Restored each fix and rebuilt dist. Percent alpha remains unsupported and is explicitly rejected. No threshold changes."
+  "2026-10-17T00:35:41.482Z",codex-agent,"Full node scripts/revert-proof.ts with the supplied Milestone 1 baseline passed: 7/7 behavioral removals, 1/1 font overflow, independent CSS drift, missing back-sheet geometry and the actual historical monochrome mark revert were all caught; sources and generated assets restored. A changed-row contrast report fixture independently produced 63 total, 35 text, 0 focus, 28 decorative and 10 below-reference comparisons. Next: linked npm/Bun release gates under a clean Git configuration, then push and individual review replies."
+  "2026-10-17T00:40:29.105Z",codex-agent,"Round 2 release gates passed through pm test pm-brand-kit --run --progress --match release:check with tracker/source context and a clean HOME/global Git configuration. npm run release:check: 20/20 tests, zero failures/skips/cancellations/todos, 100/100/100/100 coverage of all nine src modules. bun run release:check: the same 20/20 and 100/100/100/100 results. Both packed npm and Bun consumers passed in both gates. Strict history/merge-driver health, typecheck, lint, docstrings, 18 compiled files, 47 generated outputs, 77 packed files, zero production vulnerabilities and 116552/120000 font bytes passed. Automatic linked-result persistence is disabled by project policy; this comment records the observed results without changing that policy. Next: push the single implementation commit, reply to all eight threads without resolving, then wait for exact-head checks. No items closed; release remains held."
+  "2026-10-17T00:42:50.149Z",codex-agent,"Exact-head CodeQL reported polynomial backtracking in the newly expanded alpha regex (code-scanning alert 1). Reopened the claim to remove overlapping digit repetitions, preserving all supported alpha forms. Added a bounded child-process regression for a 200000-digit malformed alpha. CodeRabbit independently confirmed and resolved all eight original threads after the replies; no resolution API calls were made. Re-run the parser reverts and both full release gates before the follow-up push."
+  "2026-10-17T00:43:29.034Z",codex-agent,"Parser follow-up: disjoint integer/decimal and leading-dot alternatives remove overlapping digit quantifiers. node --test test/contrast.test.ts passes 4/4; malformed 200000-digit alpha rejects in a bounded child process (about 124 ms observed). Fix-only revert to ea0ed7f times out and fails exactly the new backtracking regression (3/4 pass); revert to the pre-round-two parser fails exactly decimal acceptance (3/4 pass). Both probes rebuilt dist, then restored the final parser. The first pushed head passed Node 22/26 release checks, native Bun and Git consumers; CodeQL failed solely on the now-corrected alpha regex. Both full gates are being repeated for the final implementation."
+  "2026-10-17T00:46:38.440Z",codex-agent,"Final parser implementation passed both repeated pinned-PM release gates with clean Git identity/configuration: npm run release:check and bun run release:check each passed 21/21 tests, zero failures/skips/cancellations/todos, and 100/100/100/100 coverage across all nine src modules. Both packed npm and Bun consumers passed in each gate. Strict health/history/merge drivers, typecheck, lint, documentation, compiled output, assets, font budget, audit and changelog passed. The added bounded malformed-alpha regression passed in both gates; reverting only that correction was proven to fail. Publishing the follow-up commit and then checking exact-head CI/CodeQL; publication remains held, no items closed."
+  "2026-10-17T01:29:53.062Z",codex-agent,"Round 3: read both unresolved PR 1 threads in full. Existing-tag mismatch test is valid; cover refusal without tag or release creation. Reuse pm-brand-images for text bounds and performance. Run both release gates, commit explicit paths, push, reply in both threads without resolving, then wait for checks."
+  "2026-10-17T01:33:34.250Z",codex-agent,"Candidate boundary review completed: banner and OG fields are capped before XML checks and metadata; title wrapping is bounded; uppercase label expansion passes through the capped ellipsize helper. Existing image snapshots remain unchanged. Focused checks passed 11/11 tests, no skips; typecheck, lint and docstrings passed. Added six tag/main combinations and proved removing tag-commit equality fails. An exploratory coverage run overlapped a temporary mutation and was discarded; all final gates run sequentially after restoration."
+  "2026-10-17T01:36:22.995Z",codex-agent,"Round 3 complete locally: both release gates passed, 25/25 tests each, zero skips, 100/100/100/100 src coverage. Typecheck, lint, docstrings, privacy/identity, tracker/history, build/asset parity, font budget, audit and packed npm/Bun consumers passed. Tracker evidence links include text tests and the four-mutation revert proof. Release remains held. Claims released without closing items; next actions are explicit-path commit, push, individual thread replies and final-head check wait."
+  "2026-10-17T02:30:13.972Z",codex-agent,"Round 4: confirmed the unresolved annotated-tag finding on PR #1 at head c64fb9d. Plan: resolve tag objects to commits with a bounded loop, retain mismatch refusal, drive the workflow shell step with a gh executable stub on PATH, prove regression failures with only workflow behavior reverted, then run npm and Bun release gates."
+  "2026-10-17T02:31:44.207Z",codex-agent,"Round 4 implementation: dereference up to 16 tag objects using the object type and SHA at each hop, require a nonempty commit target, and retain exact verified-commit comparison. PATH-based gh stub covers 17 scenarios with both tested and advanced main tips; focused suite passed 18/18 without skips. Behavioral revert proof caught 4/4 independent mutations: baseline step, removed peeling, removed type guard, and increased depth bound. Workflow restored after every probe."
+  "2026-10-17T02:36:03.795Z",codex-agent,"Round 4 validation complete: npm run release:check and bun run release:check each passed under isolated HOME and clean Git configuration: 41/41 tests, zero skips/cancellations/todos, 100/100/100/100 across all nine source modules. Both gates passed typecheck, lint, compiled and asset parity, docstrings, font budget, production audit, packed npm/Bun consumers and changelog consistency. Linked pm runs passed node --test test/workflows.test.ts (18/18) and node scripts/tag-revert-proof.ts c64fb9da7937c2d239f67357cab325f6a9cff29a (4/4 mutations caught). No pm CLI defects encountered. Releasing the claim without closing the item, then committing, pushing, replying to the unresolved review thread and waiting for exact-head checks. Release remains held."
+files[18]{path,scope}:
+  .github/workflows/ci.yml,project
+  .github/workflows/release.yml,project
+  scripts/contrast-report.ts,project
+  scripts/dist-check.ts,project
+  scripts/font-budget.ts,project
+  scripts/git-acceptance.ts,project
+  scripts/identity.ts,project
+  scripts/prepare.ts,project
+  scripts/previews.ts,project
+  scripts/revert-proof.ts,project
+  scripts/tag-revert-proof.ts,project
+  scripts/text-revert-proof.ts,project
+  src/contrast.ts,project
+  test/consumer-smoke.ts,project
+  test/contrast.test.ts,project
+  test/identity.test.ts,project
+  test/previews.test.ts,project
+  test/workflows.test.ts,project
+tests[7]:
+  - command: node scripts/dist-check.ts
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-16T23:25:25.970Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+  - command: "npm run release:check"
+    scope: project
+    timeout_seconds: 1200
+    provenance:
+      author: codex-sol
+      created_at: "2026-10-16T23:38:20.029Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+  - command: "bun run release:check"
+    scope: project
+    timeout_seconds: 1200
+    provenance:
+      author: codex-sol
+      created_at: "2026-10-16T23:38:23.387Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+  - command: node --test test/identity.test.ts test/previews.test.ts test/contrast.test.ts test/workflows.test.ts
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-17T00:32:21.837Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+  - command: node scripts/revert-proof.ts 952a4bc8a42228e747b69ab31b8468ca43d54d08
+    scope: project
+    timeout_seconds: 1200
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-17T00:34:57.875Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+  - command: node --test test/workflows.test.ts
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-17T02:31:38.646Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+  - command: node scripts/tag-revert-proof.ts c64fb9da7937c2d239f67357cab325f6a9cff29a
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-17T02:31:40.736Z"
+      source_kind: local_mutation
+      source_ref: kit/fonts-mark-tokens
+docs[5]:
+  - path: CONTRACT.md
+    scope: project
+  - path: docs/contrast.md
+    scope: project
+  - path: "https://github.com/unbraind/pm-brand/pull/1"
+    scope: project
+  - path: README.md
+    scope: project
+  - path: scripts/tag-revert-proof.ts
+    scope: project
+    note: Executable round-four behavioral revert evidence
 body: ""

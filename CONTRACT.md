@@ -44,7 +44,7 @@ All names carry the `--pm-` prefix so they never collide with a host app.
 | `--pm-on-stamp` | `#FFFFFF` | `#0F1528` | Text on a stamp-filled button |
 | `--pm-danger` | `#B42E3A` | `#F07A84` | Destructive actions and errors only |
 
-Status mapping (shape and fill carry the state, so it reads without colour):
+Status mapping (label text, shape and fill carry the state, so it reads without colour):
 
 | Status | Chip |
 |---|---|
@@ -53,6 +53,8 @@ Status mapping (shape and fill carry the state, so it reads without colour):
 | blocked | rose border, rose-wash fill |
 | closed | stamp text and border; on an item's own page only, the rotated stamp |
 | canceled | graphite text, rule border, line-through |
+
+The chip border is decorative; the label text carries the state and meets 4.5:1.
 
 Tokens: `--pm-status-<status>-fg`, `-bg`, `-border` for those five statuses.
 

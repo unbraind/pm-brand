@@ -1,0 +1,134 @@
+name: Held release
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '41 3 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: daily-release
+  cancel-in-progress: false
+jobs:
+  prepare:
+    # Owner decision: leave this variable unset until the kit is approved.
+    if: github.ref == 'refs/heads/main' && vars.PM_BRAND_RELEASE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.pack.outputs.commit }}
+      version: ${{ steps.pack.outputs.version }}
+      sha256: ${{ steps.pack.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 26
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - run: npm ci
+      - run: npm run release:check && bun run release:check
+      - id: pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The owner-approved package version is used unchanged. Version bumps
+          # belong in a reviewed PR; this job never edits main or the tracker.
+          npm run release:notes > RELEASE_NOTES.md
+          npm pack --ignore-scripts --json > pack.json
+          node --input-type=module -e 'import fs from "node:fs";const [p]=JSON.parse(fs.readFileSync("pack.json","utf8"));fs.renameSync(p.filename,"package.tgz")'
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(sha256sum package.tgz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verified-package
+          path: |
+            package.tgz
+            RELEASE_NOTES.md
+          if-no-files-found: error
+          retention-days: 1
+  release:
+    needs: prepare
+    if: github.ref == 'refs/heads/main' && vars.PM_BRAND_RELEASE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    # Dependency code ran in the read-only job. This job only publishes its
+    # verified tarball with scripts disabled, then tags the exact tested commit.
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 26
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verified-package
+      - name: Verify and publish the attested artifact
+        shell: bash
+        env:
+          EXPECTED_SHA256: ${{ needs.prepare.outputs.sha256 }}
+          VERIFIED_COMMIT: ${{ needs.prepare.outputs.commit }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$(sha256sum package.tgz | cut -d' ' -f1)" == "$EXPECTED_SHA256" ]]
+          [[ "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" == "$VERIFIED_COMMIT" ]]
+          # No setup-node registry-url: it would introduce an empty legacy auth
+          # token and prevent npm trusted publishing's OIDC exchange.
+          export NPM_CONFIG_USERCONFIG=/dev/null
+          export NPM_CONFIG_GLOBALCONFIG="$RUNNER_TEMP/pm-brand-global.npmrc"
+          : > "$NPM_CONFIG_GLOBALCONFIG"
+          unset NODE_AUTH_TOKEN NPM_TOKEN
+          expected="sha512-$(openssl dgst -sha512 -binary package.tgz | base64 -w0)"
+          existing="$(npm view "pm-brand@$VERSION" dist.integrity --prefer-online 2>/dev/null || true)"
+          if [[ -n "$existing" ]]; then
+            [[ "$existing" == "$expected" ]]
+          else
+            npm publish package.tgz --access public --provenance --ignore-scripts
+          fi
+          # Publication is accepted only with the exact artifact and provenance.
+          for attempt in $(seq 1 21); do
+            integrity="$(npm view "pm-brand@$VERSION" dist.integrity --prefer-online 2>/dev/null || true)"
+            attestation="$(npm view "pm-brand@$VERSION" dist.attestations.url --prefer-online 2>/dev/null || true)"
+            if [[ "$integrity" == "$expected" && "$attestation" == https://* ]]; then
+              exit 0
+            fi
+            (( attempt == 21 )) || sleep 30
+          done
+          echo 'Published artifact or provenance not confirmed; refusing tag/release.' >&2
+          exit 1
+      - name: Tag tested commit and create release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_COMMIT: ${{ needs.prepare.outputs.commit }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          existing_ref="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object | [.type, .sha] | @tsv' 2>/dev/null || true)"
+          if [[ "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" != "$VERIFIED_COMMIT" ]]; then
+            echo 'Main advanced after publication; refusing tag/release.' >&2
+            exit 1
+          fi
+          if [[ -n "$existing_ref" ]]; then
+            IFS=$'\t' read -r existing_type existing <<< "$existing_ref"
+            # Peel at most 16 tag objects, including nested annotated tags.
+            for ((depth = 0; depth < 16; depth++)); do
+              [[ "$existing_type" == tag ]] || break
+              existing_ref="$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$existing" --jq '.object | [.type, .sha] | @tsv')"
+              IFS=$'\t' read -r existing_type existing <<< "$existing_ref"
+            done
+            if [[ "$existing_type" != commit || -z "$existing" ]]; then
+              echo 'Existing tag does not resolve to a commit within 16 tag objects; refusing tag/release.' >&2
+              exit 1
+            fi
+            [[ "$existing" == "$VERIFIED_COMMIT" ]]
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" -f "ref=refs/tags/$tag" -f "sha=$VERIFIED_COMMIT"
+          fi
+          if ! gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --title "pm-brand $tag" --notes-file RELEASE_NOTES.md --verify-tag
+          fi

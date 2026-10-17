@@ -6,12 +6,13 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:06.752Z"
-updated_at: "2026-10-16T22:42:37.748Z"
-assignee: codex-agent
-claim_principal: codex-agent
+updated_at: "2026-10-16T23:03:56.754Z"
 author: codex-agent
 parent: pm-brand-kit
-files[2]{path,scope}:
+files[3]{path,scope}:
   src/tokens.ts,project
+  test/tokens.test.ts,project
   tokens.css,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test test/tokens.test.ts,project,codex-agent,"2026-10-16T22:50:46.209Z",local_mutation,kit/fonts-mark-tokens
 body: ""
