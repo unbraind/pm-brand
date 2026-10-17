@@ -196,10 +196,19 @@ tracker health, production dependencies, packed exports, and generated changelog
 Packed npm and Bun consumers exercise tokens, CSS/assets, banners and native PNGs.
 The contrast gate fails for text below 4.5:1 or focus rings below 3:1.
 The identity gate checks both author and committer emails since the root anchor
-in `.github/identity-baseline.txt`. Approved public emails live in
-`.github/approved-git-identities.txt`. Once adopted, controls are read from main,
-so proposed changes take effect only after merging. Fetch full history and main;
-missing history fails closed. Errors name the full commit, role and identity.
+on both HEAD and the pinned trusted base, including merge commits, with exact
+email comparisons. The anchor lives in `.github/identity-baseline.txt`. Approved
+public emails live in
+`.github/approved-git-identities.txt`. Controls are always read from trusted main,
+never from the PR, including during initial adoption. Missing trusted controls
+fail closed: independently adopt both controls on main before enabling this gate.
+Proposed copies must remain valid; changes are reported but take effect only
+after merging. CI pins `IDENTITY_BASE_SHA` to the PR base SHA and rejects stale
+bases. Main must retain strict up-to-date required checks with admin enforcement
+(or a merge queue) so policy changes require fresh checks before merging. Fetch
+full history and `origin/main`; missing history fails closed. A local PR branch
+named main cannot substitute for the trusted remote. Errors name the full commit,
+role and identity.
 Decorative chip borders have no required contrast minimum. Mark and lockup tests
 assert adaptive CSS and render every fixed variant against both theme papers.
 
@@ -223,3 +232,6 @@ enables `PM_BRAND_RELEASE_ENABLED`; local publishing is blocked. Dependabot
 scheduling is configured, but auto-merge has its own dormant opt-in while branch
 protection is absent. No release or repository policy changes are authorized by
 these development commands.
+
+Run `node scripts/identity-revert-proof.ts` for six independent behavioral reverts
+of the reviewed identity safeguards; each must fail its unchanged real-Git regression.

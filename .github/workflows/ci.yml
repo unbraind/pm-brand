@@ -11,6 +11,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   verify:
+    # Strict required checks on main prevent merging checks against an older policy.
+    env:
+      IDENTITY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

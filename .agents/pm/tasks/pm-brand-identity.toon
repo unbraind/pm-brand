@@ -6,20 +6,26 @@ status: in_progress
 priority: 1
 tags: []
 created_at: "2026-10-17T09:26:07.924Z"
-updated_at: "2026-10-17T09:32:07.645Z"
+updated_at: "2026-10-17T12:31:38.695Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[3]{created_at,author,text}:
+comments[6]{created_at,author,text}:
   "2026-10-17T09:26:12.086Z",codex-agent,"Design: approved public emails, not display names; audit author and committer on every reachable commit after the root anchor. Read controls from the trusted default branch after adoption so a PR cannot widen its own allow-list or advance its own baseline. Keep the existing tracked UTF-8 path gate and the release hold."
   "2026-10-17T09:28:15.594Z",codex-agent,"Revert proof: replacing only scripts/identity.ts with origin/main leaves the new tests unchanged and fails 6 of 7 cases, including approved fleet identities and missing-base refusal. Restoring the implementation passes 7 of 7. Typecheck and docstring gates pass. No tags, publishing or release activation."
   "2026-10-17T09:31:57.200Z",codex-agent,"Validation: npm run release:check and bun run release:check passed in CI identity environments. Each ran 47 tests with 47 passes, zero failures or skips; all source statements, branches, functions and lines are 100%. Both packed npm and Bun consumer acceptances passed. Linked adversarial tests also passed 7/7. The root anchor covers every later kit and merge commit. Release remains held."
-files[4]{path,scope}:
+  "2026-10-17T12:17:51.723Z",codex-agent,"Round 1 review: fail closed for absent trusted controls; validate proposed controls without activating them; audit both reachable histories with exact emails; isolate merge-committer regression; pin trusted base SHA. Main currently has neither control, so adoption must remain blocked until independently trusted controls exist. Main protection already requires strict verify (22), verify (26), and analyze checks."
+  "2026-10-17T12:24:03.816Z",codex-agent,"All six independent behavioral reverts were caught by unchanged real-Git regressions (one failure each): untrusted control fallback, skipped proposed-control validation, omitted base-only history, ignored stale pinned base, trimmed oldest committer email, and skipped merge identities. The restored identity suite passes 14/14. CodeRabbit replacement/removal of both controls is covered. npm and Bun release:check both fail closed because main has neither trusted control; no bypass or ref rewrite is used. Existing strict required checks with admin enforcement were verified through the GitHub protection API."
+  "2026-10-17T12:31:30.011Z",codex-agent,"Final Round 1 validation: the real-Git suite passes 14/14, including a policy revocation between checks; the linked six-revert script passes with every mutation caught. Missing origin/main fails even when a local main exists. Downstream checks run separately pass 54/54 tests, zero failures/skips, 100/100/100/100 source coverage, typecheck, lint, build parity, docstrings, font/assets budgets, production audit, 77 intended packed files, and packed npm/Bun consumers. Full npm and Bun release:check both remain blocked at identity:check because trusted main controls are absent. Independent adoption on main is required; release remains held."
+files[6]{path,scope}:
   .github/approved-git-identities.txt,project
   .github/identity-baseline.txt,project
+  .github/workflows/ci.yml,project
+  scripts/identity-revert-proof.ts,project
   scripts/identity.ts,project
   test/identity.test.ts,project
-tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+tests[2]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   node --test test/identity.test.ts,project,codex-agent,"2026-10-17T09:27:44.756Z",local_mutation,fix/identity-gate-approved-identities
+  node scripts/identity-revert-proof.ts,project,codex-agent,"2026-10-17T12:23:54.692Z",local_mutation,fix/identity-gate-approved-identities
 docs[1]{path,scope}:
   README.md,project
 body: ""
