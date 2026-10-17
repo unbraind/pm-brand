@@ -4,6 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { banner } from '../dist/banner.js';
 import { generateBanners, readCatalog } from '../scripts/banners.ts';
 
 test('the public fleet catalog includes all 26 packages and real descriptions in accessible SVG metadata', () => {
@@ -56,4 +57,15 @@ test('catalog validation refuses traversal, duplicate names, the excluded host, 
       assert.throws(() => readCatalog(path));
     }
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('scoped npm names display the bare brand while the catalog retains the install name', () => {
+  const item = readCatalog('banners/packages.json').find(entry => entry.repository === 'pm-web');
+  assert.ok(item);
+  assert.equal(item.name, '@unbrained/pm-web');
+  for (const theme of ['light', 'dark'] as const) {
+    const svg = readFileSync(`banners/pm-web${theme === 'dark' ? '-dark' : ''}.svg`, 'utf8');
+    assert.equal(svg, banner({ name: 'pm-web', tagline: item.description, theme }));
+    assert.doesNotMatch(svg, /@unbrained/u);
+  }
 });

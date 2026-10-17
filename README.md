@@ -148,6 +148,10 @@ bundlers. Rendering helpers are intended for build tools and server environments
 
 ## Committed package banner set
 
+Banner titles use bare `pm-<name>` branding: npm scopes are stripped for display,
+while the catalog retains scoped names for package identity and install commands.
+The [description audit](docs/package-description-audit.md) records package-owned follow-ups.
+
 The [reviewed catalog](banners/packages.json) captures the exact npm name and real
 one-line `package.json` description for all 26 public fleet packages except
 pm-cli, including pm-brand. Scoped packages use their repository basename as the

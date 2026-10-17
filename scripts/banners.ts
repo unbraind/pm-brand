@@ -36,7 +36,7 @@ export function generateBanners(root: string, check: boolean): number {
   const files = new Map<string, string>();
   for (const item of packages) for (const theme of ['light', 'dark'] as const) {
     const name = `${item.repository}${theme === 'dark' ? '-dark' : ''}.svg`;
-    files.set(name, banner({ name: item.name, tagline: item.description, theme }));
+    files.set(name, banner({ name: item.name.replace(/^@[^/]+\//u, ''), tagline: item.description, theme }));
   }
   mkdirSync(directory, { recursive: true });
   const surplus = readdirSync(directory).filter(name => /\.(?:svg|png)$/u.test(name) && !files.has(name));
