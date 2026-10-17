@@ -109,6 +109,10 @@ jobs:
           set -euo pipefail
           tag="v$VERSION"
           existing="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha 2>/dev/null || true)"
+          if [[ "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" != "$VERIFIED_COMMIT" ]]; then
+            echo 'Main advanced after publication; refusing tag/release.' >&2
+            exit 1
+          fi
           if [[ -n "$existing" ]]; then
             [[ "$existing" == "$VERIFIED_COMMIT" ]]
           else

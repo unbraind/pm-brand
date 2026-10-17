@@ -2,13 +2,13 @@
 
 68 comparisons use the WCAG 2.x sRGB relative-luminance formula,
 including alpha-composited rule borders. All 36 text comparisons meet 4.5:1;
-all four focus-ring comparisons meet 3:1. The gate fails below either threshold.
+all 4 focus-ring comparisons meet 3:1. The gate fails below either threshold.
 
 ## Orchestrator decision: decorative chip borders
 
 Chip state is conveyed by the text label and fill. All 28 chip-border comparisons
 are classified **decorative**, with no required contrast minimum. Canary, rose and
-rule tokens remain unchanged. The ten comparisons below the 3:1 reference are
+rule tokens remain unchanged. The 10 comparisons below the 3:1 reference are
 listed here with their measured ratios; they are not known failures or waivers.
 Decorative chip border; label text carries state and meets 4.5:1. WCAG 1.4.11 does not require 3:1.
 

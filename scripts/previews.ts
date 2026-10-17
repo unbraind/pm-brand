@@ -13,7 +13,12 @@ for (const theme of ['light', 'dark'] as const) {
   writeFileSync(`.cache/previews/og-${theme}.png`, renderPng(ogImage({ title: 'Work orders, in triplicate', eyebrow: 'Project management', product: 'pm-web', theme })));
 }
 for (const product of ['pm', 'web', 'gpt', 'mcp', 'search', 'swarm']) {
-  writeFileSync(`.cache/previews/lockup-${product}.png`, new Resvg(readFileSync(`logo/lockup-${product}.svg`, 'utf8'), { background: '#FFFFFF' }).render().asPng());
+  for (const family of ['lockup', 'lockup-mark']) {
+    for (const theme of ['light', 'dark'] as const) {
+      const background = theme === 'light' ? '#F3F5F8' : '#0F1528';
+      writeFileSync(`.cache/previews/${family}-${product}-${theme}.png`, new Resvg(readFileSync(`logo/${family}-${product}-${theme}.svg`, 'utf8'), { background }).render().asPng());
+    }
+  }
 }
 for (const theme of ['light', 'dark'] as const) {
   const background = theme === 'light' ? '#F3F5F8' : '#0F1528';

@@ -1,6 +1,17 @@
 /** Prove regressions detect one behaviour being removed, rebuilding dist for each mutation. */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
+const baseline = process.argv[2];
+if (!baseline) throw new Error('Usage: node scripts/revert-proof.ts <baseline-ref> (the Milestone 1 mark baseline must be available locally)');
+let mainGeometry: string;
+try {
+  mainGeometry = execFileSync('git', ['show', `${baseline}:scripts/marks.ts`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+} catch {
+  throw new Error(`Mark baseline unavailable: ${baseline}. Fetch the baseline history or supply an available Milestone 1 ref.`);
+}
+const baselineStart = mainGeometry.indexOf('function mark(');
+const baselineEnd = mainGeometry.indexOf('/** A standalone');
+if (baselineStart < 0 || baselineEnd <= baselineStart) throw new Error('Mark baseline does not contain the expected Milestone 1 mark function');
 /** Single-behaviour neutralizations stand in for the seed's absent APIs. */
 const cases = [
   { file: 'src/tokens.ts', from: 'return `var(--pm-${suffix})`;', to: 'return "";', test: 'test/tokens.test.ts', name: 'CSS variable naming' },
@@ -34,7 +45,7 @@ try {
   if (spawnSync(process.execPath, ['scripts/font-budget.ts']).status !== 1) throw new Error('Font budget did not reject overflow');
   console.log('Caught font byte-budget overflow');
 } finally { writeFileSync(font, original); }
-console.log(`${caught}/7 behavioural removals and 1/1 font overflow caught; sources restored`);
+console.log(`${caught}/${cases.length} behavioural removals and 1/1 font overflow caught; sources restored`);
 const css = readFileSync('tokens.css', 'utf8');
 try {
   writeFileSync('tokens.css', css.replace('--pm-paper: #F3F5F8;', '--pm-paper: #000000;'));
@@ -53,9 +64,8 @@ try {
   writeFileSync('scripts/marks.ts', geometry);
   execFileSync(process.execPath, ['scripts/marks.ts']);
 }
-const mainGeometry = execFileSync('git', ['show', '952a4bc8a42228e747b69ab31b8468ca43d54d08:scripts/marks.ts'], { encoding: 'utf8' });
 const currentGeometry = readFileSync('scripts/marks.ts', 'utf8');
-const baselineMark = mainGeometry.slice(mainGeometry.indexOf('function mark('), mainGeometry.indexOf('/** A standalone'));
+const baselineMark = mainGeometry.slice(baselineStart, baselineEnd);
 const currentMark = currentGeometry.slice(currentGeometry.indexOf('function mark('), currentGeometry.indexOf('/** A standalone'));
 try {
   writeFileSync('scripts/marks.ts', currentGeometry.replace(currentMark, baselineMark));

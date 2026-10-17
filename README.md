@@ -189,6 +189,12 @@ The contrast gate fails for text below 4.5:1 or focus rings below 3:1.
 Decorative chip borders have no required contrast minimum. Mark and lockup tests
 assert adaptive CSS and render every fixed variant against both theme papers.
 
+Generate review PNGs with `node scripts/previews.ts` after building. Both lockup
+families use the fixed light and dark SVGs on their matching paper colors.
+Run `node scripts/revert-proof.ts <baseline-ref>` to prove behavioral regressions;
+supply the locally available Milestone 1 commit or ref. Fetch that history first
+when using a shallow checkout. A missing baseline fails before any mutation.
+
 To regenerate fonts, install fontTools 4.65.0 and brotli 1.2.0, then run
 `npm run fonts:build` and `npm run assets:build`. Font sources are pinned and every
 path-based asset is derived from them. Rebuild image snapshots only after reviewing

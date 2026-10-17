@@ -3,6 +3,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseColor, luminance, composite, contrast, contrastAudit, tokenColor } from '../dist/contrast.js';
 
+test('rgba accepts integer and decimal alpha in range; percentages remain unsupported', () => {
+  for (const [alpha, expected] of [['0', 0], ['.5', .5], ['0.5', .5], ['1', 1], ['1.0', 1]] as const) {
+    assert.deepEqual(parseColor(`rgba(0, 0, 0, ${alpha})`), [0, 0, 0, expected], alpha);
+  }
+  for (const alpha of ['1.5', '-0.1', '50%']) assert.throws(() => parseColor(`rgba(0, 0, 0, ${alpha})`), TypeError, alpha);
+});
+
 test('WCAG reference values, alpha compositing and sRGB transfer curve', () => {
   assert.equal(contrast('#000000', '#FFFFFF'), 21);
   assert.equal(contrast('#FFFFFF', '#000000'), 21);

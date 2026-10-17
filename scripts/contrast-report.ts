@@ -2,25 +2,29 @@
 import { writeFileSync } from 'node:fs';
 import { contrastAudit } from '../dist/contrast.js';
 const rows = contrastAudit();
+const textCount = rows.filter(row => row.classification === 'text').length;
+const focusCount = rows.filter(row => row.classification === 'focus').length;
+const decorative = rows.filter(row => row.classification === 'decorative');
+const belowReference = decorative.filter(row => row.ratio < 3);
 const reason = 'Decorative chip border; label text carries state and meets 4.5:1. WCAG 1.4.11 does not require 3:1.';
 let body = `# Contrast evidence
 
 ${rows.length} comparisons use the WCAG 2.x sRGB relative-luminance formula,
-including alpha-composited rule borders. All 36 text comparisons meet 4.5:1;
-all four focus-ring comparisons meet 3:1. The gate fails below either threshold.
+including alpha-composited rule borders. All ${textCount} text comparisons meet 4.5:1;
+all ${focusCount} focus-ring comparisons meet 3:1. The gate fails below either threshold.
 
 ## Orchestrator decision: decorative chip borders
 
-Chip state is conveyed by the text label and fill. All 28 chip-border comparisons
+Chip state is conveyed by the text label and fill. All ${decorative.length} chip-border comparisons
 are classified **decorative**, with no required contrast minimum. Canary, rose and
-rule tokens remain unchanged. The ten comparisons below the 3:1 reference are
+rule tokens remain unchanged. The ${belowReference.length} comparisons below the 3:1 reference are
 listed here with their measured ratios; they are not known failures or waivers.
 ${reason}
 
 | Theme | Decorative pair | Measured ratio | Reason |
 |---|---|---:|---|
 `;
-for (const row of rows.filter(row => row.classification === 'decorative' && row.ratio < 3)) {
+for (const row of belowReference) {
   body += `| ${row.theme} | ${row.pair} | ${row.ratio.toFixed(3)}:1 | ${reason} |\n`;
 }
 body += `

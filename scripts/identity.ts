@@ -3,8 +3,11 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 const files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean);
 for (const file of files) {
-  if (/\.(png|woff2)$/u.test(file)) continue;
-  const body = readFileSync(file, 'utf8');
+  const bytes = readFileSync(file);
+  if (bytes.includes(0)) continue;
+  let body: string;
+  try { body = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+  catch { continue; }
   // Split literals so the policy's own implementation does not match itself.
   if (body.includes('/' + 'home/') || body.includes('/' + 'tmp/')) throw new Error(`Private path in ${file}`);
 }
