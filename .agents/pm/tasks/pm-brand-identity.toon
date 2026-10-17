@@ -1,0 +1,25 @@
+id: pm-brand-identity
+title: Accept approved author and committer identities with a trusted forward baseline
+description: "Mirror fleet identity controls, diagnose offending commits and roles, and exercise real adversarial Git histories. Release remains held."
+type: Task
+status: in_progress
+priority: 1
+tags: []
+created_at: "2026-10-17T09:26:07.924Z"
+updated_at: "2026-10-17T09:32:07.645Z"
+author: codex-agent
+parent: pm-brand-kit
+comments[3]{created_at,author,text}:
+  "2026-10-17T09:26:12.086Z",codex-agent,"Design: approved public emails, not display names; audit author and committer on every reachable commit after the root anchor. Read controls from the trusted default branch after adoption so a PR cannot widen its own allow-list or advance its own baseline. Keep the existing tracked UTF-8 path gate and the release hold."
+  "2026-10-17T09:28:15.594Z",codex-agent,"Revert proof: replacing only scripts/identity.ts with origin/main leaves the new tests unchanged and fails 6 of 7 cases, including approved fleet identities and missing-base refusal. Restoring the implementation passes 7 of 7. Typecheck and docstring gates pass. No tags, publishing or release activation."
+  "2026-10-17T09:31:57.200Z",codex-agent,"Validation: npm run release:check and bun run release:check passed in CI identity environments. Each ran 47 tests with 47 passes, zero failures or skips; all source statements, branches, functions and lines are 100%. Both packed npm and Bun consumer acceptances passed. Linked adversarial tests also passed 7/7. The root anchor covers every later kit and merge commit. Release remains held."
+files[4]{path,scope}:
+  .github/approved-git-identities.txt,project
+  .github/identity-baseline.txt,project
+  scripts/identity.ts,project
+  test/identity.test.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test test/identity.test.ts,project,codex-agent,"2026-10-17T09:27:44.756Z",local_mutation,fix/identity-gate-approved-identities
+docs[1]{path,scope}:
+  README.md,project
+body: ""

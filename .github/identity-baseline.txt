@@ -1,0 +1,4 @@
+# Forward-only fleet identity gate. The root anchor predates every subsequent
+# commit, including the approved public maintainer/GitHub merge of the kit.
+# No published history is rewritten. Controls come from main after adoption.
+6882e872aad70a7bcf1397fab3e914bc9ea76f04

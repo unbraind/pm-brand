@@ -195,6 +195,11 @@ The gates check strict erasable TypeScript, ESLint, documented declarations,
 tracker health, production dependencies, packed exports, and generated changelog.
 Packed npm and Bun consumers exercise tokens, CSS/assets, banners and native PNGs.
 The contrast gate fails for text below 4.5:1 or focus rings below 3:1.
+The identity gate checks both author and committer emails since the root anchor
+in `.github/identity-baseline.txt`. Approved public emails live in
+`.github/approved-git-identities.txt`. Once adopted, controls are read from main,
+so proposed changes take effect only after merging. Fetch full history and main;
+missing history fails closed. Errors name the full commit, role and identity.
 Decorative chip borders have no required contrast minimum. Mark and lockup tests
 assert adaptive CSS and render every fixed variant against both theme papers.
 
