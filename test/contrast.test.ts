@@ -1,6 +1,7 @@
 /** Contract audit: text and focus must pass; chip borders are decorative. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { parseColor, luminance, composite, contrast, contrastAudit, tokenColor } from '../dist/contrast.js';
 
 test('rgba accepts integer and decimal alpha in range; percentages remain unsupported', () => {
@@ -8,6 +9,15 @@ test('rgba accepts integer and decimal alpha in range; percentages remain unsupp
     assert.deepEqual(parseColor(`rgba(0, 0, 0, ${alpha})`), [0, 0, 0, expected], alpha);
   }
   for (const alpha of ['1.5', '-0.1', '50%']) assert.throws(() => parseColor(`rgba(0, 0, 0, ${alpha})`), TypeError, alpha);
+});
+
+test('rgba rejects a long malformed alpha without excessive backtracking', () => {
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', `
+    import assert from 'node:assert/strict';
+    import { parseColor } from './dist/contrast.js';
+    assert.throws(() => parseColor('rgba(9,9,9,' + '9'.repeat(200_000) + '!)'), TypeError);
+  `], { encoding: 'utf8', timeout: 10_000, killSignal: 'SIGKILL' });
+  assert.equal(result.status, 0, result.error?.message ?? result.stderr);
 });
 
 test('WCAG reference values, alpha compositing and sRGB transfer curve', () => {

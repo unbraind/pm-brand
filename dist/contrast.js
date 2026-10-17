@@ -6,7 +6,7 @@ export function parseColor(value) {
         return [0, 0, 0, 0];
     if (/^#[\da-f]{6}$/iu.test(value))
         return [parseInt(value.slice(1, 3), 16) / 255, parseInt(value.slice(3, 5), 16) / 255, parseInt(value.slice(5, 7), 16) / 255, 1];
-    const match = /^rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d*\.?\d+)\)$/u.exec(value);
+    const match = /^rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d+(?:\.\d+)?|\.\d+)\)$/u.exec(value);
     if (!match)
         throw new TypeError(`Unsupported colour: ${value}`);
     const color = [Number(match[1]) / 255, Number(match[2]) / 255, Number(match[3]) / 255, Number(match[4])];
