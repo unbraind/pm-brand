@@ -6,10 +6,10 @@ status: in_progress
 priority: 1
 tags: []
 created_at: "2026-10-17T09:26:07.924Z"
-updated_at: "2026-10-18T05:07:44.325Z"
+updated_at: "2026-10-18T06:58:53.937Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[12]{created_at,author,text}:
+comments[19]{created_at,author,text}:
   "2026-10-17T09:26:12.086Z",codex-agent,"Design: approved public emails, not display names; audit author and committer on every reachable commit after the root anchor. Read controls from the trusted default branch after adoption so a PR cannot widen its own allow-list or advance its own baseline. Keep the existing tracked UTF-8 path gate and the release hold."
   "2026-10-17T09:28:15.594Z",codex-agent,"Revert proof: replacing only scripts/identity.ts with origin/main leaves the new tests unchanged and fails 6 of 7 cases, including approved fleet identities and missing-base refusal. Restoring the implementation passes 7 of 7. Typecheck and docstring gates pass. No tags, publishing or release activation."
   "2026-10-17T09:31:57.200Z",codex-agent,"Validation: npm run release:check and bun run release:check passed in CI identity environments. Each ran 47 tests with 47 passes, zero failures or skips; all source statements, branches, functions and lines are 100%. Both packed npm and Bun consumer acceptances passed. Linked adversarial tests also passed 7/7. The root anchor covers every later kit and merge commit. Release remains held."
@@ -22,16 +22,28 @@ comments[12]{created_at,author,text}:
   "2026-10-18T04:52:30.297Z",codex-agent,"Round 3: bootstrap PR #6 is independently adopted on main. Retain the trusted-base gate while integrating main; verify the exact adopted controls and both release gates, then push without merging. Release remains held."
   "2026-10-18T05:01:23.081Z",codex-agent,"Main bootstrap controls match both adopted files byte for byte; the trusted-base gate reads them from main commit 98cbe45976b3111f09143c2a29ede906cb553c2a. The 16-test identity suite and eight independent safeguard reverts pass. The npm release gate passes 56/56 tests and 100 percent statements, branches, functions and lines. The first Bun attempt exposed global extension host-version skew, so repeat it under the same isolated CI home as npm."
   "2026-10-18T05:07:27.616Z",codex-agent,"Ready for CI after merging main: npm release:check passed 56/56 tests with 100/100/100/100 source coverage and packed npm/Bun acceptance. The unchanged trusted-base implementation now reads independently adopted controls from main. Eight behavioral reverts and 16 real-Git regressions pass. Isolated Bun validation is running; exact-head Node 22/26 CI must confirm before orchestration. Release remains held; PRs remain unmerged."
-files[6]{path,scope}:
+  "2026-10-18T06:34:30.504Z",codex-agent,"Round 4: read every unresolved thread and latest review plus related open issues. Verify prior safeguards; fix current findings with independent behavioral revert proofs, isolated npm and Bun release gates and exact-head CI. Leave threads unresolved and release held."
+  "2026-10-18T06:38:27.583Z",codex-agent,"Trusted workflow finding confirmed: current required contexts are verify (22), verify (26), analyze, with strict base freshness and admin enforcement, but all identity invocations currently use candidate code. Prepared a read-only base-defined workflow and real Git bypass regression. Independent main adoption and administrator activation as a required trusted workflow remain outside this PR-only review round; do not treat the bypass as fully remediated before those steps."
+  "2026-10-18T06:42:18.910Z",codex-agent,"Round 4 mutation evidence: node scripts/review-revert-proof.ts catches five independent reverts, one failing regression each: empty dispatch pin handling, workflow event pin selection, README safeguard count, trusted gate source, and signal cleanup. Real Git bypass test executes the proposed trusted workflow shell against approved and unapproved commits while candidate script and package commands are no-ops; candidate code never executes. SIGINT and SIGTERM restore the exact original file. Existing eight safeguard proofs are rerunning before full release gates."
+  "2026-10-18T06:43:35.384Z",codex-agent,"All eight existing real-Git safeguard behavioral reverts are caught independently, one regression failure each, after the five new round-four proofs. Manual dispatch and the proposed trusted workflow behavior pass. Release gates are now running under isolated CI identity; no merge, protection mutation or release is performed."
+  "2026-10-18T06:45:11.561Z",codex-agent,"Activation follow-up pm-brand-trusted-activation records the independently adopted workflow and administrator-required protection steps. Review thread 4305925234 remains a disclosed blocker; implementation preparation and regression evidence are complete, but a PR-only change cannot establish the external enforcement boundary."
+  "2026-10-18T06:49:48.224Z",codex-agent,"First full Node 26 npm gate: 59/60 tests passed; the new signal fixture exceeded its child timeout under coverage on the busy host. Narrowed only the copied fixture loop to one installed mutant per signal, still proving SIGINT and SIGTERM restore exact original contents and still failing when only signal handlers are reverted. The independent eight-safeguard proof remains unchanged. Rerun both full gates at unchanged thresholds."
+  "2026-10-18T06:58:45.980Z",codex-agent,"Final local round-4 gates pass under isolated HOME and Git identity on Node 26: npm run release:check and bun run release:check each pass 60/60 tests, zero failures/cancellations/skips/TODOs, with unchanged 100% statements, branches, functions and lines across all nine runtime sources. Build parity, assets, font budget, production audit, 77-file packed contract and npm/Bun consumer acceptance pass. Five new revert proofs and eight existing safeguard proofs pass; linked proof runner passes with result storage disabled by existing policy. Fresh no-local-clone strict health and exact-head CI follow the final commit. Trusted enforcement remains blocked on independent main adoption and required-workflow activation in pm-brand-trusted-activation. Release stays HELD."
+files[9]{path,scope}:
   .github/approved-git-identities.txt,project
   .github/identity-baseline.txt,project
   .github/workflows/ci.yml,project
+  .github/workflows/identity.yml,project
   scripts/identity-revert-proof.ts,project
   scripts/identity.ts,project
+  scripts/review-revert-proof.ts,project
   test/identity.test.ts,project
-tests[2]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  test/workflows.test.ts,project
+tests[4]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   node --test test/identity.test.ts,project,codex-agent,"2026-10-17T09:27:44.756Z",local_mutation,fix/identity-gate-approved-identities
   node scripts/identity-revert-proof.ts,project,codex-agent,"2026-10-17T12:23:54.692Z",local_mutation,fix/identity-gate-approved-identities
+  node scripts/review-revert-proof.ts,project,codex-agent,"2026-10-18T06:40:56.962Z",local_mutation,fix/identity-gate-approved-identities
+  node --test test/identity.test.ts test/workflows.test.ts,project,codex-agent,"2026-10-18T06:47:23.916Z",local_mutation,fix/identity-gate-approved-identities
 docs[1]{path,scope}:
   README.md,project
 body: ""

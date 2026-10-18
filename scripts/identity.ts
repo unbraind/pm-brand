@@ -12,7 +12,7 @@ function baseRef(): string {
   let current: string;
   try { current = git('rev-parse', '--verify', 'refs/remotes/origin/main^{commit}').trim(); }
   catch { throw new Error('No trusted main ref: fetch origin/main and full history before identity:check'); }
-  const expected = process.env.IDENTITY_BASE_SHA;
+  const expected = process.env.IDENTITY_BASE_SHA || undefined;
   if (expected !== undefined && (!/^[a-f0-9]{40}$/u.test(expected) || expected !== current)) {
     throw new Error('Stale identity policy base: refresh the PR against current main and rerun required checks');
   }

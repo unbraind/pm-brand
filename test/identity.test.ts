@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -290,4 +290,49 @@ test('forward adoption accepts inherited squash history and dependency commits w
     assert.equal(rejected.status, 1);
     assert.ok(String(rejected.stderr).includes(`${bad} author SteveBot <unexpected@example.invalid>`));
   }, 'legacy-squash@example.invalid');
+});
+
+
+test('manual dispatch with an empty policy pin audits current trusted main', () => {
+  history((scratch, _git, commit) => {
+    commit();
+    assert.equal(audit(scratch, '').status, 0);
+    commit('dispatch-offender@example.invalid');
+    const rejected = audit(scratch, '');
+    assert.equal(rejected.status, 1);
+    assert.match(String(rejected.stderr), /Unapproved commit identities/u);
+  });
+});
+
+test('trusted workflow rejects candidate identity bypasses without executing candidate code', () => {
+  history((scratch, git, commit) => {
+    mkdirSync(join(scratch, 'scripts'));
+    writeFileSync(join(scratch, 'scripts/identity.ts'), readFileSync('scripts/identity.ts'));
+    git('add', 'scripts/identity.ts'); commit();
+    const base = git('rev-parse', 'HEAD');
+    git('update-ref', 'refs/remotes/origin/main', base);
+    git('remote', 'add', 'origin', scratch);
+    writeFileSync(join(scratch, 'scripts/identity.ts'), "import { writeFileSync } from 'node:fs'; writeFileSync('executed-candidate', 'unsafe');\n");
+    writeFileSync(join(scratch, 'package.json'), JSON.stringify({ scripts: { 'identity:check': 'exit 0', 'release:check': 'exit 0' } }));
+    git('add', 'scripts/identity.ts', 'package.json'); commit();
+    const workflow = readFileSync('.github/workflows/identity.yml', 'utf8');
+    assert.match(workflow, /pull_request_target:/u);
+    assert.match(workflow, /contents: read/u);
+    assert.match(workflow, /persist-credentials: false/u);
+    assert.doesNotMatch(workflow, /npm |bun |secrets\.|cache:/u);
+    const script = workflow.split('        run: |\n')[1].replace(/^          /gmu, '');
+    for (const approved of [true, false]) {
+      if (!approved) commit('bypass@example.invalid');
+      const sha = git('rev-parse', 'HEAD');
+      git('update-ref', 'refs/pull/4/head', sha);
+      const result = spawnSync('bash', ['--noprofile', '--norc', '-c', script], {
+        cwd: scratch, encoding: 'utf8', timeout: 10000,
+        env: { ...process.env, IDENTITY_BASE_SHA: base, PROPOSED_SHA: sha, PR_NUMBER: '4', RUNNER_TEMP: scratch },
+      });
+      assert.equal(result.error, undefined);
+      assert.equal(result.status, approved ? 0 : 1, result.stderr);
+      assert.equal(existsSync(join(scratch, 'executed-candidate')), false, 'proposed gate must never execute');
+      if (!approved) assert.match(result.stderr, /Unapproved commit identities/u);
+    }
+  });
 });

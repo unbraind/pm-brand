@@ -1,0 +1,15 @@
+id: pm-brand-trusted-activation
+title: Activate independently adopted trusted identity protection
+description: "PR 4 prepares a base-defined identity workflow and real Git bypass regression. A PR cannot activate its own trusted workflow. Independently adopt the reviewed workflow and gate on main, then require the trusted workflow result while retaining strict current-base validation, existing checks and admin enforcement. Verify candidate script and package-command edits cannot forge acceptance. Check the repository Actions event policy before activation. No protection mutation or merge is authorized in the review round."
+type: Task
+status: open
+priority: 1
+tags: []
+created_at: "2026-10-18T06:44:00.807Z"
+updated_at: "2026-10-18T06:44:55.028Z"
+author: codex-agent
+acceptance_criteria: Trusted workflow is independently adopted on main and required; malicious candidate gate edits fail an exact-head protected check.
+parent: pm-brand-kit
+comments[1]{created_at,author,text}:
+  "2026-10-18T06:44:54.987Z",codex-agent,"Follow-up from PR 4 thread 4305925234. Verified existing main protection has strict required verify (22), verify (26), analyze checks and admin enforcement, but no independently trusted identity context. Prepared workflow uses base definitions and base script only; exact-head real Git tests reject candidate no-op gate edits. Keep this item open until independent adoption, trusted-required-workflow activation and exact-head acceptance are verified."
+body: ""
