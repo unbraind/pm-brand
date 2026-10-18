@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { Resvg } from '@resvg/resvg-js';
 import { tokenColor } from '../dist/contrast.js';
+import { ogImage, renderPng } from '../dist/og.js';
+import { OG_PREVIEW_COPY } from '../scripts/preview-copy.ts';
 
 test('review previews render all 24 fixed lockups on the correct theme paper', () => {
   const scratch = mkdtempSync(join(tmpdir(), 'pm-brand-previews-'));
@@ -15,6 +17,10 @@ test('review previews render all 24 fixed lockups on the correct theme paper', (
     execFileSync(process.execPath, [resolve('scripts/previews.ts')], { cwd: scratch });
     const output = join(scratch, '.cache/previews');
     assert.equal(readdirSync(output).filter(file => file.startsWith('lockup-')).length, 24);
+    for (const theme of ['light', 'dark'] as const) {
+      const expected = Buffer.from(renderPng(ogImage({ ...OG_PREVIEW_COPY, product: 'pm-web', theme })));
+      assert.ok(readFileSync(join(output, `og-${theme}.png`)).equals(expected), `${theme}: OG preview uses shared copy`);
+    }
     for (const product of ['pm', 'web', 'gpt', 'mcp', 'search', 'swarm']) {
       for (const family of ['lockup', 'lockup-mark']) {
         for (const theme of ['light', 'dark'] as const) {

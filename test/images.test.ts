@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { banner } from '../dist/banner.js';
 import { ogImage, renderPng } from '../dist/og.js';
 import { escapeXml, ellipsize, wrapTitle, textWidth, textPaths } from '../dist/text.js';
+import { OG_PREVIEW_COPY } from '../scripts/preview-copy.ts';
 
 test('XML syntax is escaped and controls, noncharacters and lone surrogates are rejected', () => {
   assert.equal(escapeXml('<&"\'>'), '&lt;&amp;&quot;&apos;&gt;');
@@ -45,7 +46,7 @@ test('long titles wrap at measured word boundaries and ellipsize at the last lin
 test('both themes have stable, font-free SVG structure and expected PNG dimensions', () => {
   const snapshots = JSON.parse(readFileSync('test/image-snapshots.json', 'utf8')) as Record<string, string>;
   for (const theme of ['light', 'dark'] as const) {
-    const variants = { banner: banner({ name: 'pm-web', tagline: 'Keep every agent on the same page.', theme }), og: ogImage({ title: 'Context for any agent and task', eyebrow: 'Context management', product: 'pm-web', theme }) };
+    const variants = { banner: banner({ name: 'pm-web', tagline: 'Keep every agent on the same page.', theme }), og: ogImage({ ...OG_PREVIEW_COPY, product: 'pm-web', theme }) };
     for (const [name, svg] of Object.entries(variants)) {
       assert.equal(createHash('sha256').update(svg).digest('hex'), snapshots[`${theme}-${name}`]);
       assert.match(svg, /role="img"/);
