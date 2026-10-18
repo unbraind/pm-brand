@@ -31,6 +31,10 @@ checks.push(['raw email', 'whitespace-suffixed oldest', original.slice(0, logSta
 const record = '  const [sha, authorName, authorEmail, committerName, committerEmail] = fields.slice(index, index + 5);';
 checks.push(['merge committer', 'unapproved merge committer', original.replace(record, record +
   "\n  if (git('rev-list', '--parents', '-n', '1', sha!).trim().split(' ').length > 2) continue;")]);
+checks.push(['committed control edits', 'committed edits to both controls', original.replace(
+  "try { return git('show', `${base}:${path}`); }", "try { return readFileSync(path, 'utf8'); }")]);
+checks.push(['forward baseline', 'forward adoption accepts inherited', original
+  .replace('`${baseline}..HEAD`', "'HEAD'").replace('`${baseline}..${base}`', 'base')]);
 try {
   for (const [name, pattern, mutant] of checks) {
     if (mutant === original) throw new Error(`No behavioral revert applied for ${name}`);

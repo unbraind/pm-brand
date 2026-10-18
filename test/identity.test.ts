@@ -40,7 +40,7 @@ test('identity scans UTF-8 regardless of extension and skips NUL or invalid UTF-
 });
 
 /** Operate on an isolated real Git history with controls already adopted on the trusted base. */
-function history(run: (scratch: string, git: (...args: string[]) => string, commit: (author?: string, committer?: string) => string) => void): void {
+function history(run: (scratch: string, git: (...args: string[]) => string, commit: (author?: string, committer?: string) => string) => void, legacyEmail?: string): void {
   const scratch = mkdtempSync(join(tmpdir(), 'pm-brand-history-'));
   const publicEmail = '1153461+unbraind@users.noreply.github.com';
   /** Execute fixture Git commands with a synthetic public identity independent of the host. */
@@ -57,7 +57,7 @@ function history(run: (scratch: string, git: (...args: string[]) => string, comm
   };
   try {
     git('init', '--quiet', '-b', 'main');
-    const root = commit();
+    const root = commit(legacyEmail, legacyEmail);
     mkdirSync(join(scratch, '.github'));
     writeFileSync(join(scratch, '.github/approved-git-identities.txt'), readFileSync('.github/approved-git-identities.txt'));
     writeFileSync(join(scratch, '.github/identity-baseline.txt'), `# Forward-only test anchor\n${root}\n`);
@@ -258,4 +258,36 @@ test('an unapproved merge committer fails independently of approved side-branch 
     assert.ok(String(result.stderr).includes(`${sha} committer Merge fixture <merge@example.invalid>`), String(result.stderr));
     assert.doesNotMatch(String(result.stderr), /author Public author/u);
   });
+});
+
+
+test('committed edits to both controls remain judged by the independently adopted base policy', () => {
+  history((scratch, git, commit) => {
+    const base = git('rev-parse', 'origin/main');
+    const bad = 'self-approved@example.invalid';
+    writeFileSync(join(scratch, '.github/approved-git-identities.txt'), `${bad}\n`);
+    writeFileSync(join(scratch, '.github/identity-baseline.txt'), `${base}\n`);
+    git('add', '.github');
+    const sha = commit(bad, bad);
+    const result = audit(scratch, base);
+    assert.equal(result.status, 1);
+    for (const role of ['author', 'committer']) {
+      assert.ok(String(result.stderr).includes(`${sha} ${role}`), String(result.stderr));
+    }
+    assert.match(String(result.stderr), /Unapproved commit identities/u);
+  });
+});
+
+
+test('forward adoption accepts inherited squash history and dependency commits while rejecting new unknown identities', () => {
+  history((scratch, _git, commit) => {
+    commit('stefan@preu.at', 'noreply@github.com');
+    commit('49699333+dependabot[bot]@users.noreply.github.com', 'noreply@github.com');
+    const clean = audit(scratch);
+    assert.equal(clean.status, 0, String(clean.stderr));
+    const bad = commit('unexpected@example.invalid');
+    const rejected = audit(scratch);
+    assert.equal(rejected.status, 1);
+    assert.ok(String(rejected.stderr).includes(`${bad} author SteveBot <unexpected@example.invalid>`));
+  }, 'legacy-squash@example.invalid');
 });
