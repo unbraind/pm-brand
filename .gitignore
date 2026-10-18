@@ -13,3 +13,7 @@ coverage/
 .agents/pm/checkpoints/
 !.agents/pm/search/eval-queries.json
 # pm-cli:runtime-cache:end
+
+# package-lock.json is the shared npm/Bun dependency source of truth.
+bun.lock
+bun.lockb
