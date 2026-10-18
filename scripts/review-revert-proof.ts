@@ -11,6 +11,7 @@ const cases = [
   ['workflow dispatch pin', '.github/workflows/ci.yml', "(github.event_name == 'push' && github.sha) || ''", 'github.sha', 'dispatch-safe pin', 'test/workflows.test.ts'],
   ['README count', 'README.md', 'for eight independent', 'for six independent', 'dispatch-safe pin', 'test/workflows.test.ts'],
   ['trusted gate source', '.github/workflows/identity.yml', '$IDENTITY_BASE_SHA:scripts/identity.ts', '$PROPOSED_SHA:scripts/identity.ts', 'trusted workflow rejects', 'test/identity.test.ts'],
+  ['trusted baseline ancestry', 'scripts/identity.ts', "    git('merge-base', '--is-ancestor', baseline, base);", '', 'a trusted baseline', 'test/identity.test.ts'],
 ] as const;
 try {
   for (const path of ['scripts', 'test', '.github']) cpSync(path, join(root, path), { recursive: true });

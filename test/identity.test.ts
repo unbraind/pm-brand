@@ -148,6 +148,22 @@ test('bootstrap cannot anchor to an unmerged commit even if that commit exists l
 });
 
 
+test('a trusted baseline must be an ancestor of the trusted base and HEAD', () => {
+  history((scratch, git, commit) => {
+    const main = git('rev-parse', 'main');
+    git('checkout', '--quiet', '--orphan', 'bootstrap');
+    writeFileSync(join(scratch, '.github/identity-baseline.txt'), `${main}\n`);
+    git('add', '.github');
+    const anchor = commit();
+    git('update-ref', 'refs/remotes/origin/main', anchor);
+    git('checkout', '--quiet', 'feature');
+    const result = audit(scratch);
+    assert.equal(result.status, 1);
+    assert.match(String(result.stderr), /ancestor of both/u);
+    assert.doesNotMatch(String(result.stderr), /Missing trusted control/u);
+  });
+});
+
 test('absent trusted controls never bootstrap from replacement PR controls', () => {
   for (const missing of ['identities', 'baseline', 'both'] as const) history((scratch, git, commit) => {
     const goodBase = git('rev-parse', 'origin/main');
