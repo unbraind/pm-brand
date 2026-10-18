@@ -1,0 +1,2 @@
+# Forward-only adoption anchor; existing main history is grandfathered.
+7ad0970d96a20c24b8dbd9e0dcd1efeb8b4d5cc1
