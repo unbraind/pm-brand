@@ -33,7 +33,8 @@ jobs:
       - run: npm ci
       - run: npm run release:check
       - if: matrix.node == 26
-        run: bun install --frozen-lockfile
+        # Dependabot maintains package-lock.json; Bun consumes that same graph.
+        run: bun install --no-save
       - if: matrix.node == 26
         run: bun run release:check
       - if: matrix.node == 26
