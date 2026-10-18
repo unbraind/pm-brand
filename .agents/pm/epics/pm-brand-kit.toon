@@ -6,9 +6,9 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-17T02:36:07.670Z"
+updated_at: "2026-10-18T03:04:53.552Z"
 author: codex-agent
-comments[25]{created_at,author,text}:
+comments[27]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
   "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
   "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
@@ -34,7 +34,11 @@ comments[25]{created_at,author,text}:
   "2026-10-17T02:30:13.972Z",codex-agent,"Round 4: confirmed the unresolved annotated-tag finding on PR #1 at head c64fb9d. Plan: resolve tag objects to commits with a bounded loop, retain mismatch refusal, drive the workflow shell step with a gh executable stub on PATH, prove regression failures with only workflow behavior reverted, then run npm and Bun release gates."
   "2026-10-17T02:31:44.207Z",codex-agent,"Round 4 implementation: dereference up to 16 tag objects using the object type and SHA at each hop, require a nonempty commit target, and retain exact verified-commit comparison. PATH-based gh stub covers 17 scenarios with both tested and advanced main tips; focused suite passed 18/18 without skips. Behavioral revert proof caught 4/4 independent mutations: baseline step, removed peeling, removed type guard, and increased depth bound. Workflow restored after every probe."
   "2026-10-17T02:36:03.795Z",codex-agent,"Round 4 validation complete: npm run release:check and bun run release:check each passed under isolated HOME and clean Git configuration: 41/41 tests, zero skips/cancellations/todos, 100/100/100/100 across all nine source modules. Both gates passed typecheck, lint, compiled and asset parity, docstrings, font budget, production audit, packed npm/Bun consumers and changelog consistency. Linked pm runs passed node --test test/workflows.test.ts (18/18) and node scripts/tag-revert-proof.ts c64fb9da7937c2d239f67357cab325f6a9cff29a (4/4 mutations caught). No pm CLI defects encountered. Releasing the claim without closing the item, then committing, pushing, replying to the unresolved review thread and waiting for exact-head checks. Release remains held."
-files[18]{path,scope}:
+  "2026-10-18T03:01:50.392Z",codex-agent,"Round 2 bootstrap: adopt only approved fleet email controls and a forward baseline at current main 7ad0970d96a20c24b8dbd9e0dcd1efeb8b4d5cc1. The separate identity-controls-bootstrap PR must land before PR 4 is refreshed; no gate code is included. Main checks stay unchanged and release stays held."
+  "2026-10-18T03:02:48.171Z",codex-agent,"Bootstrap blocker reproduced: unchanged main scripts/identity.ts hard-codes display-name identities, ignores both controls and rejects the existing main squash author. Both isolated npm and Bun release:check fail at identity:check before tests. Dependabot is already in the hard-coded list; PR 2 also fails on inherited main history, not the Dependabot identity. A controls-only bootstrap cannot make these current checks green. No gate bypass or history change was made."
+files[20]{path,scope}:
+  .github/approved-git-identities.txt,project
+  .github/identity-baseline.txt,project
   .github/workflows/ci.yml,project
   .github/workflows/release.yml,project
   scripts/contrast-report.ts,project

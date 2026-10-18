@@ -6,10 +6,10 @@ status: in_progress
 priority: 1
 tags: []
 created_at: "2026-10-17T09:26:07.924Z"
-updated_at: "2026-10-18T03:12:43.484Z"
+updated_at: "2026-10-18T05:07:44.325Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[9]{created_at,author,text}:
+comments[12]{created_at,author,text}:
   "2026-10-17T09:26:12.086Z",codex-agent,"Design: approved public emails, not display names; audit author and committer on every reachable commit after the root anchor. Read controls from the trusted default branch after adoption so a PR cannot widen its own allow-list or advance its own baseline. Keep the existing tracked UTF-8 path gate and the release hold."
   "2026-10-17T09:28:15.594Z",codex-agent,"Revert proof: replacing only scripts/identity.ts with origin/main leaves the new tests unchanged and fails 6 of 7 cases, including approved fleet identities and missing-base refusal. Restoring the implementation passes 7 of 7. Typecheck and docstring gates pass. No tags, publishing or release activation."
   "2026-10-17T09:31:57.200Z",codex-agent,"Validation: npm run release:check and bun run release:check passed in CI identity environments. Each ran 47 tests with 47 passes, zero failures or skips; all source statements, branches, functions and lines are 100%. Both packed npm and Bun consumer acceptances passed. Linked adversarial tests also passed 7/7. The root anchor covers every later kit and merge commit. Release remains held."
@@ -19,6 +19,9 @@ comments[9]{created_at,author,text}:
   "2026-10-18T03:00:28.414Z",codex-agent,"Round 2: independently adopt the exact email-list and forward-baseline controls in a separate main-based bootstrap PR. Keep trusted-base policy evaluation and add a committed dual-control-edit regression. Full gates remain blocked until the orchestrator merges bootstrap and refreshes this branch; release stays held."
   "2026-10-18T03:07:49.749Z",codex-agent,"Issue 3 root cause confirmed: old main audits all historical display names and already allows Dependabot. The controls-only bootstrap anchors current main; PR 4 then uses independently adopted emails for both author and committer only after that anchor. Added a legacy squash plus dependency regression with a new-unknown-identity negative control and a forward-baseline behavioral revert. Bootstrap itself remains red under the unchanged old gate."
   "2026-10-18T03:12:12.692Z",codex-agent,"Round 2 regression evidence: 16/16 real-Git tests pass, including committed edits to both controls and inherited squash/dependency history. Eight independent safeguard reverts are caught (one failing regression each). The controls-only bootstrap is PR 6 at 993008556c26cf60828d2c928bf54b19c8750e7c and its unchanged old identity gate is red on inherited main history. PR 4 and PR 5 remain fail-closed until independent controls are on main."
+  "2026-10-18T04:52:30.297Z",codex-agent,"Round 3: bootstrap PR #6 is independently adopted on main. Retain the trusted-base gate while integrating main; verify the exact adopted controls and both release gates, then push without merging. Release remains held."
+  "2026-10-18T05:01:23.081Z",codex-agent,"Main bootstrap controls match both adopted files byte for byte; the trusted-base gate reads them from main commit 98cbe45976b3111f09143c2a29ede906cb553c2a. The 16-test identity suite and eight independent safeguard reverts pass. The npm release gate passes 56/56 tests and 100 percent statements, branches, functions and lines. The first Bun attempt exposed global extension host-version skew, so repeat it under the same isolated CI home as npm."
+  "2026-10-18T05:07:27.616Z",codex-agent,"Ready for CI after merging main: npm release:check passed 56/56 tests with 100/100/100/100 source coverage and packed npm/Bun acceptance. The unchanged trusted-base implementation now reads independently adopted controls from main. Eight behavioral reverts and 16 real-Git regressions pass. Isolated Bun validation is running; exact-head Node 22/26 CI must confirm before orchestration. Release remains held; PRs remain unmerged."
 files[6]{path,scope}:
   .github/approved-git-identities.txt,project
   .github/identity-baseline.txt,project
