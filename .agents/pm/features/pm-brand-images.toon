@@ -6,10 +6,10 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:23.420Z"
-updated_at: "2026-10-18T03:05:26.744Z"
+updated_at: "2026-10-18T05:14:44.282Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[12]{created_at,author,text}:
+comments[14]{created_at,author,text}:
   "2026-10-17T01:29:50.524Z",codex-agent,"Round 3: read the full unresolved PR 1 text-performance thread at ef95044. Plan: bound every input field to 512 code points at complete grapheme boundaries before XML validation, measurement and metadata; use cumulative glyph advances for linear ellipsizing; add deterministic measurement budgets, grapheme and boundary coverage plus a behavioral revert proof."
   "2026-10-17T01:32:51.225Z",codex-agent,"Implemented a bounded 513-code-point lookahead window and complete-grapheme cap of 512 before validation, layout and metadata. Ellipsizing measures each bounded glyph once and scans cumulative advances at grapheme boundaries. Revert proof: old ellipsize exceeds the 513-call budget both without and with the new cap; removing the cap fails exact/one-over boundaries. All 4 round-three behavioral mutations were caught and restored, including the tag mismatch check."
   "2026-10-17T01:36:20.672Z",codex-agent,"Final verification: npm run release:check passed with isolated HOME and clean Git configuration; bun run release:check passed sequentially. Each gate: 25/25 tests, zero skips/cancellations/todos, all src coverage 100/100/100/100, packed npm and Bun consumers passed. Focused pm test run passed 9/9. Revert proof passed 4/4 mutations; old algorithm fails at glyph measurement call 514 with or without the cap. Existing image snapshots pass unchanged. No remaining implementation risks found within the bounded rendering path."
@@ -22,7 +22,10 @@ comments[12]{created_at,author,text}:
   "2026-10-17T12:32:59.971Z",codex-agent,"Stack correction: carried identity PR 4 commit 3e7af696902f37ca0734a524897764d881ef817c onto this branch so it cannot retain the old bootstrap fallback. The earlier 51/51 full-gate results apply to the scope-only commit; both current release gates now fail closed until trusted controls are independently adopted on main. Verify the combined 58-test suite and downstream package checks before final delivery."
   "2026-10-17T12:36:02.525Z",codex-agent,"Combined head validation after carrying the hardened identity gate: 58/58 tests pass, zero failures/skips, 100/100/100/100 source coverage; tracker health, typecheck, lint, build parity, docstrings, assets/fonts, 52 deterministic banners, production audit, 130 intended packed files and packed npm/Bun consumers pass separately. npm run release:check and bun run release:check both fail closed on missing trusted main controls. Scope code/tests/assets are byte-identical to the earlier reviewed correction and its 12 captures. Independent control adoption is the remaining blocker; no release is authorized."
   "2026-10-18T03:02:50.543Z",codex-agent,"Round 2 CI diagnosis: both Node checks fail only because PR 5 is stacked on PR 4 and trusted main controls are absent. Keep the bare pm-name display. PR 152 updates the Gantt package description to include ASCII, SVG, HTML, Mermaid, dependency-aware scheduling and Triplicate styling; banners refresh when the generator next re-reads package descriptions. Bootstrap currently also exposes an older main identity-gate failure on inherited squash history."
-files[15]{path,scope}:
+  "2026-10-18T05:08:29.207Z",codex-agent,"Round 3: refresh banners against independently adopted main controls after the identity branch is pushed. Retain the trusted-base implementation when main conflicts with the seed gate, verify both release gates, and leave release held and PR unmerged."
+  "2026-10-18T05:14:15.780Z",codex-agent,Main refresh retains the exact trusted-base identity implementation from PR 4 and replaces the older root anchor with the independently adopted forward baseline from PR 6. Identity check now succeeds against main 98cbe45976b3111f09143c2a29ede906cb553c2a. Banner code and all 52 reviewed images are unchanged; the four banner regressions are run through their existing linked command. Full isolated npm/Bun release gates are running and exact-head CI will confirm both Node versions. Release remains held.
+files[17]{path,scope}:
+  .github/identity-baseline.txt,project
   banners/packages.json,project
   banners/pm-brand.svg,project
   banners/pm-gantt-chart.svg,project
@@ -30,6 +33,7 @@ files[15]{path,scope}:
   banners/pm-web-dark.svg,project
   banners/pm-web.svg,project
   scripts/banners.ts,project
+  scripts/identity.ts,project
   scripts/text-revert-proof.ts,project
   src/banner.ts,project
   src/image.ts,project
