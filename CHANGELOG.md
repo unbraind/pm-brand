@@ -12,5 +12,5 @@
 
 ### Other
 
-- Accept approved author and committer identities with a trusted forward baseline ([pm-brand-identity](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/tasks/pm-brand-identity.toon))
 - pm-brand kit ([pm-brand-kit](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/epics/pm-brand-kit.toon))
+- Accept approved author and committer identities with a trusted forward baseline ([pm-brand-identity](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/tasks/pm-brand-identity.toon))

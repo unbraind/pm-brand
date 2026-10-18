@@ -17,12 +17,32 @@ here, add it to `pm-brand` first.
 
 ## The idea
 
-Work orders used to be filled out in triplicate: a white original with canary
-and pink carbon copies underneath. pm works the same way. Every agent edits its
-own copy of an item on its own branch, and pm's merge drivers reconcile the
-copies field by field. The identity uses that vocabulary: cool form paper,
-carbon-blue ink, canary and rose for the copies, and a violet rubber-stamp ink
+Work orders used to be filled out in triplicate, so that everyone involved held
+the same record: a white original with canary and pink carbon copies underneath.
+pm is that record for agents: **context management for any agent and any task
+or workflow**. An agent uses pm to manage its own context: goals, tasks,
+decisions, evidence, files, tests, memory and history, kept as typed, stamped
+items it reads in compact TOON and updates through one CLI and SDK. That holds
+for coding, research and operations, for long-running workflows, for recursive
+agents that call themselves (Recursive Language Models), and for the people
+working alongside them. pm runs in a plain folder, in a hosted workspace
+(pm-web, the remote MCP, ChatGPT) or synced with the tools a team already uses,
+with or without git. Every change is stamped with who made it and from where.
+The identity uses that vocabulary: cool form paper, carbon-blue ink, canary and
+rose for the copies different participants hold, and a violet rubber-stamp ink
 for actions and for anything that is done.
+
+**Owner rules (2026-10-18): project management IS context management for
+agents, and the brand is never about git or merging.** The two are one idea:
+headlines may lead with that equality ("project management = context
+management") but never narrow pm to software projects or to coding agents
+only. pm is for any agent, task and workflow. Brand-level copy, visuals and signatures
+(hero, taglines, OG images, banners, product chrome) lead with agents managing
+their own context, the stamped record, the CLI and SDK, and the package
+ecosystem. They never use branch, merge, commit, merge-driver or
+"git-native" framing. Git and merge drivers are one integration among many.
+They are described only on the pages of the packages and docs that are about
+them.
 
 ## Custom properties (`pm-brand/tokens.css`)
 
@@ -95,8 +115,8 @@ Total font payload stays under 120 KB.
 - **Inputs are underlined form fields** with condensed uppercase captions.
 - **One violet primary action per screen.** Secondary buttons: carbon outline.
   Quiet buttons: underlined text.
-- **Tints mean copies.** Canary and rose appear only for branch or collaborator
-  copies, in-progress and blocked. Never as decoration. Text never sits on a
+- **Tints mean copies.** Canary and rose appear only for a participant's copy
+  (another agent, person or surface), in-progress and blocked. Never as decoration. Text never sits on a
   tint alone except inside chips and changed-field rows.
 - **Copy is plain.** Buttons say what happens ("Link files"), results confirm
   it ("Files linked"), errors say what failed and how to fix it.
@@ -111,13 +131,17 @@ the product as a condensed caption in a carbon-outlined box: `pm [WEB]`,
 
 ## The signature (used in exactly two places)
 
-The field-by-field merge: three copies of one item fan out on their branches,
-then fold back into one sheet whose changed rows carry a canary or rose left
-border naming the copy they came from.
+The live record: one item sheet whose fields are filled in by different
+participants. Each change arrives as a tinted copy slip stamped with its author
+and surface (for example `codex-agent · pm CLI`, `Morgan · pm-web`,
+`ChatGPT · pm-gpt`). It settles into the sheet with the changed row carrying a
+canary or rose left border naming who changed it, and adds one line to the
+item's history. There are no branches, no fan-out and no merge.
 
-1. The website hero, driven by a real item from pm's own tracker.
-2. pm-web, where an edit arriving live from another person slides in as a
-   tinted copy before it settles.
+1. The website hero, driven by a real item and its real, stamped history from
+   pm's own tracker.
+2. pm-web, where an edit arriving live from another person, agent or surface
+   slides in as a tinted copy before it settles.
 
 Nowhere else. Reviews reject the motion or the tints anywhere else.
 
