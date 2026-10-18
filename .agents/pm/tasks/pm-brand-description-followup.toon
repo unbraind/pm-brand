@@ -1,0 +1,12 @@
+id: pm-brand-description-followup
+title: Refresh package descriptions before the next banner catalog update
+description: "Read-only audit of all 26 package descriptions against README introductions found stale or weak summaries in pm-github (import-only wording omits round-trip integration, gated sync, closeout and projects), pm-rl (omits recursive loops and fail-closed evaluation lifecycles), pm-web (omits dedupe-audit and validation), and pm-gantt-chart (ASCII-led wording undersells Mermaid, HTML, CSV, JSON, critical path and dependency scheduling). Coordinate package-owned changes separately, then refresh banners/packages.json and regenerate. No other repository is edited by this banner PR."
+type: Task
+status: open
+priority: 2
+tags: []
+created_at: "2026-10-17T12:22:32.664Z"
+updated_at: "2026-10-17T12:22:32.664Z"
+author: codex-agent
+parent: pm-brand-images
+body: ""

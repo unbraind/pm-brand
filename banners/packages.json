@@ -1,0 +1,132 @@
+[
+  {
+    "name": "pm-ado",
+    "description": "Azure DevOps work-item sync for pm-cli, with revision-checked writes so concurrent agents cannot clobber each other",
+    "repository": "pm-ado"
+  },
+  {
+    "name": "pm-beads",
+    "description": "Beads JSONL import/export extension for pm-cli",
+    "repository": "pm-beads"
+  },
+  {
+    "name": "pm-brand",
+    "description": "The Triplicate brand kit for pm: design tokens, fonts, mark and icons shared by every pm surface",
+    "repository": "pm-brand"
+  },
+  {
+    "name": "pm-brief",
+    "description": "Token-budgeted agent briefs and next-work plans for pm workspaces",
+    "repository": "pm-brief"
+  },
+  {
+    "name": "pm-changelog",
+    "description": "Generate CHANGELOG.md files from pm-cli items for local and CI usage",
+    "repository": "pm-changelog"
+  },
+  {
+    "name": "pm-context",
+    "description": "Generate deterministic pm context packs for agent handoffs, reviews, and status briefs",
+    "repository": "pm-context"
+  },
+  {
+    "name": "pm-csv",
+    "description": "CSV importer and exporter for pm-cli",
+    "repository": "pm-csv"
+  },
+  {
+    "name": "pm-gantt-chart",
+    "description": "ASCII Gantt chart renderer + multi-format exporter for pm-cli",
+    "repository": "pm-gantt-chart"
+  },
+  {
+    "name": "pm-github",
+    "description": "GitHub Issues importer extension for pm-cli",
+    "repository": "pm-github"
+  },
+  {
+    "name": "pm-graph",
+    "description": "Knowledge graph and dependency graph extension for pm CLI workspaces, with optional Neo4j sync.",
+    "repository": "pm-graph"
+  },
+  {
+    "name": "pm-jev",
+    "description": "Typed, local-first System One decisions for pm-cli items (Jev-style models via @typesafe-ai/sdk)",
+    "repository": "pm-jev"
+  },
+  {
+    "name": "pm-jira",
+    "description": "Jira issue sync for pm-cli",
+    "repository": "pm-jira"
+  },
+  {
+    "name": "pm-linear",
+    "description": "Linear.app issue sync for pm-cli",
+    "repository": "pm-linear"
+  },
+  {
+    "name": "pm-lint",
+    "description": "Authoring-quality lint rules for useful pm item context",
+    "repository": "pm-lint"
+  },
+  {
+    "name": "pm-ops",
+    "description": "Multi-repo fleet operations for pm-cli",
+    "repository": "pm-ops"
+  },
+  {
+    "name": "pm-presets",
+    "description": "All 7 official pm-cli workspace presets in one package: bug-triage, indie-dev, open-source, software-sprint, startup-roadmap, kanban, agent-workflow",
+    "repository": "pm-presets"
+  },
+  {
+    "name": "pm-review",
+    "description": "Durable bot review findings, verdict precedents and exact-head round gates for pm-cli",
+    "repository": "pm-review"
+  },
+  {
+    "name": "pm-rl",
+    "description": "Reinforcement-learning programme management on the pm SDK: content-addressed environments, attributable runs, and bounded compressed metric segments that preserve accepted branch occurrences.",
+    "repository": "pm-rl"
+  },
+  {
+    "name": "pm-slack",
+    "description": "Slack notifications for pm item lifecycle events",
+    "repository": "pm-slack"
+  },
+  {
+    "name": "pm-slack-standup",
+    "description": "Post pm context as a Slack standup message",
+    "repository": "pm-slack-standup"
+  },
+  {
+    "name": "pm-starter",
+    "description": "Complete starter/scaffold extension for pm-cli showing all capability types",
+    "repository": "pm-starter"
+  },
+  {
+    "name": "pm-swarm",
+    "description": "Git worktree lanes and real conflict prediction for parallel pm agents",
+    "repository": "pm-swarm"
+  },
+  {
+    "name": "pm-todos",
+    "description": "TODO round-trip extension for pm-cli: markdown, todo.txt, GitHub task lists, and pi coding-agent todo JSON",
+    "repository": "pm-todos"
+  },
+  {
+    "name": "pm-ts-starter",
+    "description": "TypeScript reference extension for pm-cli covering all capability types",
+    "repository": "pm-ts-starter"
+  },
+  {
+    "name": "pm-vcs",
+    "description": "A general version control system written from scratch on the pm SDK for arbitrary files and structured records, with stable file and change identities, native PM attribution, its own object store, refs, merge, operation log and bundles, and no Git dependency.",
+    "repository": "pm-vcs"
+  },
+  {
+    "name": "@unbrained/pm-web",
+    "description": "Full web UI for pm-cli \u2014 browse, create, update, search and manage pm projects in the browser. Self-hosted via Docker or Node.js.",
+    "repository": "pm-web"
+  }
+]
