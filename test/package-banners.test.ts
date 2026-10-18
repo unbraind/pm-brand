@@ -1,6 +1,6 @@
 /** Validate generated assets with real filesystem corruption, independently of the catalog generator. */
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -44,6 +44,23 @@ test('the stale gate rejects changed, missing and surplus assets and a metadata 
     generateBanners(root, false);
     writeFileSync(join(root, 'banners/retired.svg'), 'surplus');
     assert.throws(() => generateBanners(root, true), /Surplus banners/u);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('banner filename collisions fail before writing assets in build and check mode', () => {
+  const root = mkdtempSync(join(tmpdir(), 'brand-collision-'));
+  try {
+    const directory = join(root, 'banners');
+    mkdirSync(directory);
+    for (const repositories of [['pm-foo', 'pm-foo-dark'], ['pm-foo-dark', 'pm-foo']]) {
+      writeFileSync(join(directory, 'packages.json'), JSON.stringify(repositories.map(repository => ({
+        name: repository, repository, description: 'Synthetic package',
+      }))));
+      for (const check of [false, true]) {
+        assert.throws(() => generateBanners(root, check), /Banner filename collision: pm-foo-dark\.svg/u);
+        assert.deepEqual(readdirSync(directory), ['packages.json']);
+      }
+    }
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
