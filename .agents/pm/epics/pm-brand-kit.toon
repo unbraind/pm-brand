@@ -6,9 +6,9 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:34.808Z"
-updated_at: "2026-10-18T03:04:53.552Z"
+updated_at: "2026-10-18T05:11:38.516Z"
 author: codex-agent
-comments[27]{created_at,author,text}:
+comments[30]{created_at,author,text}:
   "2026-10-16T22:35:56.980Z",codex-agent,"Plan: deliver fonts, measured fallbacks, path-based marks/icons and typed tokens on main first; generators, parity, AA and fleet gates follow on the PR branch. Release held; no publication, tags or releases."
   "2026-10-16T22:45:19.561Z",codex-agent,"Milestone 1 is on main at 952a4bc8a42228e747b69ab31b8468ca43d54d08. Exact-commit consumers may pin that SHA now: fonts, fonts.css, tokens.css, typed root tokens/cssVar, path-based marks/lockups and icons. Font payload 116552 bytes. No further direct main pushes; remaining delivery on the PR branch."
   "2026-10-16T22:52:29.868Z",codex-agent,"Revert evidence: seven isolated behavioural removals (CSS naming, XML escaping, wrapping, banner SVG, OG SVG, PNG rendering, WCAG ratio) each rebuilt dist and failed assertions. Additional independent probes caught CSS-only drift, omitted back-sheet geometry, and font overflow. Every source and generated asset was restored. Native Bun: 2/2 tests; packed npm and Bun consumers both accepted all public exports."
@@ -36,11 +36,16 @@ comments[27]{created_at,author,text}:
   "2026-10-17T02:36:03.795Z",codex-agent,"Round 4 validation complete: npm run release:check and bun run release:check each passed under isolated HOME and clean Git configuration: 41/41 tests, zero skips/cancellations/todos, 100/100/100/100 across all nine source modules. Both gates passed typecheck, lint, compiled and asset parity, docstrings, font budget, production audit, packed npm/Bun consumers and changelog consistency. Linked pm runs passed node --test test/workflows.test.ts (18/18) and node scripts/tag-revert-proof.ts c64fb9da7937c2d239f67357cab325f6a9cff29a (4/4 mutations caught). No pm CLI defects encountered. Releasing the claim without closing the item, then committing, pushing, replying to the unresolved review thread and waiting for exact-head checks. Release remains held."
   "2026-10-18T03:01:50.392Z",codex-agent,"Round 2 bootstrap: adopt only approved fleet email controls and a forward baseline at current main 7ad0970d96a20c24b8dbd9e0dcd1efeb8b4d5cc1. The separate identity-controls-bootstrap PR must land before PR 4 is refreshed; no gate code is included. Main checks stay unchanged and release stays held."
   "2026-10-18T03:02:48.171Z",codex-agent,"Bootstrap blocker reproduced: unchanged main scripts/identity.ts hard-codes display-name identities, ignores both controls and rejects the existing main squash author. Both isolated npm and Bun release:check fail at identity:check before tests. Dependabot is already in the hard-coded list; PR 2 also fails on inherited main history, not the Dependabot identity. A controls-only bootstrap cannot make these current checks green. No gate bypass or history change was made."
-files[20]{path,scope}:
+  "2026-10-18T04:55:29.960Z",codex-agent,"Owner correction sync: copy The idea, owner rules, Tints mean copies and The signature verbatim from the 2026-10-18 companion contract. Position pm as context management for any agent, task and workflow, including recursive agents. Sweep public examples and generator defaults while retaining repository mechanics. Release stays held."
+  "2026-10-18T05:02:56.555Z",codex-agent,"Verified the three corrected contract blocks, including the owner-rules paragraph, match the companion verbatim. OG examples and preview fixtures now say Context management and Context for any agent and task; no generator has git/merge or coding-only defaults. Twelve OG before/after captures pass at 1440, 768 and 390 in both themes with zero external requests or overflow. The six linked image/preview tests pass; inherited links from another branch refuse execution, so the new link is also run with only-index 8."
+  "2026-10-18T05:11:23.275Z",codex-agent,"Contract sync is ready for exact-head CI: three corrected contract blocks match the owner companion verbatim; README and OG examples lead with context management for any agent and task. Six changed image/preview regressions pass, including the new linked command run alone. Twelve before/after screenshots are published in both themes and all three widths. The first isolated npm suite reached 100/100/100/100 coverage but one unchanged 5-second annotated-tag subprocess timed out under load; isolated Bun validation is running. No threshold or timeout changed. Release remains held."
+files[23]{path,scope}:
   .github/approved-git-identities.txt,project
   .github/identity-baseline.txt,project
   .github/workflows/ci.yml,project
   .github/workflows/release.yml,project
+  CONTRACT.md,project
+  README.md,project
   scripts/contrast-report.ts,project
   scripts/dist-check.ts,project
   scripts/font-budget.ts,project
@@ -55,9 +60,10 @@ files[20]{path,scope}:
   test/consumer-smoke.ts,project
   test/contrast.test.ts,project
   test/identity.test.ts,project
+  test/images.test.ts,project
   test/previews.test.ts,project
   test/workflows.test.ts,project
-tests[7]:
+tests[8]:
   - command: node scripts/dist-check.ts
     scope: project
     provenance:
@@ -110,6 +116,13 @@ tests[7]:
       created_at: "2026-10-17T02:31:40.736Z"
       source_kind: local_mutation
       source_ref: kit/fonts-mark-tokens
+  - command: node --test test/images.test.ts test/previews.test.ts
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-18T04:57:21.754Z"
+      source_kind: local_mutation
+      source_ref: brand/contract-context-management
 docs[5]:
   - path: CONTRACT.md
     scope: project

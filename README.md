@@ -1,5 +1,8 @@
 # pm-brand · Triplicate
 
+Context management for any agent and any task or workflow. Project management
+is context management for agents.
+
 One shared identity for pm-cli.unbrained.dev, pm-web, pm-gpt, pm-mcp and pm-search:
 cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
 [CONTRACT.md](CONTRACT.md) defines the visual grammar and every public token.
@@ -116,7 +119,7 @@ await writeFile('banner.svg', banner({
   name: 'pm-web', tagline: 'Keep every agent on the same page.', theme: 'light',
 }));
 await writeFile('og.png', renderPng(ogImage({
-  title: 'Work orders, in triplicate', eyebrow: 'Project management',
+  title: 'Context for any agent and task', eyebrow: 'Context management',
   product: 'pm-web', theme: 'dark',
 })));
 ```

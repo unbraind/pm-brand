@@ -10,7 +10,7 @@ for (const theme of ['light', 'dark'] as const) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320"><rect width="320" height="320" fill="${background}"/><g transform="translate(36 36)">${mark}</g></svg>`;
   writeFileSync(`.cache/previews/mark-${theme}.png`, new Resvg(svg).render().asPng());
   writeFileSync(`.cache/previews/banner-${theme}.png`, renderPng(banner({ name: 'pm-web', tagline: 'Keep every agent on the same page.', theme })));
-  writeFileSync(`.cache/previews/og-${theme}.png`, renderPng(ogImage({ title: 'Work orders, in triplicate', eyebrow: 'Project management', product: 'pm-web', theme })));
+  writeFileSync(`.cache/previews/og-${theme}.png`, renderPng(ogImage({ title: 'Context for any agent and task', eyebrow: 'Context management', product: 'pm-web', theme })));
 }
 for (const product of ['pm', 'web', 'gpt', 'mcp', 'search', 'swarm']) {
   for (const family of ['lockup', 'lockup-mark']) {
