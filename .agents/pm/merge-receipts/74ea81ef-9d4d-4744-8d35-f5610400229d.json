@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "id": "74ea81ef-9d4d-4744-8d35-f5610400229d",
+  "item_path": ".agents/pm/tasks/pm-brand-identity.toon",
+  "item_id": "pm-brand-identity",
+  "requested_preference": "ours",
+  "requested_preference_applied": false,
+  "conflict_resolution": "latest_document_update",
+  "fields_from_theirs": [],
+  "union_fields": [
+    "comments",
+    "files",
+    "tests"
+  ],
+  "merged_field_hashes": {
+    "comments": "cc14d2932d3b8235826284ad8a4090e6f17e5d6c2dd0bdde33f5e671101aeed9",
+    "files": "b92160e8f392551cc5b0c16ae7dfdf36a24e0b1bbd05600d255d3f1f60d0d42b",
+    "tests": "8f4f841aa4bc1bc6753604a67d8b9296a762c7fc7a6ef5625e09502c301f9274"
+  },
+  "decisions": [],
+  "operation": {
+    "kind": "merge",
+    "original_head": "47f9e9e9f92a1ee0286d5530e8903862f2eabbd6",
+    "original_blob": "f95e799c25f3f14f437bf4510c1c314501be679f"
+  },
+  "state": "reconciled",
+  "created_at": "2026-10-18T08:48:41.955Z",
+  "value_availability": "hash_only",
+  "value_policy": "bounded_non_sensitive_scalars_v1",
+  "reconciled_at": "2026-10-18T08:49:20.566Z"
+}

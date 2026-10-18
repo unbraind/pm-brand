@@ -279,5 +279,15 @@ scheduling is configured, but auto-merge has its own dormant opt-in while branch
 protection is absent. No release or repository policy changes are authorized by
 these development commands.
 
-Run `node scripts/identity-revert-proof.ts` for six independent behavioral reverts
+Run `node scripts/identity-revert-proof.ts` for eight independent behavioral reverts
 of the reviewed identity safeguards; each must fail its unchanged real-Git regression.
+
+The proposed `Trusted identity` workflow uses `pull_request_target` so its
+workflow definition comes from the default branch. It extracts the gate from
+the exact PR base before inspecting the proposed tree as data; it never installs
+or runs proposed package code. It uses read-only permissions, no persisted
+credentials, no caches and no secrets. Independent main adoption is required
+before this workflow can protect PRs. The repository administrator must then
+require `trusted-identity` from this trusted workflow (prefer a required-workflow
+ruleset where available), retaining strict up-to-date checks and the existing
+required checks. A PR-local green result does not establish that protection.

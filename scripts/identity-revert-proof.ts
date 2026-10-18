@@ -13,7 +13,7 @@ const proposedStart = original.indexOf('// Validate proposed controls only');
 const proposedEnd = original.indexOf('const files = git(', proposedStart);
 checks.push(['proposed controls', 'missing or invalid proposed', original.slice(0, proposedStart) + original.slice(proposedEnd)]);
 checks.push(['base union', 'base-only identities', original.replace(', `${baseline}..${base}`', '')]);
-const staleStart = original.indexOf('  const expected = process.env.IDENTITY_BASE_SHA;');
+const staleStart = original.indexOf('  const expected = process.env.IDENTITY_BASE_SHA');
 const staleEnd = original.indexOf('  return current;', staleStart);
 checks.push(['stale policy', 'stale pinned policy', original.slice(0, staleStart) +
   '  if (process.env.IDENTITY_BASE_SHA) return process.env.IDENTITY_BASE_SHA;\n' + original.slice(staleEnd)]);
@@ -31,6 +31,13 @@ checks.push(['raw email', 'whitespace-suffixed oldest', original.slice(0, logSta
 const record = '  const [sha, authorName, authorEmail, committerName, committerEmail] = fields.slice(index, index + 5);';
 checks.push(['merge committer', 'unapproved merge committer', original.replace(record, record +
   "\n  if (git('rev-list', '--parents', '-n', '1', sha!).trim().split(' ').length > 2) continue;")]);
+checks.push(['committed control edits', 'committed edits to both controls', original.replace(
+  "try { return git('show', `${base}:${path}`); }", "try { return readFileSync(path, 'utf8'); }")]);
+checks.push(['forward baseline', 'forward adoption accepts inherited', original
+  .replace('`${baseline}..HEAD`', "'HEAD'").replace('`${baseline}..${base}`', 'base')]);
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.on(signal, () => { writeFileSync(path, original); process.exit(signal === 'SIGINT' ? 130 : 143); });
+}
 try {
   for (const [name, pattern, mutant] of checks) {
     if (mutant === original) throw new Error(`No behavioral revert applied for ${name}`);

@@ -6,10 +6,10 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:23.420Z"
-updated_at: "2026-10-18T08:44:04.415Z"
+updated_at: "2026-10-18T08:49:29.573Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[16]{created_at,author,text}:
+comments[17]{created_at,author,text}:
   "2026-10-17T01:29:50.524Z",codex-agent,"Round 3: read the full unresolved PR 1 text-performance thread at ef95044. Plan: bound every input field to 512 code points at complete grapheme boundaries before XML validation, measurement and metadata; use cumulative glyph advances for linear ellipsizing; add deterministic measurement budgets, grapheme and boundary coverage plus a behavioral revert proof."
   "2026-10-17T01:32:51.225Z",codex-agent,"Implemented a bounded 513-code-point lookahead window and complete-grapheme cap of 512 before validation, layout and metadata. Ellipsizing measures each bounded glyph once and scans cumulative advances at grapheme boundaries. Revert proof: old ellipsize exceeds the 513-call budget both without and with the new cap; removing the cap fails exact/one-over boundaries. All 4 round-three behavioral mutations were caught and restored, including the tag mismatch check."
   "2026-10-17T01:36:20.672Z",codex-agent,"Final verification: npm run release:check passed with isolated HOME and clean Git configuration; bun run release:check passed sequentially. Each gate: 25/25 tests, zero skips/cancellations/todos, all src coverage 100/100/100/100, packed npm and Bun consumers passed. Focused pm test run passed 9/9. Revert proof passed 4/4 mutations; old algorithm fails at glyph measurement call 514 with or without the cap. Existing image snapshots pass unchanged. No remaining implementation risks found within the bounded rendering path."
@@ -26,6 +26,7 @@ comments[16]{created_at,author,text}:
   "2026-10-18T05:14:15.780Z",codex-agent,Main refresh retains the exact trusted-base identity implementation from PR 4 and replaces the older root anchor with the independently adopted forward baseline from PR 6. Identity check now succeeds against main 98cbe45976b3111f09143c2a29ede906cb553c2a. Banner code and all 52 reviewed images are unchanged; the four banner regressions are run through their existing linked command. Full isolated npm/Bun release gates are running and exact-head CI will confirm both Node versions. Release remains held.
   "2026-10-18T08:40:32.892Z",codex-agent,"Review round 5 PR5: reject generated light/dark filename collisions with regression and revert proof. Workflow and ancestry findings belong to PR4; integrate the updated PR4 branch rather than diverging. Release remains HELD."
   "2026-10-18T08:43:51.596Z",codex-agent,"Revert proof: node scripts/banner-revert-proof.ts removes only the collision guard in a disposable copy and the unchanged regression fails with Missing expected exception. node --test test/package-banners.test.ts passes 5/5, including both catalog orders and both generation modes with no output writes on rejection."
+  "2026-10-18T08:49:29.571Z",codex-agent,"Integrated PR4 head 06454bdcb9cd26d70ed1c0419218e89ed7bea3dd, taking its identity code and workflow definitions verbatim. Both CI review findings and the trusted-baseline ancestry regression are owned there. Retained banner documentation, inspected the sole cache receipt with its tracked twin and operation, then reconciled it with the pinned CLI without rewriting history. Trusted workflow activation remains blocked on independent main adoption and administrator-required enforcement."
 files[18]{path,scope}:
   .github/identity-baseline.txt,project
   banners/packages.json,project

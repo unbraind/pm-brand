@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -40,7 +40,7 @@ test('identity scans UTF-8 regardless of extension and skips NUL or invalid UTF-
 });
 
 /** Operate on an isolated real Git history with controls already adopted on the trusted base. */
-function history(run: (scratch: string, git: (...args: string[]) => string, commit: (author?: string, committer?: string) => string) => void): void {
+function history(run: (scratch: string, git: (...args: string[]) => string, commit: (author?: string, committer?: string) => string) => void, legacyEmail?: string): void {
   const scratch = mkdtempSync(join(tmpdir(), 'pm-brand-history-'));
   const publicEmail = '1153461+unbraind@users.noreply.github.com';
   /** Execute fixture Git commands with a synthetic public identity independent of the host. */
@@ -57,7 +57,7 @@ function history(run: (scratch: string, git: (...args: string[]) => string, comm
   };
   try {
     git('init', '--quiet', '-b', 'main');
-    const root = commit();
+    const root = commit(legacyEmail, legacyEmail);
     mkdirSync(join(scratch, '.github'));
     writeFileSync(join(scratch, '.github/approved-git-identities.txt'), readFileSync('.github/approved-git-identities.txt'));
     writeFileSync(join(scratch, '.github/identity-baseline.txt'), `# Forward-only test anchor\n${root}\n`);
@@ -147,6 +147,22 @@ test('bootstrap cannot anchor to an unmerged commit even if that commit exists l
   });
 });
 
+
+test('a trusted baseline must be an ancestor of the trusted base and HEAD', () => {
+  history((scratch, git, commit) => {
+    const main = git('rev-parse', 'main');
+    git('checkout', '--quiet', '--orphan', 'bootstrap');
+    writeFileSync(join(scratch, '.github/identity-baseline.txt'), `${main}\n`);
+    git('add', '.github');
+    const anchor = commit();
+    git('update-ref', 'refs/remotes/origin/main', anchor);
+    git('checkout', '--quiet', 'feature');
+    const result = audit(scratch);
+    assert.equal(result.status, 1);
+    assert.match(String(result.stderr), /ancestor of both/u);
+    assert.doesNotMatch(String(result.stderr), /Missing trusted control/u);
+  });
+});
 
 test('absent trusted controls never bootstrap from replacement PR controls', () => {
   for (const missing of ['identities', 'baseline', 'both'] as const) history((scratch, git, commit) => {
@@ -257,5 +273,82 @@ test('an unapproved merge committer fails independently of approved side-branch 
     assert.equal(result.status, 1);
     assert.ok(String(result.stderr).includes(`${sha} committer Merge fixture <merge@example.invalid>`), String(result.stderr));
     assert.doesNotMatch(String(result.stderr), /author Public author/u);
+  });
+});
+
+
+test('committed edits to both controls remain judged by the independently adopted base policy', () => {
+  history((scratch, git, commit) => {
+    const base = git('rev-parse', 'origin/main');
+    const bad = 'self-approved@example.invalid';
+    writeFileSync(join(scratch, '.github/approved-git-identities.txt'), `${bad}\n`);
+    writeFileSync(join(scratch, '.github/identity-baseline.txt'), `${base}\n`);
+    git('add', '.github');
+    const sha = commit(bad, bad);
+    const result = audit(scratch, base);
+    assert.equal(result.status, 1);
+    for (const role of ['author', 'committer']) {
+      assert.ok(String(result.stderr).includes(`${sha} ${role}`), String(result.stderr));
+    }
+    assert.match(String(result.stderr), /Unapproved commit identities/u);
+  });
+});
+
+
+test('forward adoption accepts inherited squash history and dependency commits while rejecting new unknown identities', () => {
+  history((scratch, _git, commit) => {
+    commit('stefan@preu.at', 'noreply@github.com');
+    commit('49699333+dependabot[bot]@users.noreply.github.com', 'noreply@github.com');
+    const clean = audit(scratch);
+    assert.equal(clean.status, 0, String(clean.stderr));
+    const bad = commit('unexpected@example.invalid');
+    const rejected = audit(scratch);
+    assert.equal(rejected.status, 1);
+    assert.ok(String(rejected.stderr).includes(`${bad} author SteveBot <unexpected@example.invalid>`));
+  }, 'legacy-squash@example.invalid');
+});
+
+
+test('manual dispatch with an empty policy pin audits current trusted main', () => {
+  history((scratch, _git, commit) => {
+    commit();
+    assert.equal(audit(scratch, '').status, 0);
+    commit('dispatch-offender@example.invalid');
+    const rejected = audit(scratch, '');
+    assert.equal(rejected.status, 1);
+    assert.match(String(rejected.stderr), /Unapproved commit identities/u);
+  });
+});
+
+test('trusted workflow rejects candidate identity bypasses without executing candidate code', () => {
+  history((scratch, git, commit) => {
+    mkdirSync(join(scratch, 'scripts'));
+    writeFileSync(join(scratch, 'scripts/identity.ts'), readFileSync('scripts/identity.ts'));
+    git('add', 'scripts/identity.ts'); commit();
+    const base = git('rev-parse', 'HEAD');
+    git('update-ref', 'refs/remotes/origin/main', base);
+    git('remote', 'add', 'origin', scratch);
+    writeFileSync(join(scratch, 'scripts/identity.ts'), "import { writeFileSync } from 'node:fs'; writeFileSync('executed-candidate', 'unsafe');\n");
+    writeFileSync(join(scratch, 'package.json'), JSON.stringify({ scripts: { 'identity:check': 'exit 0', 'release:check': 'exit 0' } }));
+    git('add', 'scripts/identity.ts', 'package.json'); commit();
+    const workflow = readFileSync('.github/workflows/identity.yml', 'utf8');
+    assert.match(workflow, /pull_request_target:/u);
+    assert.match(workflow, /contents: read/u);
+    assert.match(workflow, /persist-credentials: false/u);
+    assert.doesNotMatch(workflow, /npm |bun |secrets\.|cache:/u);
+    const script = workflow.split('        run: |\n')[1].replace(/^          /gmu, '');
+    for (const approved of [true, false]) {
+      if (!approved) commit('bypass@example.invalid');
+      const sha = git('rev-parse', 'HEAD');
+      git('update-ref', 'refs/pull/4/head', sha);
+      const result = spawnSync('bash', ['--noprofile', '--norc', '-c', script], {
+        cwd: scratch, encoding: 'utf8', timeout: 10000,
+        env: { ...process.env, IDENTITY_BASE_SHA: base, PROPOSED_SHA: sha, PR_NUMBER: '4', RUNNER_TEMP: scratch },
+      });
+      assert.equal(result.error, undefined);
+      assert.equal(result.status, approved ? 0 : 1, result.stderr);
+      assert.equal(existsSync(join(scratch, 'executed-candidate')), false, 'proposed gate must never execute');
+      if (!approved) assert.match(result.stderr, /Unapproved commit identities/u);
+    }
   });
 });
