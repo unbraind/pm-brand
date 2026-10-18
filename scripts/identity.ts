@@ -12,6 +12,8 @@ for (const file of files) {
   if (body.includes('/' + 'home/') || body.includes('/' + 'tmp/')) throw new Error(`Private path in ${file}`);
 }
 const authors = execFileSync('git', ['log', '--format=%an <%ae>'], { encoding: 'utf8' }).trim().split('\n');
-const allowed = new Set(['SteveBot <1153461+unbraind@users.noreply.github.com>', 'dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>', 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>']);
+// Bootstrap (pm-brand#3): main already carries the maintainer's approved public authoring identity
+// from the #1 merge; pm-brand#4 replaces this list with the trusted-base controls file.
+const allowed = new Set(['SteveBot <1153461+unbraind@users.noreply.github.com>', 'Steve Preu <stefan@preu.at>', 'dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>', 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>']);
 for (const author of authors) if (!allowed.has(author)) throw new Error('Unexpected commit identity');
 console.log(`Public path policy: ${files.length} tracked files; commit identities verified`);
