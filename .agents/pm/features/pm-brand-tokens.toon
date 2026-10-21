@@ -2,17 +2,22 @@ id: pm-brand-tokens
 title: Typed tokens with CSS parity
 description: ""
 type: Feature
-status: in_progress
+status: closed
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:06.752Z"
-updated_at: "2026-10-16T23:03:56.754Z"
+updated_at: "2026-10-21T19:35:29.367Z"
+closed_at: "2026-10-21T19:35:20.240Z"
+completed_at: "2026-10-21T19:35:20.240Z"
 author: codex-agent
 parent: pm-brand-kit
+comments[1]{created_at,author,text}:
+  "2026-10-21T19:34:31.739Z",codex-agent,"Authorized tracker reconciliation, audit 2026-10-21. Owner-authorized takeover of any historical assignment for this verified terminal transition. Reverified current main a4e9e0a0dae5: merged #1 (7ad0970); source tree exactly matches the audited snapshot. **Typed tokens with CSS parity.** [PR #1](https://github.com/unbraind/pm-brand/pull/1) (7ad0970); typed token exports and CSS parity check are on main."
 files[3]{path,scope}:
   src/tokens.ts,project
   test/tokens.test.ts,project
   tokens.css,project
 tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   node --test test/tokens.test.ts,project,codex-agent,"2026-10-16T22:50:46.209Z",local_mutation,kit/fonts-mark-tokens
+close_reason: "Reverified current main a4e9e0a0dae5: merged #1 (7ad0970); source tree exactly matches the audited snapshot. **Typed tokens with CSS parity.** [PR #1](https://github.com/unbraind/pm-brand/pull/1) (7ad0970); typed token exports and CSS parity check are on main."
 body: ""

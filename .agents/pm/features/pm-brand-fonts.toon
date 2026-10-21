@@ -2,17 +2,20 @@ id: pm-brand-fonts
 title: Self-hosted fonts and measured fallbacks
 description: ""
 type: Feature
-status: in_progress
+status: closed
 priority: 2
 tags: []
 created_at: "2026-10-16T22:29:54.107Z"
-updated_at: "2026-10-16T23:03:47.046Z"
+updated_at: "2026-10-21T19:37:43.002Z"
+closed_at: "2026-10-21T19:37:36.425Z"
+completed_at: "2026-10-21T19:37:36.425Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[3]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-10-16T22:42:14.150Z",codex-agent,Three OFL Latin WOFF2 subsets total 116552 bytes (limit 120000). All requested encoded characters available upstream and axis ranges retained. Preserve upstream axis defaults; omit unencoded optional alternates/ligatures for budget. Real metrics measured using Liberation metric equivalents; exact URLs/revision in fonts/SOURCES.md.
   "2026-10-16T22:45:25.075Z",codex-agent,"Fallback refinement before Milestone 1: shipped overrides use real Arial/Courier New x-height measurements from the pinned Capsize 4.4.0 dataset and target metrics read from the actual shipped WOFF2 files, replacing the preliminary Liberation-equivalent measurements. Binary audit preserves all 233/221/224 encoded glyphs in the requested repertoire and the complete required axis ranges."
   "2026-10-16T22:52:38.692Z",codex-agent,"Budget overflow probe appended synthetic bytes to one font: font-budget exited 1, then original bytes were restored. Current font total remains 116552/120000 bytes."
+  "2026-10-21T19:36:55.162Z",codex-agent,"Authorized tracker reconciliation, audit 2026-10-21. Owner-authorized takeover of any historical assignment for this verified terminal transition. Reverified current main a4e9e0a0dae5: merged #1 (7ad0970); source tree exactly matches the audited snapshot. **Self-hosted fonts and measured fallbacks.** [PR #1](https://github.com/unbraind/pm-brand/pull/1) (7ad0970) delivers self-hosted fonts and measured fallback metrics."
 files[4]{path,scope}:
   fonts.css,project
   fonts/SOURCES.md,project
@@ -20,4 +23,5 @@ files[4]{path,scope}:
   scripts/fonts.ts,project
 tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   node scripts/font-budget.ts,project,codex-agent,"2026-10-16T22:42:48.304Z",local_mutation,kit/fonts-mark-tokens
+close_reason: "Reverified current main a4e9e0a0dae5: merged #1 (7ad0970); source tree exactly matches the audited snapshot. **Self-hosted fonts and measured fallbacks.** [PR #1](https://github.com/unbraind/pm-brand/pull/1) (7ad0970) delivers self-hosted fonts and measured fallback metrics."
 body: ""

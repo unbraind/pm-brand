@@ -2,14 +2,16 @@ id: pm-brand-images
 title: README banner and OG generators
 description: ""
 type: Feature
-status: in_progress
+status: closed
 priority: 2
 tags: []
 created_at: "2026-10-16T22:30:23.420Z"
-updated_at: "2026-10-18T08:53:55.093Z"
+updated_at: "2026-10-21T19:23:51.506Z"
+closed_at: "2026-10-21T19:23:36.984Z"
+completed_at: "2026-10-21T19:23:36.984Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[18]{created_at,author,text}:
+comments[19]{created_at,author,text}:
   "2026-10-17T01:29:50.524Z",codex-agent,"Round 3: read the full unresolved PR 1 text-performance thread at ef95044. Plan: bound every input field to 512 code points at complete grapheme boundaries before XML validation, measurement and metadata; use cumulative glyph advances for linear ellipsizing; add deterministic measurement budgets, grapheme and boundary coverage plus a behavioral revert proof."
   "2026-10-17T01:32:51.225Z",codex-agent,"Implemented a bounded 513-code-point lookahead window and complete-grapheme cap of 512 before validation, layout and metadata. Ellipsizing measures each bounded glyph once and scans cumulative advances at grapheme boundaries. Revert proof: old ellipsize exceeds the 513-call budget both without and with the new cap; removing the cap fails exact/one-over boundaries. All 4 round-three behavioral mutations were caught and restored, including the tag mismatch check."
   "2026-10-17T01:36:20.672Z",codex-agent,"Final verification: npm run release:check passed with isolated HOME and clean Git configuration; bun run release:check passed sequentially. Each gate: 25/25 tests, zero skips/cancellations/todos, all src coverage 100/100/100/100, packed npm and Bun consumers passed. Focused pm test run passed 9/9. Revert proof passed 4/4 mutations; old algorithm fails at glyph measurement call 514 with or without the cap. Existing image snapshots pass unchanged. No remaining implementation risks found within the bounded rendering path."
@@ -28,6 +30,7 @@ comments[18]{created_at,author,text}:
   "2026-10-18T08:43:51.596Z",codex-agent,"Revert proof: node scripts/banner-revert-proof.ts removes only the collision guard in a disposable copy and the unchanged regression fails with Missing expected exception. node --test test/package-banners.test.ts passes 5/5, including both catalog orders and both generation modes with no output writes on rejection."
   "2026-10-18T08:49:29.571Z",codex-agent,"Integrated PR4 head 06454bdcb9cd26d70ed1c0419218e89ed7bea3dd, taking its identity code and workflow definitions verbatim. Both CI review findings and the trusted-baseline ancestry regression are owned there. Retained banner documentation, inspected the sole cache receipt with its tracked twin and operation, then reconciled it with the pinned CLI without rewriting history. Trusted workflow activation remains blocked on independent main adoption and administrator-required enforcement."
   "2026-10-18T08:53:55.092Z",codex-agent,"Combined npm run release:check and bun run release:check pass under CI identity isolation: each reports 66/66 tests, zero failures, cancellations, skips or TODOs, and 100% statements, branches, functions and lines at unchanged thresholds. All 52 reviewed banners remain byte-identical, packed npm/Bun consumers pass, and the sole merge receipt is reconciled with no rewritten entries or missing references. Identity code, workflow definitions and regression tests are byte-identical to PR4 head 06454bdcb9cd26d70ed1c0419218e89ed7bea3dd. Final evidence commit checks and fresh-clone health follow. Release remains HELD; trusted workflow activation remains an open external blocker."
+  "2026-10-21T19:22:12.007Z",codex-agent,"Authorized tracker reconciliation, audit 2026-10-21. Owner-authorized takeover of any historical assignment for this verified terminal transition. Reverified current main a4e9e0a0dae5: merged #1 (7ad0970), #5 (8e96897); source tree exactly matches the audited snapshot. **README banner and OG generators.** [PR #1](https://github.com/unbraind/pm-brand/pull/1) (7ad0970) delivers README banner and OG generators; [PR #5](https://github.com/unbraind/pm-brand/pull/5) (8e96897) adds the generated fleet banner set."
 files[18]{path,scope}:
   .github/identity-baseline.txt,project
   banners/packages.json,project
@@ -56,4 +59,5 @@ tests[5]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
 docs[2]{path,scope}:
   docs/package-description-audit.md,project
   README.md,project
+close_reason: "Reverified current main a4e9e0a0dae5: merged #1 (7ad0970), #5 (8e96897); source tree exactly matches the audited snapshot. **README banner and OG generators.** [PR #1](https://github.com/unbraind/pm-brand/pull/1) (7ad0970) delivers README banner and OG generators; [PR #5](https://github.com/unbraind/pm-brand/pull/5) (8e96897) adds the generated fleet banner set."
 body: ""

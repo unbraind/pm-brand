@@ -2,23 +2,61 @@ id: pm-brand-bun-lock
 title: Use the npm lockfile for Bun dependency verification
 description: Remove the independently maintained Bun lockfile and use the fleet npm-lockfile install pattern so Dependabot updates pass without manual lockfile repinning.
 type: Task
-status: in_progress
+status: closed
 priority: 1
 tags: []
 created_at: "2026-10-18T18:18:36.955Z"
-updated_at: "2026-10-18T18:24:01.821Z"
+updated_at: "2026-10-21T19:41:31.704Z"
+closed_at: "2026-10-21T19:09:49.791Z"
+completed_at: "2026-10-21T19:09:49.791Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[3]{created_at,author,text}:
+comments[5]{created_at,author,text}:
   "2026-10-18T18:18:40.978Z",codex-agent,"Fleet read-only comparison: pm-csv, pm-web and pm-graph track neither bun.lock nor bun.lockb, use npm Dependabot plus GitHub Actions entries (no bun ecosystem), and verify Bun installation with bun install --no-save. Adopt the same single npm lockfile pattern; preserve trusted-base identity controls and all release thresholds. Dependabot PR #8 should pass the lockfile step after merging this change and rebasing; recreation is unnecessary."
   "2026-10-18T18:20:14.013Z",codex-agent,"Behavioral configuration revert proof: PR #8 manifests plus the original committed Bun lockfile reproduce the frozen-lockfile error. Removing only that second lockfile and using bun install --no-save succeeds; all 11 direct development dependencies match package-lock.json, whose bytes remain unchanged. Bun 1.3.5 may generate a disposable ignored lock during npm migration; no Bun lock is committed. No application function changed. Trusted identity workflow, policy controls and thresholds are unchanged."
   "2026-10-18T18:23:59.961Z",codex-agent,"Pinned PM linked npm and Bun release:check passed under an isolated runner HOME and clean Git configuration: 66/66 tests each, zero failures, skips, cancellations or TODOs; 100/100/100/100 coverage at unchanged thresholds. Native bun test ./test/bun.acceptance.ts passed 2/2. Both packed consumers and all identity, strict health, typecheck, lint, docstring, font, build/assets, audit and changelog gates passed. Initial linked runner --env-set HOME seeded a global extension with a different host version; isolating the runner itself matched CI and resolved the local environment mismatch. Automatic test-result persistence remains disabled by existing policy; these observed results are recorded here."
-files[2]{path,scope,note}:
-  .github/workflows/ci.yml,project,Bun consumes npm lockfile
-  .gitignore,project,Ignore disposable Bun lockfiles
-tests[2]{command,scope,timeout_seconds,pm_context_mode,provenance{author,created_at,source_kind,source_ref}}:
-  "npm run release:check",project,1200,tracker,codex-agent,"2026-10-18T18:20:39.200Z",local_mutation,fix/dependabot-bun-lockfile
-  "bun run release:check",project,1200,tracker,codex-agent,"2026-10-18T18:20:40.573Z",local_mutation,fix/dependabot-bun-lockfile
-docs[1]{path,scope,note}:
-  docs/dependency-installs.md,project,Fleet precedent and actual Dependabot regression proof
+  "2026-10-21T19:05:07.284Z",codex-agent,"author=codex-agent,\"text=Authorized tracker reconciliation, audit 2026-10-21. Reverified current main a4e9e0a0dae5: merged #10 (05f59d2); source tree exactly matches the audited snapshot. **Use the npm lockfile for Bun dependency verification.** [PR #10](https://github.com/unbraind/pm-brand/pull/10) (05f59d2) makes Bun dependency verification share package-lock.json.\""
+  "2026-10-21T19:41:31.704Z",codex-agent,"Tracker-only reconciliation applied to the authorized audit candidates. Linked git diff --check passed. After this final pm write, regenerate with npm run changelog:full; npm run changelog:check and npx pm health are the remaining local gates. Full release gates are delegated to CI; no implementation functions changed, so behavioral revert proof does not apply."
+files[3]:
+  - path: .agents/pm/tasks/pm-brand-bun-lock.toon
+    scope: project
+  - path: .github/workflows/ci.yml
+    scope: project
+    note: Bun consumes npm lockfile
+  - path: .gitignore
+    scope: project
+    note: Ignore disposable Bun lockfiles
+tests[3]:
+  - command: "npm run release:check"
+    scope: project
+    timeout_seconds: 1200
+    pm_context_mode: tracker
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-18T18:20:39.200Z"
+      source_kind: local_mutation
+      source_ref: fix/dependabot-bun-lockfile
+  - command: "bun run release:check"
+    scope: project
+    timeout_seconds: 1200
+    pm_context_mode: tracker
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-18T18:20:40.573Z"
+      source_kind: local_mutation
+      source_ref: fix/dependabot-bun-lockfile
+  - command: git diff --check
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-21T19:39:37.949Z"
+      source_kind: local_mutation
+      source_ref: chore/reconcile-tracker-1021
+docs[2]:
+  - path: CHANGELOG.md
+    scope: project
+  - path: docs/dependency-installs.md
+    scope: project
+    note: Fleet precedent and actual Dependabot regression proof
+close_reason: "Reverified current main a4e9e0a0dae5: merged #10 (05f59d2); source tree exactly matches the audited snapshot. **Use the npm lockfile for Bun dependency verification.** [PR #10](https://github.com/unbraind/pm-brand/pull/10) (05f59d2) makes Bun dependency verification share package-lock.json."
 body: ""
