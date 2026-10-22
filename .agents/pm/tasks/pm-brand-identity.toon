@@ -2,14 +2,16 @@ id: pm-brand-identity
 title: Accept approved author and committer identities with a trusted forward baseline
 description: "Mirror fleet identity controls, diagnose offending commits and roles, and exercise real adversarial Git histories. Release remains held."
 type: Task
-status: in_progress
+status: closed
 priority: 1
 tags: []
 created_at: "2026-10-17T09:26:07.924Z"
-updated_at: "2026-10-18T08:48:24.508Z"
+updated_at: "2026-10-21T19:19:39.080Z"
+closed_at: "2026-10-21T19:19:28.535Z"
+completed_at: "2026-10-21T19:19:28.535Z"
 author: codex-agent
 parent: pm-brand-kit
-comments[22]{created_at,author,text}:
+comments[24]{created_at,author,text}:
   "2026-10-17T09:26:12.086Z",codex-agent,"Design: approved public emails, not display names; audit author and committer on every reachable commit after the root anchor. Read controls from the trusted default branch after adoption so a PR cannot widen its own allow-list or advance its own baseline. Keep the existing tracked UTF-8 path gate and the release hold."
   "2026-10-17T09:28:15.594Z",codex-agent,"Revert proof: replacing only scripts/identity.ts with origin/main leaves the new tests unchanged and fails 6 of 7 cases, including approved fleet identities and missing-base refusal. Restoring the implementation passes 7 of 7. Typecheck and docstring gates pass. No tags, publishing or release activation."
   "2026-10-17T09:31:57.200Z",codex-agent,"Validation: npm run release:check and bun run release:check passed in CI identity environments. Each ran 47 tests with 47 passes, zero failures or skips; all source statements, branches, functions and lines are 100%. Both packed npm and Bun consumer acceptances passed. Linked adversarial tests also passed 7/7. The root anchor covers every later kit and merge commit. Release remains held."
@@ -32,6 +34,8 @@ comments[22]{created_at,author,text}:
   "2026-10-18T08:40:30.314Z",codex-agent,"Review round 5: read all seven unresolved PR4 threads and latest CodeRabbit review, plus open issue 3. Preserve prior fixes, add independent trusted-baseline ancestry regression for the finding also carried by PR5, verify existing behavioral reverts, and integrate this branch into PR5. Release remains HELD."
   "2026-10-18T08:43:09.114Z",codex-agent,"Revert proof: node scripts/identity-revert-proof.ts catches all eight independent safeguards. node scripts/review-revert-proof.ts now catches six independent review reverts, including removing only the trusted-base ancestry check; each produces one expected failing regression. Identity suite passes 19/19. The seven unresolved PR4 findings remain covered. Issue 3 remains linked with Fixes #3 in the PR body. Live protection is strict with admin enforcement and verify (22), verify (26), analyze; trusted-identity is not registered or required on main, so activation remains a separate open blocker."
   "2026-10-18T08:48:24.507Z",codex-agent,"Both CI-isolated release gates pass: npm run release:check and bun run release:check each report 61/61 tests, zero failures, cancellations, skips or TODOs; 100% statements, branches, functions and lines at unchanged thresholds. Packed npm and Bun consumer acceptance, build and asset parity, font budget, audit and changelog checks pass. Existing telemetry advisory retained. Final-commit gate recheck and fresh no-local-clone health will follow; no merge or release authorization is implied."
+  "2026-10-21T19:13:12.093Z",codex-agent,"author=codex-agent,\"text=Authorized tracker reconciliation, audit 2026-10-21. Reverified current main a4e9e0a0dae5: merged #4 (afc46c4); source tree exactly matches the audited snapshot. **Accept approved author and committer identities with a trusted forward baseline.** [PR #4](https://github.com/unbraind/pm-brand/pull/4) (afc46c4) accepts the approved author/committer identities with independent trusted-baseline ancestry regression 06454bd.\""
+  "2026-10-21T19:18:00.835Z",codex-agent,"Authorized tracker reconciliation, audit 2026-10-21. Owner-authorized takeover of any historical assignment for this verified terminal transition. Reverified current main a4e9e0a0dae5: merged #4 (afc46c4); source tree exactly matches the audited snapshot. **Accept approved author and committer identities with a trusted forward baseline.** [PR #4](https://github.com/unbraind/pm-brand/pull/4) (afc46c4) accepts the approved author/committer identities with independent trusted-baseline ancestry regression 06454bd."
 files[9]{path,scope}:
   .github/approved-git-identities.txt,project
   .github/identity-baseline.txt,project
@@ -49,4 +53,5 @@ tests[4]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   node --test test/identity.test.ts test/workflows.test.ts,project,codex-agent,"2026-10-18T06:47:23.916Z",merge_union,fix/identity-gate-approved-identities
 docs[1]{path,scope}:
   README.md,project
+close_reason: "Reverified current main a4e9e0a0dae5: merged #4 (afc46c4); source tree exactly matches the audited snapshot. **Accept approved author and committer identities with a trusted forward baseline.** [PR #4](https://github.com/unbraind/pm-brand/pull/4) (afc46c4) accepts the approved author/committer identities with independent trusted-baseline ancestry regression 06454bd."
 body: ""
