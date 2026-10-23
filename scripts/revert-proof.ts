@@ -48,7 +48,7 @@ try {
 console.log(`${caught}/${cases.length} behavioural removals and 1/1 font overflow caught; sources restored`);
 const css = readFileSync('tokens.css', 'utf8');
 try {
-  writeFileSync('tokens.css', css.replace('--pm-paper: #F3F5F8;', '--pm-paper: #000000;'));
+  writeFileSync('tokens.css', css.replace(/--pm-paper: #[A-F0-9]{6};/u, '--pm-paper: #000000;'));
   const result = spawnSync(process.execPath, ['--test', 'test/tokens.test.ts'], { encoding: 'utf8' });
   if (result.status !== 1 || !result.stdout.includes('AssertionError')) throw new Error('CSS drift was not detected');
   console.log('Caught independent CSS token drift');

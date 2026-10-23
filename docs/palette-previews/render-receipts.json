@@ -1,0 +1,434 @@
+[
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "app",
+    "width": 1440,
+    "file": "before-light-app-1440.png",
+    "sha256": "5030dcf1b928abe91e23f79df0917c25df3855b7f0ad26f2490a609768977395"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "app",
+    "width": 768,
+    "file": "before-light-app-768.png",
+    "sha256": "92739770803e633c23e5f5c6809d8351254c9f9c25916d25005902cf7453f3f2"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "app",
+    "width": 390,
+    "file": "before-light-app-390.png",
+    "sha256": "dc857523b7aecfa8733b0b6aecac3e50f3c530d46a862c700bc4cd376815b1c2"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "banner",
+    "width": 1440,
+    "file": "before-light-banner-1440.png",
+    "sha256": "bdbf7d1cc572f39d8ecb8a161d33fe503d6a46cfec75a2657ec65085ddefca38"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "banner",
+    "width": 768,
+    "file": "before-light-banner-768.png",
+    "sha256": "7231ee3beecd8d8520ec6192c2cdc0e92c46577c957b1c03b555816ee1ddda5e"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "banner",
+    "width": 390,
+    "file": "before-light-banner-390.png",
+    "sha256": "5c05f54003fd7f79d2b7b82f47f5f36cc10b9f4074fd275d1d6dd823a2546b1b"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "og",
+    "width": 1440,
+    "file": "before-light-og-1440.png",
+    "sha256": "57e65fafab384e4e98f5758c9d7b74e2e8637f7dfbb7af211e8e59ab3ea92d0b"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "og",
+    "width": 768,
+    "file": "before-light-og-768.png",
+    "sha256": "efb76f2019af045653dd478db528f55ebf3b85089399c5f4396047020319bad8"
+  },
+  {
+    "candidate": "before",
+    "theme": "light",
+    "asset": "og",
+    "width": 390,
+    "file": "before-light-og-390.png",
+    "sha256": "de5ad8c5d610bc3feae447186a9511cc444e14c7eab888cb2a13fa6e9908d603"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "app",
+    "width": 1440,
+    "file": "before-dark-app-1440.png",
+    "sha256": "9244a620de70679605caeb7b560d132a1bdd1ac0a9e8f73b2404bd7ce2e964e8"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "app",
+    "width": 768,
+    "file": "before-dark-app-768.png",
+    "sha256": "ff9f789dc8008a14f27e5469a8470936ccdea8a92dbbce43cb95f73790b86580"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "app",
+    "width": 390,
+    "file": "before-dark-app-390.png",
+    "sha256": "976baa92d1562e142620a7098d734d516142df309a743ddc1ae2bdca3d7b4563"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 1440,
+    "file": "before-dark-banner-1440.png",
+    "sha256": "5440561acea561b289a85f21d5b676c982d0befbcc6edb48b521ed9b4be83cf6"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 768,
+    "file": "before-dark-banner-768.png",
+    "sha256": "1aa0f243440934d475ce0dd2c2173c57989dcaeb4dd36b6a4e52e0136dc7b2a6"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 390,
+    "file": "before-dark-banner-390.png",
+    "sha256": "2fe384453a87cb70d33c44bd9cdd8e08fcb0ba367ab90e712e7dbaf6023e8813"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "og",
+    "width": 1440,
+    "file": "before-dark-og-1440.png",
+    "sha256": "97515a47f7195cc2d4443c21d58217f40bc3d1a4056683434487fbb93e429115"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "og",
+    "width": 768,
+    "file": "before-dark-og-768.png",
+    "sha256": "bce3320d13a0edd5a4278d04919235f6d14f210efbbd13846cd0fff1468e4fc1"
+  },
+  {
+    "candidate": "before",
+    "theme": "dark",
+    "asset": "og",
+    "width": 390,
+    "file": "before-dark-og-390.png",
+    "sha256": "4ab9c09e2019fefd00dd82a5d062614bbaf1118a9f9d121f6e9a4c25af60a125"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "app",
+    "width": 1440,
+    "file": "signal-light-app-1440.png",
+    "sha256": "71566bf43a7430f27809a781b12af37c9b488330d46444a5f9256d17e7502f6d"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "app",
+    "width": 768,
+    "file": "signal-light-app-768.png",
+    "sha256": "d6b2ddb075c2cbc1456385fc99ce685ac9e733281a5a115ecdd8553044f6754f"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "app",
+    "width": 390,
+    "file": "signal-light-app-390.png",
+    "sha256": "e7d13aa8430a5aaebf8850a5af307a0e0e0566f4d1340b9ca7fd0788bed03471"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "banner",
+    "width": 1440,
+    "file": "signal-light-banner-1440.png",
+    "sha256": "a3dce091991ec8aa9feb82bf1fdebd379f1b1826ac2cc16b18fdf8f667e71f11"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "banner",
+    "width": 768,
+    "file": "signal-light-banner-768.png",
+    "sha256": "02de33898c38032c5ff5072c8e6d4ee7f7b1c2fa238da932a97e9e64fb0531df"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "banner",
+    "width": 390,
+    "file": "signal-light-banner-390.png",
+    "sha256": "a449b3b62fbf68a0dfdb54a80b99c113c06fd14ac51b5107a29e4352c66680bb"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "og",
+    "width": 1440,
+    "file": "signal-light-og-1440.png",
+    "sha256": "43f5f193971154cb4b343ac971e031391d2e7ffb7926d5a08e1aed09a4ecc24e"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "og",
+    "width": 768,
+    "file": "signal-light-og-768.png",
+    "sha256": "f1afbdb256c5587e30bd00746612fd7de6da840174fd3d8dee32fa771ef6cd3f"
+  },
+  {
+    "candidate": "signal",
+    "theme": "light",
+    "asset": "og",
+    "width": 390,
+    "file": "signal-light-og-390.png",
+    "sha256": "98b56a26b2aa9395a94952b998018a56c128ceb0a71a3b26ad23b99c55cdbcf7"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "app",
+    "width": 1440,
+    "file": "signal-dark-app-1440.png",
+    "sha256": "fcf64367f9ad710a7ef1825644b687294e4a6463011d5806af5ab84a8b7de73f"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "app",
+    "width": 768,
+    "file": "signal-dark-app-768.png",
+    "sha256": "48c1d28fce93e554b28927bd9fbbde3937ac03839706d41fe053d6c4e7d55298"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "app",
+    "width": 390,
+    "file": "signal-dark-app-390.png",
+    "sha256": "b3bbb1d364a9c5e634b473ee70be0355602765c164e332eb610f816d121df80a"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 1440,
+    "file": "signal-dark-banner-1440.png",
+    "sha256": "ec3b1a2988b820f09686aeb5bf1c0fb89f683c8a5aac052352c84fca78250712"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 768,
+    "file": "signal-dark-banner-768.png",
+    "sha256": "b25deedc3722c651701d6f02612d61f63a208bffb0589f36b1d219f149c55fcb"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 390,
+    "file": "signal-dark-banner-390.png",
+    "sha256": "f345257cc6d8a5d3fc80b5b4df79a69606d83a4da02a8400f9d8e438b02b7eb9"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "og",
+    "width": 1440,
+    "file": "signal-dark-og-1440.png",
+    "sha256": "518fef7c38f5a86d50f00d5936e6f0540d41f252499b9fb99954eac1f39a5d91"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "og",
+    "width": 768,
+    "file": "signal-dark-og-768.png",
+    "sha256": "914dca8254cbf1990fd3a8182080f21403799a16588c84b72b9b3228c73c3ed1"
+  },
+  {
+    "candidate": "signal",
+    "theme": "dark",
+    "asset": "og",
+    "width": 390,
+    "file": "signal-dark-og-390.png",
+    "sha256": "f1a24ad9565dbcb2843ab242c51533954144725f15b7e32e9d9f0d9cb235ac73"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "app",
+    "width": 1440,
+    "file": "oxide-light-app-1440.png",
+    "sha256": "43a7e885337a5c79eb4ce2dd6fcbe6787df58aa08c8714e0da93b3825edf6a92"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "app",
+    "width": 768,
+    "file": "oxide-light-app-768.png",
+    "sha256": "f9f6118d5a1d3034b0aaa8c79dc2fd07edf5d7a6087c8e49ebead8b40f864d17"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "app",
+    "width": 390,
+    "file": "oxide-light-app-390.png",
+    "sha256": "7c51f2932a2ede32b69f212c01dbd1a9196931eca024fa91729458d9d59f7e1e"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "banner",
+    "width": 1440,
+    "file": "oxide-light-banner-1440.png",
+    "sha256": "f2f428c7e4ce8b26b3f4fbd0319ab23b19efebe8f2194f13a4f3ba21b214362b"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "banner",
+    "width": 768,
+    "file": "oxide-light-banner-768.png",
+    "sha256": "dd07763312966ac0933dc7c4956c42dcc800c2cd9b460cb3fe71cbbaba019a9c"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "banner",
+    "width": 390,
+    "file": "oxide-light-banner-390.png",
+    "sha256": "02a7e238a28dae17342c0fb0d549ac2d3eff025c9c562a449964eb9508109f1c"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "og",
+    "width": 1440,
+    "file": "oxide-light-og-1440.png",
+    "sha256": "9427fe2339574da413ae5913f5063e7d8c07cdc71be6472d99678b569c03b867"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "og",
+    "width": 768,
+    "file": "oxide-light-og-768.png",
+    "sha256": "f01be2ec2ac6e2a8464479527788b60da6d4ffae5415d784f0246eac88be7678"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "light",
+    "asset": "og",
+    "width": 390,
+    "file": "oxide-light-og-390.png",
+    "sha256": "eee449c539b4b162f8170fc8567204540147e781d4b82e398186f04f2c9d47a7"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "app",
+    "width": 1440,
+    "file": "oxide-dark-app-1440.png",
+    "sha256": "67ba9462a236c5860c6911ea2b37434beebba2fc338d36b20889eef1e2ac08b7"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "app",
+    "width": 768,
+    "file": "oxide-dark-app-768.png",
+    "sha256": "349b582d88fa67305c6e5540e5c5a44015cd719c8c3eb9037a127a07ae93160c"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "app",
+    "width": 390,
+    "file": "oxide-dark-app-390.png",
+    "sha256": "cfb057496df727f9bc8f20df6db5a109a525e6fe1ac352fb33758f7c8f697f4c"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 1440,
+    "file": "oxide-dark-banner-1440.png",
+    "sha256": "2d110337618ddbbf78cada7521a10bf6f7234d8996d40f124231e9a954a30621"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 768,
+    "file": "oxide-dark-banner-768.png",
+    "sha256": "dc1d67936f0e477e726524ab39327203a0f44b61d5406b6e3d412b616ea2988f"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "banner",
+    "width": 390,
+    "file": "oxide-dark-banner-390.png",
+    "sha256": "ec4afa5c0712606d840b171b316b0f5abe957fe9d79b43008c481fddb1a1a575"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "og",
+    "width": 1440,
+    "file": "oxide-dark-og-1440.png",
+    "sha256": "d0ae20d456e3173b73849a5c22f3b50981d89e6c322426e3e9e1693ebb5f2bee"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "og",
+    "width": 768,
+    "file": "oxide-dark-og-768.png",
+    "sha256": "803728b54a0fc0f8de4621e9a3ab4effae08ac0752da88ab62e600c2f998238e"
+  },
+  {
+    "candidate": "oxide",
+    "theme": "dark",
+    "asset": "og",
+    "width": 390,
+    "file": "oxide-dark-og-390.png",
+    "sha256": "d19e44721fe299032753008f56d5aa74acc0b276886f519c6edd6f7c42292e2e"
+  }
+]

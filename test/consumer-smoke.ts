@@ -5,7 +5,7 @@ import { tokens, cssVar } from 'pm-brand';
 import { banner } from 'pm-brand/banner';
 import { ogImage, renderPng } from 'pm-brand/og';
 import { contrast } from 'pm-brand/contrast';
-assert.equal(tokens.light.paper, '#F3F5F8');
+assert.equal(tokens.light.paper, '#F5F5F5');
 assert.equal(cssVar('--pm-paper'), 'var(--pm-paper)');
 assert.equal(contrast('#000000', '#FFFFFF'), 21);
 assert.match(banner({ name: 'pm-web', tagline: 'One identity' }), /width="1280"/);
