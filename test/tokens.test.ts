@@ -1,4 +1,4 @@
-/** CSS remains an independent source for detecting typed-token drift. */
+/** Generated CSS is checked independently for parity with the canonical typed tokens. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

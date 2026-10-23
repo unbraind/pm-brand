@@ -1,0 +1,31 @@
+id: pm-brand-palette
+title: "Review red, black and white Triplicate palettes"
+description: "Owner palette request in issue #9. Prepare two light/dark candidates, implement recommendation only for draft review, keep mark geometry, fonts, composition and generator APIs."
+type: Task
+status: in_progress
+priority: 2
+tags[1]: "gh:unbraind/pm-brand#9"
+created_at: "2026-10-23T07:16:37.234Z"
+updated_at: "2026-10-23T07:36:52.210Z"
+author: codex-agent
+acceptance_criteria: "Reviewed red/black/white-led light/dark previews preserve recognizable PM identity.; Representative existing app/homepage, README banner and OG card demonstrate the palette, including narrow layouts.; Existing text/focus contrast gates pass; status and error semantics remain clear without color alone.; Token exports and generated assets stay consistent; relevant package checks pass and intentional visual snapshot changes are reviewed.; Scope is restrained: no automatic mark/type/layout replacement, wholesale rollout, release activation or final identity claim.; Consumer migration/compatibility are explicit."
+comments[4]{created_at,author,text}:
+  "2026-10-23T07:16:50.827Z",codex-agent,"Read issue #9 and all comments before work. Compare Signal (neutral paper and crisp red) with Oxide (slightly warm paper and deeper red). Both retain three-sheet geometry, all fonts, fixed banner/OG layouts and generator APIs. Error/destructive meaning uses amber, explicit labels and warning shape; five status labels remain mandatory. Package has no app/homepage sample, so add a synthetic review fixture using the existing contract grammar; use identical composition for baseline and candidates. Owner selection remains pending in a draft PR."
+  "2026-10-23T07:27:27.823Z",codex-agent,"Both candidates pass all 36 existing text pairs and 10 focus pairs (four existing plus six wash-surface pairs), with 28 decorative border comparisons each. Generated 54 viewport PNGs plus six overview sheets from identical synthetic package composition and the existing banner/OG generators. Browser receipts report loaded fonts, zero horizontal overflow and no HTTP resources at 1440/768/390 px. Inspected Signal light/dark and Oxide light sheets. Added migration notes and four legacy copy aliases for at least one release. Behavioral revert: reverting only canonical token declarations makes unchanged neutral/red identity and alias regressions fail; restored tree passes all three palette tests. Owner review remains pending."
+  "2026-10-23T07:29:27.272Z",codex-agent,"Visual inspection found that the review fixture dark selector outranked candidate overrides. Corrected the fixture selector before publication and regenerated comparisons. Browser capture now asserts the actual computed paper, sheet, carbon, graphite, stamp and danger values for each app/theme/viewport and checks all three loaded brand font families, in addition to overflow and external-resource checks. No package token or consumer theme selector changed as part of that fixture correction."
+  "2026-10-23T07:36:49.614Z",codex-agent,"Final local gates: clean-home npm run release:check and bun run release:check both pass 70/70 tests with zero skips or failures and 100/100/100/100 source coverage. Both gates verify 47 generated assets, 52 banners, 18 compiled files and 131 packed files, then pass real packed npm and Bun consumers. Direct Bun runtime acceptance passes 2/2. Four palette regressions and the canonical-token behavioral revert pass through pm test. All 54 viewport captures and six overview PNGs total 3.28 MB; final computed-colour/font receipts and SHA-256 image hashes are committed. Technical visual review includes before and both candidates in both themes. A host-global extension version skew requires clean-home local gates; package dependency pins stay unchanged. Owner choice and downstream consumer acceptance remain open. Draft PR follows; no issue comment, merge or release."
+files[5]{path,scope,note}:
+  docs/palette-previews/render-receipts.json,project,Hashed 54-image source-theme-viewport matrix
+  scripts/marks.ts,project,Existing geometry now reads canonical colours
+  src/tokens.ts,project,Canonical recommended palette and compatibility aliases
+  test/palette.test.ts,project,Palette and semantic regressions
+  tokens.css,project,Generated CSS for both theme selectors
+tests[4]{command,scope,timeout_seconds,provenance{author,created_at,source_kind,source_ref}}:
+  node --test test/palette.test.ts,project,120,codex-agent,"2026-10-23T07:27:42.413Z",local_mutation,feat/red-black-white-palette
+  node scripts/palette-revert-proof.ts,project,120,codex-agent,"2026-10-23T07:36:13.173Z",local_mutation,feat/red-black-white-palette
+  "env HOME=\"$(mktemp -d)\" GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 npm run release:check",project,1800,codex-agent,"2026-10-23T07:36:19.768Z",local_mutation,feat/red-black-white-palette
+  "env HOME=\"$(mktemp -d)\" GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 bun run release:check",project,1800,codex-agent,"2026-10-23T07:36:26.390Z",local_mutation,feat/red-black-white-palette
+docs[2]{path,scope,note}:
+  docs/palette-migration.md,project,Consumer compatibility and migration
+  docs/palette-previews/README.md,project,Two candidates with all token values and contrast pairs
+body: ""

@@ -1,0 +1,689 @@
+{
+  "chromium": "151.0.7922.34",
+  "captures": [
+    {
+      "file": "before-light-app-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F3F5F8",
+        "sheet": "#FFFFFF",
+        "carbon": "#1B2340",
+        "graphite": "#535B70",
+        "stamp": "#5B3FC4",
+        "danger": "#B42E3A"
+      }
+    },
+    {
+      "file": "before-light-app-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F3F5F8",
+        "sheet": "#FFFFFF",
+        "carbon": "#1B2340",
+        "graphite": "#535B70",
+        "stamp": "#5B3FC4",
+        "danger": "#B42E3A"
+      }
+    },
+    {
+      "file": "before-light-app-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F3F5F8",
+        "sheet": "#FFFFFF",
+        "carbon": "#1B2340",
+        "graphite": "#535B70",
+        "stamp": "#5B3FC4",
+        "danger": "#B42E3A"
+      }
+    },
+    {
+      "file": "before-light-banner-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-light-banner-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-light-banner-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-light-og-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-light-og-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-light-og-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-dark-app-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#0F1528",
+        "sheet": "#171F37",
+        "carbon": "#E7EAF3",
+        "graphite": "#A2A9BD",
+        "stamp": "#A894FF",
+        "danger": "#F07A84"
+      }
+    },
+    {
+      "file": "before-dark-app-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#0F1528",
+        "sheet": "#171F37",
+        "carbon": "#E7EAF3",
+        "graphite": "#A2A9BD",
+        "stamp": "#A894FF",
+        "danger": "#F07A84"
+      }
+    },
+    {
+      "file": "before-dark-app-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#0F1528",
+        "sheet": "#171F37",
+        "carbon": "#E7EAF3",
+        "graphite": "#A2A9BD",
+        "stamp": "#A894FF",
+        "danger": "#F07A84"
+      }
+    },
+    {
+      "file": "before-dark-banner-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-dark-banner-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-dark-banner-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-dark-og-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-dark-og-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "before-dark-og-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-light-app-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F5F5F5",
+        "sheet": "#FFFFFF",
+        "carbon": "#171717",
+        "graphite": "#555555",
+        "stamp": "#B51F32",
+        "danger": "#805000"
+      }
+    },
+    {
+      "file": "signal-light-app-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F5F5F5",
+        "sheet": "#FFFFFF",
+        "carbon": "#171717",
+        "graphite": "#555555",
+        "stamp": "#B51F32",
+        "danger": "#805000"
+      }
+    },
+    {
+      "file": "signal-light-app-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F5F5F5",
+        "sheet": "#FFFFFF",
+        "carbon": "#171717",
+        "graphite": "#555555",
+        "stamp": "#B51F32",
+        "danger": "#805000"
+      }
+    },
+    {
+      "file": "signal-light-banner-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-light-banner-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-light-banner-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-light-og-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-light-og-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-light-og-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-dark-app-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#101010",
+        "sheet": "#1C1C1C",
+        "carbon": "#F5F5F5",
+        "graphite": "#B5B5B5",
+        "stamp": "#FF7A88",
+        "danger": "#FFC46B"
+      }
+    },
+    {
+      "file": "signal-dark-app-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#101010",
+        "sheet": "#1C1C1C",
+        "carbon": "#F5F5F5",
+        "graphite": "#B5B5B5",
+        "stamp": "#FF7A88",
+        "danger": "#FFC46B"
+      }
+    },
+    {
+      "file": "signal-dark-app-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#101010",
+        "sheet": "#1C1C1C",
+        "carbon": "#F5F5F5",
+        "graphite": "#B5B5B5",
+        "stamp": "#FF7A88",
+        "danger": "#FFC46B"
+      }
+    },
+    {
+      "file": "signal-dark-banner-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-dark-banner-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-dark-banner-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-dark-og-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-dark-og-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "signal-dark-og-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-light-app-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F7F3EF",
+        "sheet": "#FFFDFA",
+        "carbon": "#211B18",
+        "graphite": "#60554D",
+        "stamp": "#A52A20",
+        "danger": "#785000"
+      }
+    },
+    {
+      "file": "oxide-light-app-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F7F3EF",
+        "sheet": "#FFFDFA",
+        "carbon": "#211B18",
+        "graphite": "#60554D",
+        "stamp": "#A52A20",
+        "danger": "#785000"
+      }
+    },
+    {
+      "file": "oxide-light-app-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#F7F3EF",
+        "sheet": "#FFFDFA",
+        "carbon": "#211B18",
+        "graphite": "#60554D",
+        "stamp": "#A52A20",
+        "danger": "#785000"
+      }
+    },
+    {
+      "file": "oxide-light-banner-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-light-banner-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-light-banner-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-light-og-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-light-og-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-light-og-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-dark-app-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#171311",
+        "sheet": "#241E1A",
+        "carbon": "#FFF8F0",
+        "graphite": "#C4B6AA",
+        "stamp": "#FA8C78",
+        "danger": "#F5C06A"
+      }
+    },
+    {
+      "file": "oxide-dark-app-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#171311",
+        "sheet": "#241E1A",
+        "carbon": "#FFF8F0",
+        "graphite": "#C4B6AA",
+        "stamp": "#FA8C78",
+        "danger": "#F5C06A"
+      }
+    },
+    {
+      "file": "oxide-dark-app-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [
+        "Archivo",
+        "Public Sans",
+        "Martian Mono"
+      ],
+      "external": false,
+      "colors": {
+        "paper": "#171311",
+        "sheet": "#241E1A",
+        "carbon": "#FFF8F0",
+        "graphite": "#C4B6AA",
+        "stamp": "#FA8C78",
+        "danger": "#F5C06A"
+      }
+    },
+    {
+      "file": "oxide-dark-banner-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-dark-banner-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-dark-banner-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-dark-og-1440.png",
+      "width": 1440,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-dark-og-768.png",
+      "width": 768,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    },
+    {
+      "file": "oxide-dark-og-390.png",
+      "width": 390,
+      "overflow": false,
+      "fonts": "loaded",
+      "loadedFaces": [],
+      "external": false,
+      "colors": {}
+    }
+  ]
+}

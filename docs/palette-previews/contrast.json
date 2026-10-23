@@ -1,0 +1,1042 @@
+{
+  "signal": [
+    {
+      "theme": "light",
+      "pair": "carbon / paper",
+      "ratio": 16.44407502596064,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / sheet",
+      "ratio": 17.9278402530276,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "graphite / paper",
+      "ratio": 6.838163522021167,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "graphite / sheet",
+      "ratio": 7.455177810447525,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / paper",
+      "ratio": 6.00659529411404,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / sheet",
+      "ratio": 6.54857635515884,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "danger / paper",
+      "ratio": 6.283872117678123,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "danger / sheet",
+      "ratio": 6.850872141992458,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / canary-wash",
+      "ratio": 15.591368236861879,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / rose-wash",
+      "ratio": 15.95325357817257,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / stamp-wash",
+      "ratio": 15.684196455808154,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "on-stamp / stamp",
+      "ratio": 6.54857635515884,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-fg / status-open-bg",
+      "ratio": 17.9278402530276,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-border / status-open-bg",
+      "ratio": 17.9278402530276,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-border / paper",
+      "ratio": 16.44407502596064,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-border / sheet",
+      "ratio": 17.9278402530276,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-fg / status-in_progress-bg",
+      "ratio": 15.591368236861879,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-border / status-in_progress-bg",
+      "ratio": 15.591368236861879,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-border / paper",
+      "ratio": 16.44407502596064,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-border / sheet",
+      "ratio": 17.9278402530276,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-fg / status-blocked-bg",
+      "ratio": 15.95325357817257,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-border / status-blocked-bg",
+      "ratio": 6.096311600857038,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-border / paper",
+      "ratio": 6.283872117678123,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-border / sheet",
+      "ratio": 6.850872141992458,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-fg / status-closed-bg",
+      "ratio": 17.9278402530276,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-border / status-closed-bg",
+      "ratio": 17.9278402530276,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-border / paper",
+      "ratio": 16.44407502596064,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-border / sheet",
+      "ratio": 17.9278402530276,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-fg / paper",
+      "ratio": 6.838163522021167,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-border / paper",
+      "ratio": 1.334158771504256,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-fg / sheet",
+      "ratio": 7.455177810447525,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-border / sheet",
+      "ratio": 1.3387238179057839,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / paper",
+      "ratio": 6.00659529411404,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / sheet",
+      "ratio": 6.54857635515884,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / paper",
+      "ratio": 17.453283442508322,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / sheet",
+      "ratio": 15.631611037444465,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "graphite / paper",
+      "ratio": 9.279864531753748,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "graphite / sheet",
+      "ratio": 8.311286143858323,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / paper",
+      "ratio": 7.603386662663824,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / sheet",
+      "ratio": 6.809789302371676,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "danger / paper",
+      "ratio": 12.105755023116298,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "danger / sheet",
+      "ratio": 10.84222659073184,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / canary-wash",
+      "ratio": 13.34414316965877,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / rose-wash",
+      "ratio": 12.748490766833532,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / stamp-wash",
+      "ratio": 14.202761361897243,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "on-stamp / stamp",
+      "ratio": 7.603386662663824,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-fg / status-open-bg",
+      "ratio": 15.631611037444465,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-border / status-open-bg",
+      "ratio": 15.631611037444465,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-border / paper",
+      "ratio": 17.453283442508322,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-border / sheet",
+      "ratio": 15.631611037444465,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-fg / status-in_progress-bg",
+      "ratio": 13.34414316965877,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-border / status-in_progress-bg",
+      "ratio": 13.34414316965877,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-border / paper",
+      "ratio": 17.453283442508322,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-border / sheet",
+      "ratio": 15.631611037444465,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-fg / status-blocked-bg",
+      "ratio": 12.748490766833532,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-border / status-blocked-bg",
+      "ratio": 8.842468332455327,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-border / paper",
+      "ratio": 12.105755023116298,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-border / sheet",
+      "ratio": 10.84222659073184,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-fg / status-closed-bg",
+      "ratio": 15.631611037444465,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-border / status-closed-bg",
+      "ratio": 15.631611037444465,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-border / paper",
+      "ratio": 17.453283442508322,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-border / sheet",
+      "ratio": 15.631611037444465,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-fg / paper",
+      "ratio": 9.279864531753748,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-border / paper",
+      "ratio": 1.442974135732229,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-fg / sheet",
+      "ratio": 8.311286143858323,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-border / sheet",
+      "ratio": 1.5069918145494496,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / paper",
+      "ratio": 7.603386662663824,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / sheet",
+      "ratio": 6.809789302371676,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / stamp-wash",
+      "ratio": 5.729031306089763,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / canary-wash",
+      "ratio": 5.695123558636445,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / rose-wash",
+      "ratio": 5.827310913941866,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / stamp-wash",
+      "ratio": 6.187322097172495,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / canary-wash",
+      "ratio": 5.813271785511007,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / rose-wash",
+      "ratio": 5.553780466863506,
+      "classification": "focus",
+      "minimum": 3
+    }
+  ],
+  "oxide": [
+    {
+      "theme": "light",
+      "pair": "carbon / paper",
+      "ratio": 15.406621369936895,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / sheet",
+      "ratio": 16.752021227886363,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "graphite / paper",
+      "ratio": 6.550264550339567,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "graphite / sheet",
+      "ratio": 7.12227347974408,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / paper",
+      "ratio": 6.443784643546302,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / sheet",
+      "ratio": 7.006495100038793,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "danger / paper",
+      "ratio": 6.456538390515814,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "danger / sheet",
+      "ratio": 7.020362581742813,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / canary-wash",
+      "ratio": 13.993082851684644,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / rose-wash",
+      "ratio": 15.135751395918186,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "carbon / stamp-wash",
+      "ratio": 14.551212820972017,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "on-stamp / stamp",
+      "ratio": 7.114039940916258,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-fg / status-open-bg",
+      "ratio": 16.752021227886363,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-border / status-open-bg",
+      "ratio": 16.752021227886363,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-border / paper",
+      "ratio": 15.406621369936895,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-open-border / sheet",
+      "ratio": 16.752021227886363,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-fg / status-in_progress-bg",
+      "ratio": 13.993082851684644,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-border / status-in_progress-bg",
+      "ratio": 13.993082851684644,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-border / paper",
+      "ratio": 15.406621369936895,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-in_progress-border / sheet",
+      "ratio": 16.752021227886363,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-fg / status-blocked-bg",
+      "ratio": 15.135751395918186,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-border / status-blocked-bg",
+      "ratio": 6.343023406010358,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-border / paper",
+      "ratio": 6.456538390515814,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-blocked-border / sheet",
+      "ratio": 7.020362581742813,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-fg / status-closed-bg",
+      "ratio": 16.752021227886363,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-border / status-closed-bg",
+      "ratio": 16.752021227886363,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-border / paper",
+      "ratio": 15.406621369936895,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-closed-border / sheet",
+      "ratio": 16.752021227886363,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-fg / paper",
+      "ratio": 6.550264550339567,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-border / paper",
+      "ratio": 1.3241685769024252,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-fg / sheet",
+      "ratio": 7.12227347974408,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "light",
+      "pair": "status-canceled-border / sheet",
+      "ratio": 1.3288950140782145,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / paper",
+      "ratio": 6.443784643546302,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / sheet",
+      "ratio": 7.006495100038793,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / paper",
+      "ratio": 17.524528748585393,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / sheet",
+      "ratio": 15.629196381149706,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "graphite / paper",
+      "ratio": 9.333763735595877,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "graphite / sheet",
+      "ratio": 8.324288115916215,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / paper",
+      "ratio": 7.987559608340368,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / sheet",
+      "ratio": 7.123680158016692,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "danger / paper",
+      "ratio": 11.102005345961523,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "danger / sheet",
+      "ratio": 9.901288888616362,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / canary-wash",
+      "ratio": 13.36021335055451,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / rose-wash",
+      "ratio": 12.66252579800062,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "carbon / stamp-wash",
+      "ratio": 13.27014967634497,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "on-stamp / stamp",
+      "ratio": 7.987559608340368,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-fg / status-open-bg",
+      "ratio": 15.629196381149706,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-border / status-open-bg",
+      "ratio": 15.629196381149706,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-border / paper",
+      "ratio": 17.524528748585393,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-open-border / sheet",
+      "ratio": 15.629196381149706,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-fg / status-in_progress-bg",
+      "ratio": 13.36021335055451,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-border / status-in_progress-bg",
+      "ratio": 13.36021335055451,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-border / paper",
+      "ratio": 17.524528748585393,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-in_progress-border / sheet",
+      "ratio": 15.629196381149706,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-fg / status-blocked-bg",
+      "ratio": 12.66252579800062,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-border / status-blocked-bg",
+      "ratio": 8.021866443291744,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-border / paper",
+      "ratio": 11.102005345961523,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-blocked-border / sheet",
+      "ratio": 9.901288888616362,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-fg / status-closed-bg",
+      "ratio": 15.629196381149706,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-border / status-closed-bg",
+      "ratio": 15.629196381149706,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-border / paper",
+      "ratio": 17.524528748585393,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-closed-border / sheet",
+      "ratio": 15.629196381149706,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-fg / paper",
+      "ratio": 9.333763735595877,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-border / paper",
+      "ratio": 1.4791516329735526,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-fg / sheet",
+      "ratio": 8.324288115916215,
+      "classification": "text",
+      "minimum": 4.5
+    },
+    {
+      "theme": "dark",
+      "pair": "status-canceled-border / sheet",
+      "ratio": 1.5291019394809668,
+      "classification": "decorative",
+      "minimum": null
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / paper",
+      "ratio": 7.987559608340368,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / sheet",
+      "ratio": 7.123680158016692,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / stamp-wash",
+      "ratio": 6.086011947026749,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / canary-wash",
+      "ratio": 5.852575346045902,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "light",
+      "pair": "stamp / rose-wash",
+      "ratio": 6.330493887768698,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / stamp-wash",
+      "ratio": 6.048442903776244,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / canary-wash",
+      "ratio": 6.089493306706646,
+      "classification": "focus",
+      "minimum": 3
+    },
+    {
+      "theme": "dark",
+      "pair": "stamp / rose-wash",
+      "ratio": 5.7714921213982455,
+      "classification": "focus",
+      "minimum": 3
+    }
+  ]
+}
