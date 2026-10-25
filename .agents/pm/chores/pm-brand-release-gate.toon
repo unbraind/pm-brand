@@ -6,14 +6,13 @@ status: in_progress
 priority: 2
 tags: []
 created_at: "2026-10-25T23:20:48.684Z"
-updated_at: "2026-10-25T23:24:27.044Z"
-assignee: codex-agent
-claim_principal: codex-agent
+updated_at: "2026-10-25T23:27:35.932Z"
 author: codex-agent
-comments[3]{created_at,author,text}:
+comments[4]{created_at,author,text}:
   "2026-10-25T23:20:52.124Z",codex-agent,"Normalize daily scheduling and PM_RELEASE_APPROVED job gates while preserving release decisions, generated changelogs and release notes. Verify OIDC publishing without a stored npm token, manifest metadata, packed allowlists and private-data scans. No open homepage/author PR was found during orientation. No publishing, trust setup, approval variable changes or merges are authorized."
   "2026-10-25T23:24:24.514Z",codex-agent,"Pack verification: npm pack --dry-run --json and the actual npm pack --ignore-scripts artifact agree on 130 allowlisted files (banners: 53; dist: 18; docs: 1; fonts: 5; icons: 6; logo: 40; root files: 7). Every packed member was scanned for absolute home paths, npm/GitHub/cloud tokens, private keys, hosted-data locations, private addresses and historical owner email addresses: PASS with zero matches. Regression proof: five independent workflow mutations (approval, provenance, token environment, daily schedule and OR bypass) plus the original manifest each fail the new contract check; restored contract passes 4/4. The linked test also passes through pm test --run --progress. Next gates: npm run release:check and bun run release:check with isolated HOME and Git configuration."
   "2026-10-25T23:24:27.044Z",codex-agent,"Removed the unconditional local prepublish hold so the owner can bootstrap. The read-only preparation job now selects a calendar version, skips unchanged tagged source and avoids existing npm versions; artifact-only publishing retains digest, main-commit and tag-target verification. The workflow shell decision test passes all four scenarios; the workflow suite passes 21/21 without publishing or GitHub writes."
+  "2026-10-25T23:27:32.719Z",codex-agent,"Full local gates PASS: npm run release:check and bun run release:check, each with isolated HOME, GIT_CONFIG_GLOBAL=/dev/null and GIT_CONFIG_NOSYSTEM=1. Suite receipts: npm: 71 tests; bun: 71 tests. No thresholds were relaxed. The package remains unpublished and the approval variable unset; first publication requires the owner login and initial trusted-publisher registration. For the local first publish, explicitly override provenance with --provenance=false because publishConfig enables provenance for cloud CI. CI must confirm the final PR head. The tracker item stays in progress for orchestrator verification."
 files[3]{path,scope}:
   .github/workflows/release.yml,project
   package.json,project
