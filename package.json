@@ -82,7 +82,7 @@
     "identity:check": "node scripts/identity.ts",
     "audit:prod": "node scripts/audit.ts",
     "pack:dry-run": "node scripts/pack.ts",
-    "prepublishOnly": "node scripts/release-held.ts",
+    "prepublishOnly": "npm run release:check",
     "changelog": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded",
     "changelog:full": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded",
     "changelog:check": "pm-changelog --pm-root .agents/pm --mode replace --output CHANGELOG.md --all-release-tags --no-pending-release --status closed,in_progress --item-url-base https://github.com/unbraind/pm-brand/blob/main/.agents/pm --pm-bin ./node_modules/.bin/pm --pm-arg=--output-budget --pm-arg=unbounded --pm-arg=--output-limit --pm-arg=unbounded --check",
@@ -123,5 +123,17 @@
     "@resvg/resvg-js": {
       "optional": true
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "homepage": "https://pm-cli.unbrained.dev/packages/pm-brand",
+  "author": {
+    "name": "unbrained",
+    "url": "https://unbrained.dev/about"
+  },
+  "bugs": {
+    "url": "https://github.com/unbraind/pm-brand/issues"
   }
 }
