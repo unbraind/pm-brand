@@ -28,9 +28,12 @@ agents that call themselves (Recursive Language Models), and for the people
 working alongside them. pm runs in a plain folder, in a hosted workspace
 (pm-web, the remote MCP, ChatGPT) or synced with the tools a team already uses,
 with or without git. Every change is stamped with who made it and from where.
-The identity uses that vocabulary: cool form paper, carbon-blue ink, canary and
-rose for the copies different participants hold, and a violet rubber-stamp ink
-for actions and for anything that is done.
+The identity keeps that vocabulary with neutral paper, black/white carbon ink,
+neutral and red copy sheets, and a red rubber-stamp ink for actions. Amber carries
+blocked/error meaning, with explicit labels and warning symbols. Signal is the
+recommended draft palette for issue #9; owner selection is still pending.
+[Light/dark alternatives and measured evidence](docs/palette-previews/README.md)
+and [consumer migration](docs/palette-migration.md) accompany this proposal.
 
 **Owner rules (2026-10-18): project management IS context management for
 agents, and the brand is never about git or merging.** The two are one idea:
@@ -50,28 +53,32 @@ All names carry the `--pm-` prefix so they never collide with a host app.
 
 | Token | Light | Dark | Role |
 |---|---|---|---|
-| `--pm-paper` | `#F3F5F8` | `#0F1528` | Page background (form paper) |
-| `--pm-sheet` | `#FFFFFF` | `#171F37` | Items, panels, forms (top sheet) |
-| `--pm-carbon` | `#1B2340` | `#E7EAF3` | Text, rules, outlines (carbon ink) |
-| `--pm-graphite` | `#535B70` | `#A2A9BD` | Secondary text, captions |
-| `--pm-rule` | `rgba(27,35,64,.14)` | `rgba(231,234,243,.14)` | Hairlines |
-| `--pm-canary` | `#E9C53A` | `#D7B53A` | Second copy; status in progress |
-| `--pm-canary-wash` | `#FBF1C6` | `#3A331C` | Canary fill for chips and changed-field rows |
-| `--pm-rose` | `#DE7F9C` | `#D07E97` | Third copy; status blocked |
-| `--pm-rose-wash` | `#F9DDE5` | `#3D2432` | Rose fill |
-| `--pm-stamp` | `#5B3FC4` | `#A894FF` | Actions, links, focus, closed |
-| `--pm-stamp-wash` | `#ECE7FB` | `#2A2450` | Selected rows, hover fill |
-| `--pm-on-stamp` | `#FFFFFF` | `#0F1528` | Text on a stamp-filled button |
-| `--pm-danger` | `#B42E3A` | `#F07A84` | Destructive actions and errors only |
+| `--pm-paper` | `#F5F5F5` | `#101010` | Page background |
+| `--pm-sheet` | `#FFFFFF` | `#1C1C1C` | Items, panels and forms |
+| `--pm-carbon` | `#171717` | `#F5F5F5` | Text and outlines |
+| `--pm-graphite` | `#555555` | `#B5B5B5` | Secondary text and captions |
+| `--pm-rule` | `rgba(23, 23, 23, .14)` | `rgba(245, 245, 245, .14)` | Decorative hairlines |
+| `--pm-copy-secondary` | `#D6D6D6` | `#505050` | Neutral second sheet |
+| `--pm-copy-tertiary` | `#B51F32` | `#FF7A88` | Red third sheet |
+| `--pm-progress-wash` | `#EFEFEF` | `#292929` | In-progress and changed-field fill |
+| `--pm-blocked-wash` | `#FFF0D6` | `#382A16` | Blocked fill |
+| `--pm-canary` | `var(--pm-copy-secondary)` | `var(--pm-copy-secondary)` | Compatibility alias: copy-secondary |
+| `--pm-canary-wash` | `var(--pm-progress-wash)` | `var(--pm-progress-wash)` | Compatibility alias: progress-wash |
+| `--pm-rose` | `var(--pm-copy-tertiary)` | `var(--pm-copy-tertiary)` | Compatibility alias: copy-tertiary |
+| `--pm-rose-wash` | `var(--pm-blocked-wash)` | `var(--pm-blocked-wash)` | Compatibility alias: blocked-wash |
+| `--pm-stamp` | `#B51F32` | `#FF7A88` | Actions, links and focus |
+| `--pm-stamp-wash` | `#FCECEE` | `#381C21` | Selection/hover fill with carbon text |
+| `--pm-on-stamp` | `#FFFFFF` | `#101010` | Text on a stamp-filled button |
+| `--pm-danger` | `#805000` | `#FFC46B` | Amber errors/destructive actions; labeled |
 
 Status mapping (label text, shape and fill carry the state, so it reads without colour):
 
 | Status | Chip |
 |---|---|
 | open | carbon outline, sheet fill |
-| in_progress | canary border, canary-wash fill |
-| blocked | rose border, rose-wash fill |
-| closed | stamp text and border; on an item's own page only, the rotated stamp |
+| in_progress | carbon text/border, progress-wash fill; labeled In progress |
+| blocked | carbon text, amber danger border, blocked-wash fill; labeled Blocked |
+| closed | carbon text and border, sheet fill; labeled Closed |
 | canceled | graphite text, rule border, line-through |
 
 The chip border is decorative; the label text carries the state and meets 4.5:1.
@@ -113,17 +120,18 @@ Total font payload stays under 120 KB.
 - **The strip is real data.** Every item sheet opens with its id, type and
   priority in mono, like a form number. No decorative numbering anywhere.
 - **Inputs are underlined form fields** with condensed uppercase captions.
-- **One violet primary action per screen.** Secondary buttons: carbon outline.
+- **One red primary action per screen.** Secondary buttons: carbon outline.
   Quiet buttons: underlined text.
-- **Tints mean copies.** Canary and rose appear only for a participant's copy
-  (another agent, person or surface), in-progress and blocked. Never as decoration. Text never sits on a
-  tint alone except inside chips and changed-field rows.
+- **Tints mean records and state.** Neutral progress-wash identifies a participant’s
+  copy or changed-field row; amber blocked-wash identifies blocked work. Stamp-wash
+  is a selection/hover surface with carbon text. Never use these as decoration.
+  Labels and warning symbols carry meaning alongside colour.
 - **Copy is plain.** Buttons say what happens ("Link files"), results confirm
   it ("Files linked"), errors say what failed and how to fix it.
 
 ## The mark
 
-Three stacked sheets (rose at the back, canary in the middle, white on top)
+Three stacked sheets (red at the back, neutral grey in the middle, white on top)
 with "pm" in Archivo width 125 weight 900 on the top sheet. Product lockups put
 the product as a condensed caption in a carbon-outlined box: `pm [WEB]`,
 `pm [GPT]`, `pm [SEARCH]`, `pm [SWARM]`. Package names stay lowercase in text
@@ -135,7 +143,7 @@ The live record: one item sheet whose fields are filled in by different
 participants. Each change arrives as a tinted copy slip stamped with its author
 and surface (for example `codex-agent · pm CLI`, `Morgan · pm-web`,
 `ChatGPT · pm-gpt`). It settles into the sheet with the changed row carrying a
-canary or rose left border naming who changed it, and adds one line to the
+copy-secondary or copy-tertiary left border naming who changed it, and adds one line to the
 item's history. There are no branches, no fan-out and no merge.
 
 1. The website hero, driven by a real item and its real, stamped history from

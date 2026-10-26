@@ -11,6 +11,7 @@ try {
   mkdirSync(join(scratch, 'src'));
   mkdirSync(join(scratch, 'scripts'));
   copyFileSync('scripts/marks.ts', join(scratch, 'scripts/marks.ts'));
+  copyFileSync('src/tokens.ts', join(scratch, 'src/tokens.ts'));
   copyFileSync('src/font-data.ts', join(scratch, 'src/font-data.ts'));
   writeFileSync(join(scratch, 'package.json'), '{"type":"module"}');
   symlinkSync(resolve('node_modules'), join(scratch, 'node_modules'), 'dir');

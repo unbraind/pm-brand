@@ -53,12 +53,12 @@ test('all 68 contract pairs are classified; every text and focus pair passes AA'
     }
   }
   // These are measured decorative comparisons below a 3:1 reference, not failed gates.
-  assert.equal(rows.filter(row => row.classification === 'decorative' && row.ratio < 3).length, 10);
-  assert.equal(tokenColor('light', 'status-open-fg'), '#1B2340');
-  assert.equal(tokenColor('dark', 'status-open-fg'), '#E7EAF3');
+  assert.equal(rows.filter(row => row.classification === 'decorative' && row.ratio < 3).length, 4);
+  assert.equal(tokenColor('light', 'status-open-fg'), '#171717');
+  assert.equal(tokenColor('dark', 'status-open-fg'), '#F5F5F5');
   for (const theme of ['light', 'dark'] as const) {
-    assert.equal(tokenColor(theme, 'status-in_progress-border'), tokenColor(theme, 'canary'));
-    assert.equal(tokenColor(theme, 'status-blocked-border'), tokenColor(theme, 'rose'));
+    assert.equal(tokenColor(theme, 'status-in_progress-border'), tokenColor(theme, 'carbon'));
+    assert.equal(tokenColor(theme, 'status-blocked-border'), tokenColor(theme, 'danger'));
     assert.equal(tokenColor(theme, 'status-canceled-border'), tokenColor(theme, 'rule'));
   }
 });

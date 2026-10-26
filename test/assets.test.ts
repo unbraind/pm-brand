@@ -13,7 +13,7 @@ test('mark variants and every product lockup use paths without font dependencies
     assert.doesNotMatch(svg, /<text|font-family|href=|url\((?!#)/);
   }
   assert.match(readFileSync('logo/mark-mono.svg', 'utf8'), /currentColor/);
-  assert.match(readFileSync('logo/mark-dark.svg', 'utf8'), /#171F37/);
+  assert.match(readFileSync('logo/mark-dark.svg', 'utf8'), /#1C1C1C/);
   for (const product of ['pm', 'web', 'gpt', 'mcp', 'search', 'swarm']) for (const family of ['lockup', 'lockup-mark']) {
     const svg = readFileSync(`logo/${family}-${product}.svg`, 'utf8');
     assert.match(svg, /<path/);
@@ -34,9 +34,9 @@ test('raster icons have their declared dimensions and the maskable foreground st
   for (let y = 0; y < 512; y++) for (let x = 0; x < 512; x++) {
     if (Math.hypot(x + .5 - 256, y + .5 - 256) <= 204.8) continue;
     const index = (y * 512 + x) * 4;
-    assert.equal(pixels[index], 243);
+    assert.equal(pixels[index], 245);
     assert.equal(pixels[index + 1], 245);
-    assert.equal(pixels[index + 2], 248);
+    assert.equal(pixels[index + 2], 245);
     assert.equal(pixels[index + 3], 255);
   }
 });
@@ -59,12 +59,12 @@ test('adaptive SVG CSS specifies both schemes and matches each fixed geometry', 
   for (const file of adaptive) {
     const source = readFileSync(`logo/${file}`, 'utf8');
     const style = /<style>(.*?)<\/style>/su.exec(source)![1];
-    assert.match(style, /^\.pm-brand-auto\{color:var\(--pm-carbon,#1B2340\)\}/u);
-    assert.match(style, /@media \(prefers-color-scheme: dark\)\{\.pm-brand-auto\{color:var\(--pm-carbon,#E7EAF3\)\}/u);
+    assert.match(style, /^\.pm-brand-auto\{color:var\(--pm-carbon,#171717\)\}/u);
+    assert.match(style, /@media \(prefers-color-scheme: dark\)\{\.pm-brand-auto\{color:var\(--pm-carbon,#F5F5F5\)\}/u);
     assert.match(style, /\.pm-top\{fill:var\(--pm-sheet,#FFFFFF\)\}/u);
-    assert.match(style, /\.pm-top\{fill:var\(--pm-sheet,#171F37\)\}/u);
-    assert.match(style, /\.pm-canary\{fill:var\(--pm-canary,#D7B53A\)\}/u);
-    assert.match(style, /\.pm-rose\{fill:var\(--pm-rose,#D07E97\)\}/u);
+    assert.match(style, /\.pm-top\{fill:var\(--pm-sheet,#1C1C1C\)\}/u);
+    assert.match(style, /\.pm-canary\{fill:var\(--pm-copy-secondary,#505050\)\}/u);
+    assert.match(style, /\.pm-rose\{fill:var\(--pm-copy-tertiary,#FF7A88\)\}/u);
     const body = source.replace(/<style>.*?<\/style>/su, '');
     assert.match(body, /fill="currentColor"/u);
     assert.doesNotMatch(body, /(?:stroke|fill)="#(?:1B2340|E7EAF3)"/u);
@@ -72,7 +72,7 @@ test('adaptive SVG CSS specifies both schemes and matches each fixed geometry', 
     // contract above, then compare the fixed source to its resolved appearance.
     for (const theme of ['light', 'dark'] as const) {
       let resolved = body.replace('class="pm-brand-auto"', `style="color:${tokenColor(theme, 'carbon')}"`);
-      if (theme === 'dark') resolved = resolved.replaceAll('#FFFFFF', '#171F37').replaceAll('#DE7F9C', '#D07E97').replaceAll('#E9C53A', '#D7B53A');
+      if (theme === 'dark') resolved = resolved.replaceAll('#FFFFFF', '#1C1C1C').replaceAll('#B51F32', '#FF7A88').replaceAll('#D6D6D6', '#505050');
       const fixed = readFileSync(`logo/${file.replace('.svg', `-${theme}.svg`)}`, 'utf8');
       assert.equal(resolved, fixed, `${file}: ${theme} geometry`);
       assert.ok(new Resvg(fixed).render().asPng().length > 100);

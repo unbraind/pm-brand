@@ -5,7 +5,7 @@ import { banner } from '../dist/banner.js';
 import { ogImage, renderPng } from '../dist/og.js';
 
 test('Bun consumes typed tokens and portable banners', () => {
-  expect(tokens.dark.paper).toBe('#0F1528');
+  expect(tokens.dark.paper).toBe('#101010');
   expect(cssVar('paper')).toBe('var(--pm-paper)');
   expect(banner({ name: 'pm-web', tagline: 'In triplicate' })).toContain('width="1280"');
 });

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pm · synthetic context record</title>
+<link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../../fonts.css">
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--pm-paper); color: var(--pm-carbon); font-family: var(--pm-font-body); }
+main { max-width: 1160px; margin: auto; padding: 32px 24px 48px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+header img { width: 52px; height: 52px; }
+.brand { display: flex; align-items: center; gap: 12px; font-family: var(--pm-font-display); font-weight: 800; }
+a { color: var(--pm-stamp); text-underline-offset: 4px; }
+.caption { font: 600 .82rem var(--pm-font-caption); font-stretch: condensed; text-transform: uppercase; letter-spacing: .09em; }
+.hero { max-width: 880px; margin: 48px 0 32px; }
+h1 { font: 800 var(--pm-step-4)/1.07 var(--pm-font-display); font-stretch: expanded; margin: 12px 0 20px; }
+p { line-height: 1.6; }
+.intro, .meta { color: var(--pm-graphite); }
+.sheet { background: var(--pm-sheet); border: 1px solid var(--pm-rule); border-radius: var(--pm-radius); padding: 24px; }
+.strip { font: .82rem/1.6 var(--pm-font-mono); margin: 0 0 16px; }
+h2 { font: 800 1.6rem/1.2 var(--pm-font-display); margin: 0 0 20px; }
+.statuses { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.chip { display: inline-block; border: 1px solid; padding: 6px 9px; border-radius: var(--pm-radius-sm); font-size: .82rem; }
+.open { color: var(--pm-status-open-fg); background: var(--pm-status-open-bg); border-color: var(--pm-status-open-border); }
+.progress { color: var(--pm-status-in_progress-fg); background: var(--pm-status-in_progress-bg); border-color: var(--pm-status-in_progress-border); }
+.blocked { color: var(--pm-status-blocked-fg); background: var(--pm-status-blocked-bg); border-color: var(--pm-status-blocked-border); }
+.closed { color: var(--pm-status-closed-fg); background: var(--pm-status-closed-bg); border-color: var(--pm-status-closed-border); }
+.canceled { color: var(--pm-status-canceled-fg); background: var(--pm-status-canceled-bg); border-color: var(--pm-status-canceled-border); text-decoration: line-through; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.field { border-bottom: 1px solid var(--pm-carbon); padding: 12px 0; }
+.field p { margin: 8px 0 0; }
+.activity { margin-top: 24px; padding: 16px; background: var(--pm-canary-wash); border-left: 4px solid var(--pm-canary); }
+.activity p { margin: 6px 0 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin-top: 28px; }
+button { font: 700 1rem var(--pm-font-body); padding: 12px 18px; border-radius: 4px; cursor: pointer; }
+.primary { background: var(--pm-stamp); color: var(--pm-on-stamp); border: 1px solid var(--pm-stamp); }
+.secondary { background: var(--pm-sheet); color: var(--pm-carbon); border: 1px solid var(--pm-carbon); }
+:focus-visible, .focus-example { outline: var(--pm-focus); outline-offset: var(--pm-focus-offset); }
+.error { color: var(--pm-danger); margin-top: 28px; font-weight: 600; }
+footer { margin-top: 24px; font-size: .82rem; color: var(--pm-graphite); }
+@media (max-width: 600px) { main { padding: 20px 20px 32px; } .hero { margin-top: 32px; } .sheet { padding: 18px; } .fields { grid-template-columns: 1fr; gap: 8px; } header a { font-size: .82rem; } }
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand"><img data-brand-mark src="../../logo/mark-light.svg" alt="pm: three sheets in triplicate"><span>pm [WEB]</span></div><a href="#record">Open record</a></header>
+<section class="hero"><div class="caption">Context management for agents</div><h1>Every agent.<br>The same record.</h1><p class="intro">Goals, decisions and evidence, kept together as a stamped record.<br>Project management is context management.</p></section>
+<article class="sheet" id="record"><p class="strip">DEMO-042 · TASK · PRIORITY 2</p><h2>Prepare the field guide</h2>
+<div class="statuses" aria-label="Status examples"><span class="chip open">○ Open</span><span class="chip progress">◐ In progress</span><span class="chip blocked">! Blocked</span><span class="chip closed">✓ Closed</span><span class="chip canceled">× Canceled</span></div>
+<div class="fields"><div class="field"><span class="caption">Goal</span><p>Keep every decision with its evidence.</p></div><div class="field"><span class="caption">Next action</span><p>Link the reviewed source notes.</p></div></div>
+<div class="activity"><span class="caption">New evidence · sample-agent · CLI</span><p>Source notes linked to DEMO-042.</p></div>
+<div class="actions"><button class="primary">Link files</button><button class="secondary focus-example">View history</button><a href="#record">Read evidence</a></div>
+<p class="error" role="alert">⚠ Error: choose a file before linking it.</p></article>
+<footer>Synthetic review fixture · no workspace data · keyboard focus shown on View history</footer>
+</main>
+</body></html>

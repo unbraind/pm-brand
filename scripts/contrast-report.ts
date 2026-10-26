@@ -16,8 +16,8 @@ all ${focusCount} focus-ring comparisons meet 3:1. The gate fails below either t
 ## Orchestrator decision: decorative chip borders
 
 Chip state is conveyed by the text label and fill. All ${decorative.length} chip-border comparisons
-are classified **decorative**, with no required contrast minimum. Canary, rose and
-rule tokens remain unchanged. The ${belowReference.length} comparisons below the 3:1 reference are
+are classified **decorative**, with no required contrast minimum. Copy and status tokens follow the palette candidate;
+labels remain mandatory. The ${belowReference.length} comparisons below the 3:1 reference are
 listed here with their measured ratios; they are not known failures or waivers.
 ${reason}
 

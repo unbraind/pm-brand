@@ -9,7 +9,10 @@ Context management for any agent and any task or workflow. Project management
 is context management for agents.
 
 One shared identity for pm-cli.unbrained.dev, pm-web, pm-gpt, pm-mcp and pm-search:
-cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
+neutral form paper, black/white carbon ink and red stamp ink. Signal is a draft
+palette recommendation pending the owner’s choice in issue #9.
+[Compare both candidates and before/after previews](docs/palette-previews/README.md);
+[consumer migration](docs/palette-migration.md).
 [CONTRACT.md](CONTRACT.md) defines the visual grammar and every public token.
 
 **Release held: depend on an exact commit until the first release.**
@@ -50,25 +53,29 @@ to zero. Focus uses `--pm-focus` with `--pm-focus-offset` on interactive element
 
 ## Palette
 
-| Token suffix | Light | Dark | Role |
+| Token | Light | Dark | Role |
 |---|---|---|---|
-| paper | #F3F5F8 | #0F1528 | Page |
-| sheet | #FFFFFF | #171F37 | Items, panels, forms |
-| carbon | #1B2340 | #E7EAF3 | Text, outlines |
-| graphite | #535B70 | #A2A9BD | Secondary text |
-| rule | rgba(27,35,64,.14) | rgba(231,234,243,.14) | Hairlines |
-| canary | #E9C53A | #D7B53A | In progress, second copy |
-| canary-wash | #FBF1C6 | #3A331C | In-progress chip fill |
-| rose | #DE7F9C | #D07E97 | Blocked, third copy |
-| rose-wash | #F9DDE5 | #3D2432 | Blocked chip fill |
-| stamp | #5B3FC4 | #A894FF | Actions, links, focus, closed |
-| stamp-wash | #ECE7FB | #2A2450 | Selection and hover |
-| on-stamp | #FFFFFF | #0F1528 | Text on stamp |
-| danger | #B42E3A | #F07A84 | Errors and destructive actions |
+| `paper` | `#F5F5F5` | `#101010` | Page background |
+| `sheet` | `#FFFFFF` | `#1C1C1C` | Items, panels and forms |
+| `carbon` | `#171717` | `#F5F5F5` | Text and outlines |
+| `graphite` | `#555555` | `#B5B5B5` | Secondary text and captions |
+| `rule` | `rgba(23, 23, 23, .14)` | `rgba(245, 245, 245, .14)` | Decorative hairlines |
+| `copy-secondary` | `#D6D6D6` | `#505050` | Neutral second sheet |
+| `copy-tertiary` | `#B51F32` | `#FF7A88` | Red third sheet |
+| `progress-wash` | `#EFEFEF` | `#292929` | In-progress and changed-field fill |
+| `blocked-wash` | `#FFF0D6` | `#382A16` | Blocked fill |
+| `canary` | `var(--pm-copy-secondary)` | `var(--pm-copy-secondary)` | Compatibility alias: copy-secondary |
+| `canary-wash` | `var(--pm-progress-wash)` | `var(--pm-progress-wash)` | Compatibility alias: progress-wash |
+| `rose` | `var(--pm-copy-tertiary)` | `var(--pm-copy-tertiary)` | Compatibility alias: copy-tertiary |
+| `rose-wash` | `var(--pm-blocked-wash)` | `var(--pm-blocked-wash)` | Compatibility alias: blocked-wash |
+| `stamp` | `#B51F32` | `#FF7A88` | Actions, links and focus |
+| `stamp-wash` | `#FCECEE` | `#381C21` | Selection/hover fill with carbon text |
+| `on-stamp` | `#FFFFFF` | `#101010` | Text on a stamp-filled button |
+| `danger` | `#805000` | `#FFC46B` | Amber errors/destructive actions; labeled |
 
 Status tokens are `--pm-status-<open|in_progress|blocked|closed|canceled>-<fg|bg|border>`.
 The label text carries state and meets 4.5:1 in both themes. Chip borders are
-decorative; canary, rose and rule stay unchanged. [All 68 measured comparisons](docs/contrast.md)
+decorative; copy names retain compatibility aliases for at least one release. [All 68 measured comparisons](docs/contrast.md)
 classify decorative borders separately and enforce text and focus thresholds.
 
 ## Type
@@ -101,7 +108,7 @@ copyright and complete licence are bundled in [fonts/OFL.txt](fonts/OFL.txt).
 ```ts
 import { tokens, cssVar } from 'pm-brand';
 
-const paper = tokens.light.paper;              // #F3F5F8
+const paper = tokens.light.paper;              // #F5F5F5
 const body = tokens.dark['font-body'];         // complete font stack
 const outline = cssVar('status-open-border'); // var(--pm-status-open-border)
 const focus = cssVar('--pm-focus');
@@ -110,7 +117,7 @@ const focus = cssVar('--pm-focus');
 `tokens.light` and `tokens.dark` contain every contract suffix, including colour,
 status, font, scale, radius, focus and motion tokens. Reference-valued tokens
 remain CSS references. `cssVar` accepts only known suffixes or full `--pm-` names.
-A parity test parses the independent stylesheet in both dark selectors and light
+A parity test parses the generated stylesheet in both dark selectors and light
 mode; changing one side alone fails the gate.
 
 ## README banners and Open Graph cards
@@ -229,6 +236,12 @@ mark inherits `color` directly and works on either theme.
 | MCP | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mcp-dark.svg"><img src="logo/lockup-mcp-light.svg" alt="lockup-mcp" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-mcp-dark.svg"><img src="logo/lockup-mark-mcp-light.svg" alt="lockup-mark-mcp" height="56"></picture> |
 | SEARCH | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-search-dark.svg"><img src="logo/lockup-search-light.svg" alt="lockup-search" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-search-dark.svg"><img src="logo/lockup-mark-search-light.svg" alt="lockup-mark-search" height="56"></picture> |
 | SWARM | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-swarm-dark.svg"><img src="logo/lockup-swarm-light.svg" alt="lockup-swarm" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-swarm-dark.svg"><img src="logo/lockup-mark-swarm-light.svg" alt="lockup-mark-swarm" height="56"></picture> |
+
+## Without git
+
+Tokens, CSS, fonts, marks, banners, OG cards and PNG rendering work in a plain
+directory with no git executable. Repository-history/identity and changelog
+development checks need a git checkout; they are not consumer runtime APIs.
 
 ## Development
 
