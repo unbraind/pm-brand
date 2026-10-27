@@ -5,10 +5,7 @@ jobs:
   enable:
     # There is no branch protection yet. Require a separate owner opt-in before
     # enabling auto-merge, otherwise --auto can merge immediately without CI.
-    if: >-
-      vars.PM_BRAND_DEPENDABOT_AUTO_MERGE_ENABLED == 'true' &&
-      github.event.pull_request.user.login == 'dependabot[bot]' &&
-      github.repository_owner == 'unbraind'
+    if: github.repository == 'unbraind/pm-brand' && vars.PM_BRAND_DEPENDABOT_AUTO_MERGE_ENABLED == 'true' && github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write

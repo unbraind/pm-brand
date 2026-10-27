@@ -299,7 +299,8 @@ an intentional design change.
 
 `npm run changelog:full` uses pm-changelog's `--no-pending-release`, keeping entries
 under **Unreleased**. The release workflow is dormant unless the owner explicitly
-enables `PM_RELEASE_APPROVED`; local publishing is blocked. Dependabot
+sets the repository variable `PM_RELEASE_APPROVED=true`. Local npm publishing runs
+the prepublish checks and requires maintainer npm authentication. Dependabot
 scheduling is configured, but auto-merge has its own dormant opt-in while branch
 protection is absent. No release or repository policy changes are authorized by
 these development commands.
@@ -317,5 +318,9 @@ require `trusted-identity` from this trusted workflow (prefer a required-workflo
 ruleset where available), retaining strict up-to-date checks and the existing
 required checks. A PR-local green result does not establish that protection.
 
-Release jobs with write permissions are restricted to `unbraind/pm-brand` at job
-level, so a fork cannot run publication with its own approval variable.
+Every workflow job granted write permissions, including CodeQL, Dependabot and
+reusable workflow calls, requires the exact repository `unbraind/pm-brand`.
+The approval variable controls GitHub releases; it does not impose a local npm
+publishing hold. Maintainers run the prepublish checks and authenticate with npm
+for local publication. The first local publish uses `--provenance=false`; daily
+GitHub OIDC releases keep provenance enabled.
