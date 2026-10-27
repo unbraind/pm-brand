@@ -135,3 +135,45 @@ test('absent trusted controls', () => {
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
 });
+
+
+test('daily release decision skips unchanged source and avoids bootstrap version collisions', () => {
+  const workflow = readFileSync('.github/workflows/release.yml', 'utf8');
+  const step = workflow.split('      - name: Decide daily release\n')[1].split('      - run: npm ci\n')[0];
+  const script = step.split('        run: |\n')[1].replace(/^          /gmu, '');
+  for (const fixture of [
+    { latest: '', unchanged: false, existing: '', expected: '2026.10.26' },
+    { latest: 'v2026.10.25', unchanged: true, existing: '', expected: undefined },
+    { latest: 'v2026.10.25', unchanged: false, existing: '2026.10.26', expected: '2026.10.26-1' },
+    { latest: 'v2026.10.25', unchanged: false, existing: '2026.10.26 2026.10.26-1', expected: '2026.10.26-2' },
+  ]) {
+    const root = mkdtempSync(join(tmpdir(), 'brand-release-decision-'));
+    try {
+      writeFileSync(join(root, 'git'), `#!/bin/bash
+case "$1" in
+  tag) printf '%s\\n' "$LATEST" ;;
+  diff) [[ "$UNCHANGED" == yes ]] ;;
+  rev-parse) exit 1 ;;
+  *) exit 2 ;;
+esac
+`, { mode: 0o755 });
+      writeFileSync(join(root, 'date'), '#!/bin/bash\necho 2026.10.26\n', { mode: 0o755 });
+      writeFileSync(join(root, 'npm'), `#!/bin/bash
+[[ "$1" == view ]] || exit 2
+version="\${2#pm-brand@}"
+[[ " $EXISTING " == *" $version "* ]]
+`, { mode: 0o755 });
+      const output = join(root, 'output');
+      const result = spawnSync('bash', ['--noprofile', '--norc', '-e', '-o', 'pipefail', '-c', script], {
+        encoding: 'utf8', timeout: 5000,
+        env: { ...process.env, PATH: `${root}:${process.env.PATH}`, GITHUB_OUTPUT: output,
+          LATEST: fixture.latest, UNCHANGED: fixture.unchanged ? 'yes' : 'no', EXISTING: fixture.existing },
+      });
+      assert.equal(result.status, 0, result.stderr);
+      const decisions = readFileSync(output, 'utf8');
+      assert.match(decisions, new RegExp(`should_release=${!fixture.unchanged}`));
+      if (fixture.expected !== undefined) assert.ok(decisions.includes(`version=${fixture.expected}\n`), decisions);
+      else assert.doesNotMatch(decisions, /^version=/mu);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+});
