@@ -1,8 +1,8 @@
-name: Held release
+name: Daily release
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: '41 3 * * *'
+    - cron: "23 3 * * *"
 permissions:
   contents: read
 concurrency:
@@ -10,12 +10,13 @@ concurrency:
   cancel-in-progress: false
 jobs:
   prepare:
-    # Owner decision: leave this variable unset until the kit is approved.
-    if: github.ref == 'refs/heads/main' && vars.PM_BRAND_RELEASE_ENABLED == 'true'
+    # New packages stay unreleased until the maintainer sets the repository variable PM_RELEASE_APPROVED=true.
+    if: github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true'
     runs-on: ubuntu-latest
     outputs:
       commit: ${{ steps.pack.outputs.commit }}
       version: ${{ steps.pack.outputs.version }}
+      should_release: ${{ steps.decide.outputs.should_release }}
       sha256: ${{ steps.pack.outputs.sha256 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -26,14 +27,37 @@ jobs:
         with:
           node-version: 26
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-      - run: npm ci
-      - run: npm run release:check && bun run release:check
-      - id: pack
+      - name: Decide daily release
+        id: decide
         shell: bash
         run: |
           set -euo pipefail
-          # The owner-approved package version is used unchanged. Version bumps
-          # belong in a reviewed PR; this job never edits main or the tracker.
+          latest_tag="$(git tag --sort=-creatordate | head -n 1 || true)"
+          if [[ -n "$latest_tag" ]] && git diff --quiet "$latest_tag"..HEAD -- .; then
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Every changed main gets a fresh calendar version after bootstrap.
+          base="$(TZ=Europe/Vienna date +%Y.%-m.%-d)"
+          version="$base"
+          suffix=0
+          while git rev-parse --verify --quiet "refs/tags/v$version" >/dev/null || npm view "pm-brand@$version" version >/dev/null 2>&1; do
+            suffix=$((suffix + 1))
+            version="$base-$suffix"
+          done
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - run: npm ci
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
+      - run: npm run release:check && bun run release:check
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
+      - id: pack
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Version the verified artifact without changing main or the tracker.
+          npm version "${{ steps.decide.outputs.version }}" --no-git-tag-version --allow-same-version --ignore-scripts
           npm run release:notes > RELEASE_NOTES.md
           npm pack --ignore-scripts --json > pack.json
           node --input-type=module -e 'import fs from "node:fs";const [p]=JSON.parse(fs.readFileSync("pack.json","utf8"));fs.renameSync(p.filename,"package.tgz")'
@@ -41,6 +65,7 @@ jobs:
           echo "version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')" >> "$GITHUB_OUTPUT"
           echo "sha256=$(sha256sum package.tgz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
         with:
           name: verified-package
           path: |
@@ -50,7 +75,7 @@ jobs:
           retention-days: 1
   release:
     needs: prepare
-    if: github.ref == 'refs/heads/main' && vars.PM_BRAND_RELEASE_ENABLED == 'true'
+    if: github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' && needs.prepare.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     # Dependency code ran in the read-only job. This job only publishes its
     # verified tarball with scripts disabled, then tags the exact tested commit.
@@ -61,6 +86,8 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 26
+      - name: Use npm with trusted publishing support
+        run: npm install -g npm@11.19.0 --ignore-scripts
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: verified-package
@@ -86,7 +113,7 @@ jobs:
           if [[ -n "$existing" ]]; then
             [[ "$existing" == "$expected" ]]
           else
-            npm publish package.tgz --access public --provenance --ignore-scripts
+            npm publish package.tgz --access public --provenance --tag latest --ignore-scripts
           fi
           # Publication is accepted only with the exact artifact and provenance.
           for attempt in $(seq 1 21); do

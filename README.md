@@ -12,7 +12,7 @@ One shared identity for pm-cli.unbrained.dev, pm-web, pm-gpt, pm-mcp and pm-sear
 cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
 [CONTRACT.md](CONTRACT.md) defines the visual grammar and every public token.
 
-**Release held: depend on an exact commit until the first release.**
+**Before the first npm release, depend on an exact commit.**
 
 ```json
 { "dependencies": { "pm-brand": "github:unbraind/pm-brand#<40-character-commit>" } }
@@ -25,6 +25,30 @@ dependency preparation. CI verifies them against a clean build.
   <source media="(prefers-color-scheme: dark)" srcset="logo/mark-dark.svg">
   <img src="logo/mark-light.svg" alt="Three sheets in triplicate" width="124">
 </picture>
+
+## Install and release approval
+
+The first npm release is pending the maintainer's interactive bootstrap. After
+that first publish, the maintainer configures npm trusted publishing for
+`release.yml` and sets the repository variable `PM_RELEASE_APPROVED` to `true`.
+The daily workflow and manual dispatch both require this variable and `main`.
+Publishing uses OIDC with provenance and the explicit `latest` dist-tag; no stored
+npm token is needed. Same-day collision versions such as `2026.10.27-1` remain
+the newest daily release on `latest`.
+
+After the first release, install the library and its CSS/assets with either:
+
+```sh
+npm install pm-brand
+bun add pm-brand
+```
+
+This is an asset and SDK library with documented subpath exports, no standalone
+`bin` and no pm extension. `npx` and `bunx` cannot execute it, and `pm package
+install` does not activate it. A pm integration imports its exports directly.
+Before the first npm release, the exact-commit Git dependency below remains
+available. Daily releases version the verified artifact automatically when main
+changes; unchanged tagged source skips publication.
 
 ## CSS
 
@@ -277,7 +301,8 @@ an intentional design change.
 
 `npm run changelog:full` uses pm-changelog's `--no-pending-release`, keeping entries
 under **Unreleased**. The release workflow is dormant unless the owner explicitly
-enables `PM_BRAND_RELEASE_ENABLED`; local publishing is blocked. Dependabot
+sets the repository variable `PM_RELEASE_APPROVED=true`. Local npm publishing runs
+the prepublish checks and requires maintainer npm authentication. Dependabot
 scheduling is configured, but auto-merge has its own dormant opt-in while branch
 protection is absent. No release or repository policy changes are authorized by
 these development commands.
@@ -294,3 +319,10 @@ before this workflow can protect PRs. The repository administrator must then
 require `trusted-identity` from this trusted workflow (prefer a required-workflow
 ruleset where available), retaining strict up-to-date checks and the existing
 required checks. A PR-local green result does not establish that protection.
+
+Every workflow job granted write permissions, including CodeQL, Dependabot and
+reusable workflow calls, requires the exact repository `unbraind/pm-brand`.
+The approval variable controls GitHub releases; it does not impose a local npm
+publishing hold. Maintainers run the prepublish checks and authenticate with npm
+for local publication. The first local publish uses `--provenance=false`; daily
+GitHub OIDC releases keep provenance enabled.
