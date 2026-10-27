@@ -2,13 +2,18 @@ id: pm-brand-release-gate
 title: Release readiness behind PM_RELEASE_APPROVED
 description: "Prepare daily OIDC publishing behind one repository approval variable. Verify metadata, allowlisted packed files, privacy, regression checks, npm and Bun release gates. The owner performs the first npm publish and trusted-publisher setup; keep approval unset."
 type: Chore
-status: in_progress
+status: closed
 priority: 2
 tags: []
 created_at: "2026-10-25T23:20:48.684Z"
-updated_at: "2026-10-27T05:59:25.952Z"
+updated_at: "2026-10-27T08:55:11.273Z"
+closed_at: "2026-10-27T08:55:09.150Z"
+completed_at: "2026-10-27T06:56:31.000Z"
 author: codex-agent
-comments[16]{created_at,author,text}:
+resolution: "Merged PR #18 at 98c849687aabfab518b9d3656cc6d94d298a9003; inspected .github/workflows/release.yml and ran node --test --test-concurrency=2 test/release-approval.test.ts on main. Canonical-repository write guards, main/approval gating, daily schedule and OIDC provenance safeguards are delivered. First publication, trusted-publisher setup and workflow activation remain owner actions; closing repository preparation does not authorize them."
+expected_result: "Prepare daily OIDC publishing behind one repository approval variable. Verify metadata, allowlisted packed files, privacy, regression checks, npm and Bun release gates. The owner performs the first npm publish and trusted-publisher setup; keep approval unset."
+actual_result: "Canonical-repository write guards, main/approval gating, daily schedule and OIDC provenance safeguards are delivered. First publication, trusted-publisher setup and workflow activation remain owner actions; closing repository preparation does not authorize them."
+comments[18]{created_at,author,text}:
   "2026-10-25T23:20:52.124Z",codex-agent,"Normalize daily scheduling and PM_RELEASE_APPROVED job gates while preserving release decisions, generated changelogs and release notes. Verify OIDC publishing without a stored npm token, manifest metadata, packed allowlists and private-data scans. No open homepage/author PR was found during orientation. No publishing, trust setup, approval variable changes or merges are authorized."
   "2026-10-25T23:24:24.514Z",codex-agent,"Pack verification: npm pack --dry-run --json and the actual npm pack --ignore-scripts artifact agree on 130 allowlisted files (banners: 53; dist: 18; docs: 1; fonts: 5; icons: 6; logo: 40; root files: 7). Every packed member was scanned for absolute home paths, npm/GitHub/cloud tokens, private keys, hosted-data locations, private addresses and historical owner email addresses: PASS with zero matches. Regression proof: five independent workflow mutations (approval, provenance, token environment, daily schedule and OR bypass) plus the original manifest each fail the new contract check; restored contract passes 4/4. The linked test also passes through pm test --run --progress. Next gates: npm run release:check and bun run release:check with isolated HOME and Git configuration."
   "2026-10-25T23:24:27.044Z",codex-agent,"Removed the unconditional local prepublish hold so the owner can bootstrap. The read-only preparation job now selects a calendar version, skips unchanged tagged source and avoids existing npm versions; artifact-only publishing retains digest, main-commit and tag-target verification. The workflow shell decision test passes all four scenarios; the workflow suite passes 21/21 without publishing or GitHub writes."
@@ -25,6 +30,8 @@ comments[16]{created_at,author,text}:
   "2026-10-27T05:51:37.679Z",codex-agent,"Independent review follow-up: preserve completed workflow guards and package readiness. Add an explicit latest dist-tag for same-day collision versions, extend the YAML publication contract and execute the real decision step against collision fixtures; prove reverting only the publish tag fails. Record focused checks, regenerate the changelog and verify complete npm/Bun CI on the pushed head."
   "2026-10-27T05:59:18.708Z",codex-agent,"Dist-tag regression: node --test --test-concurrency=2 test/release-approval.test.ts passes 33/33. The actual YAML decision script runs against a real non-remote Git fixture with a same-day tag and then a registry collision, selecting 2026.10.27-1 and 2026.10.27-2. Both require the actual publish command to retain --tag latest and --provenance. Independently removing only the workflow publish tag fails the contract and collision test; removing only the generic tag validator fails its negative fixtures. Restoring source passes 33/33. Typecheck, lint and linked pm tests pass. No npm publish or GitHub release command is executed by these fixtures."
   "2026-10-27T05:59:22.151Z",codex-agent,"Read-only canonical fleet scan: 32 release.yml files inspected. 27 preserve a numeric collision suffix in the npm version and publish without --tag: pm-ado, pm-beads, pm-brief, pm-context, pm-csv, pm-evidence, pm-gantt-chart, pm-graph, pm-hypothesis, pm-jev, pm-jira, pm-linear, pm-lint, pm-memory, pm-ops, pm-presets, pm-review, pm-rl, pm-rlm, pm-slack, pm-slack-standup, pm-starter, pm-swarm, pm-todos, pm-ts-starter, pm-vcs, pm-web. Canonical workflows were not modified. This is a checkout snapshot; the pm-brand PR adds its own collision handling and now publishes with --tag latest. Other fleet findings remain for orchestrator follow-up."
+  "2026-10-27T08:54:56.916Z",codex-agent,"Closure audit: verify every acceptance criterion on current main against merged PR #18 (98c849687aabfab518b9d3656cc6d94d298a9003), inspect .github/workflows/release.yml, and run the focused linked check before closing. Completion will be the merge timestamp 2026-10-27T06:56:31Z."
+  "2026-10-27T08:55:06.977Z",codex-agent,"Merged PR #18 at 98c849687aabfab518b9d3656cc6d94d298a9003; inspected .github/workflows/release.yml and ran node --test --test-concurrency=2 test/release-approval.test.ts on main. Canonical-repository write guards, main/approval gating, daily schedule and OIDC provenance safeguards are delivered. First publication, trusted-publisher setup and workflow activation remain owner actions; closing repository preparation does not authorize them. Full unchanged npm and Bun release gates run in CI for this tracker-only closure PR; prior behavioral revert evidence remains in the merged implementation history."
 files[6]{path,scope}:
   .github/workflows/codeql.yml,project
   .github/workflows/dependabot-auto-merge.yml,project
@@ -32,8 +39,35 @@ files[6]{path,scope}:
   package.json,project
   README.md,project
   test/release-approval.test.ts,project
-tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
-  node --test --test-concurrency=2 test/release-approval.test.ts,project,codex-agent,"2026-10-27T05:59:06.780Z",local_mutation,chore/release-gate-approval
+tests[3]:
+  - command: node --test --test-concurrency=2 test/release-approval.test.ts
+    scope: project
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-27T05:59:06.780Z"
+      source_kind: local_mutation
+      source_ref: chore/release-gate-approval
+  - command: NPM_CONFIG_USERCONFIG=/dev/null node --test --test-concurrency=2 test/release-approval.test.ts
+    scope: project
+    timeout_seconds: 600
+    pm_context_mode: tracker
+    workspace_context_mode: source
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-27T08:49:27.292Z"
+      source_kind: local_mutation
+      source_ref: chore/close-delivered-1027
+  - command: node --test --test-concurrency=2 test/release-approval.test.ts
+    scope: project
+    timeout_seconds: 600
+    pm_context_mode: tracker
+    workspace_context_mode: source
+    provenance:
+      author: codex-agent
+      created_at: "2026-10-27T08:55:00.421Z"
+      source_kind: local_mutation
+      source_ref: chore/close-delivered-1027
 docs[1]{path,scope}:
   README.md,project
+close_reason: Delivered on main by merged PR #18
 body: ""
