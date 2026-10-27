@@ -39,12 +39,10 @@ function writes(permissions: unknown): boolean {
   return Object.values(scopes).some(value => value === 'write');
 }
 
-/** Split only top-level logical operators, preserving quoted strings and nested expressions. */
-function logicalParts(source: string, operator: string): string[] {
-  const result: string[] = [];
-  let depth = 0;
+/** Identify structural characters while preserving escaped single- and double-quoted literals. */
+function structuralCharacters(source: string): { index: number; character: string }[] {
+  const result: { index: number; character: string }[] = [];
   let quote = '';
-  let start = 0;
   for (let index = 0; index < source.length; index += 1) {
     const character = source[index];
     if (quote) {
@@ -52,15 +50,23 @@ function logicalParts(source: string, operator: string): string[] {
         if (source[index + 1] === quote) index += 1;
         else quote = '';
       } else if (character === '\\' && quote === '"') index += 1;
-      continue;
-    }
-    if (character === "'" || character === '"') { quote = character; continue; }
+    } else if (character === "'" || character === '"') quote = character;
+    else result.push({ index, character });
+  }
+  return result;
+}
+
+/** Split only top-level logical operators, preserving quoted strings and nested expressions. */
+function logicalParts(source: string, operator: string): string[] {
+  const result: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (const { index, character } of structuralCharacters(source)) {
     if (character === '(') depth += 1;
     if (character === ')') depth -= 1;
-    if (depth === 0 && source.startsWith(operator, index)) {
+    if (depth === 0 && index >= start && source.startsWith(operator, index)) {
       result.push(source.slice(start, index).trim());
-      index += operator.length - 1;
-      start = index + 1;
+      start = index + operator.length;
     }
   }
   result.push(source.slice(start).trim());
@@ -73,23 +79,12 @@ function unwrap(source: string): string {
   if (result.startsWith('${{') && result.endsWith('}}')) result = result.slice(3, -2).trim();
   while (result.startsWith('(') && result.endsWith(')')) {
     let depth = 0;
-    let quote = '';
-    let encloses = true;
-    for (let index = 0; index < result.length; index += 1) {
-      const character = result[index];
-      if (quote) {
-        if (character === quote) {
-          if (result[index + 1] === quote) index += 1;
-          else quote = '';
-        } else if (character === '\\' && quote === '"') index += 1;
-        continue;
-      }
-      if (character === "'" || character === '"') { quote = character; continue; }
+    const encloses = structuralCharacters(result).every(({ index, character }) => {
       if (character === '(') depth += 1;
       if (character === ')') depth -= 1;
-      if (depth <= 0 && index < result.length - 1) { encloses = false; break; }
-    }
-    if (!encloses || depth !== 0 || quote) break;
+      return depth > 0 || depth === 0 && index === result.length - 1;
+    });
+    if (!encloses || depth !== 0) break;
     result = result.slice(1, -1).trim();
   }
   return result;
@@ -325,6 +320,7 @@ test('guarded CodeQL, Dependabot and reusable callers preserve their independent
     { if: `${repositoryAtom} && (github.actor == 'dependabot[bot]' || github.event_name == 'workflow_dispatch')`, permissions: { 'pull-requests': 'write' } },
     { if: repositoryAtom, permissions: 'write-all', uses: './.github/workflows/sync.yml' },
     publisher,
+    { ...publisher, if: `\${{ (${repositoryAtom} && (${approvalAtom}) && ${mainAtom}) }}` },
   ]) assert.deepEqual(inspectWorkflow(fixture(job), 'synthetic.yml'), []);
 });
 
