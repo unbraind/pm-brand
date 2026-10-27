@@ -32,7 +32,9 @@ The first npm release is pending the maintainer's interactive bootstrap. After
 that first publish, the maintainer configures npm trusted publishing for
 `release.yml` and sets the repository variable `PM_RELEASE_APPROVED` to `true`.
 The daily workflow and manual dispatch both require this variable and `main`.
-Publishing uses OIDC with provenance; no stored npm token is needed.
+Publishing uses OIDC with provenance and the explicit `latest` dist-tag; no stored
+npm token is needed. Same-day collision versions such as `2026.10.27-1` remain
+the newest daily release on `latest`.
 
 After the first release, install the library and its CSS/assets with either:
 

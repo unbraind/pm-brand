@@ -1,5 +1,6 @@
 /** Audit every workflow's effective permissions, publication approval and npm authentication. */
 import assert from 'node:assert/strict';
+import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -208,6 +209,8 @@ function inspectWorkflow(source: string, filename: string): string[] {
     for (const publication of commands.filter(command => command.registry)) {
       if (!publication.args.includes('--provenance') || publication.args.some(arg => arg === '--no-provenance' || arg.startsWith('--provenance='))) issues.push(`${location}: npm provenance required`);
       if (!(publication.args.includes('--access=public') || publication.args.some((arg, index) => arg === '--access' && publication.args[index + 1] === 'public'))) issues.push(`${location}: public npm access required`);
+      const tags = publication.args.flatMap((arg, index) => arg === '--tag' ? [publication.args[index + 1]] : arg.startsWith('--tag=') ? [arg.slice(6)] : []);
+      if (tags.length !== 1 || tags[0] !== 'latest') issues.push(`${location}: explicit latest npm dist-tag required`);
       if (!(effective === 'write-all' || mapping(effective)?.['id-token'] === 'write')) issues.push(`${location}: publishing requires OIDC permission`);
     }
   }
@@ -236,7 +239,7 @@ function fixture(job: Record<string, unknown>, permissions: unknown = { contents
 }
 
 const guarded = `${repositoryAtom} && ${approvalAtom} && ${mainAtom}`;
-const publisher = { if: guarded, permissions: { contents: 'read', 'id-token': 'write' }, steps: [{ run: 'npm publish --provenance --access public' }] };
+const publisher = { if: guarded, permissions: { contents: 'read', 'id-token': 'write' }, steps: [{ run: 'npm publish --provenance --access public --tag latest' }] };
 
 test('all workflow files enforce exact-repository writes and approved tokenless publishing', () => {
   assert.deepEqual(inspectDirectory(fileURLToPath(workflowRoot)), []);
@@ -295,6 +298,8 @@ const negativeFixtures: { name: string; source: string; issue: RegExp }[] = [
   { name: 'inherited write-all', source: fixture({ steps: [] }, 'write-all'), issue: /exact repository guard/u },
   { name: 'a future write permission scope', source: fixture({ permissions: { 'future-scope': 'write' } }), issue: /exact repository guard/u },
   { name: 'publishing without approval', source: fixture({ ...publisher, if: `${repositoryAtom} && ${mainAtom}` }), issue: /publishing approval/u },
+  { name: 'hyphenated publication without a dist-tag', source: fixture({ ...publisher, steps: [{ run: 'npm publish pm-brand-2026.10.27-1.tgz --provenance --access public' }] }), issue: /explicit latest npm dist-tag/u },
+  { name: 'publication with an empty dist-tag', source: fixture({ ...publisher, steps: [{ run: 'npm publish --provenance --access public --tag' }] }), issue: /explicit latest npm dist-tag/u },
   { name: 'publication without provenance', source: fixture({ ...publisher, steps: [{ run: 'npm publish --access public' }] }), issue: /npm provenance/u },
   { name: 'publication overriding provenance', source: fixture({ ...publisher, steps: [{ run: 'npm publish --provenance --provenance=false --access public' }] }), issue: /npm provenance/u },
   { name: 'workflow-level npm token environment', source: `${fixture({ steps: [] })}env: { NPM_TOKEN: synthetic }\n`, issue: /npm token environment/u },
@@ -343,5 +348,65 @@ test('an unlisted workflow is discovered in a plain directory without Git', () =
     mkdirSync(join(directory, 'nested'));
     writeFileSync(join(directory, 'nested', 'new-security.yaml'), fixture({ permissions: { 'security-events': 'write' } }, undefined, 'analyze'));
     assert.match(inspectDirectory(directory).join('\n'), /new-security\.yaml:analyze: exact repository guard/u);
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+
+test('same-day Git and registry collisions retain an explicit latest dist-tag', () => {
+  const source = readFileSync(new URL('release.yml', workflowRoot), 'utf8');
+  const release = document(source);
+  const jobs = mapping(release.jobs);
+  const steps = mapping(jobs?.prepare)?.steps;
+  assert.ok(Array.isArray(steps));
+  const decide = steps.map(mapping).find(step => step?.id === 'decide');
+  assert.ok(typeof decide?.run === 'string');
+  const directory = mkdtempSync(join(tmpdir(), 'brand-release-collision-'));
+  const fixtureEnv = { ...process.env, HOME: directory, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' };
+  /** Run fixture Git commands without consulting the maintainer's identity configuration. */
+  const git = (...args: string[]): void => {
+    const result = spawnSync('git', ['-c', 'user.name=Release Fixture', '-c', 'user.email=release@example.invalid', ...args], {
+      cwd: directory, env: fixtureEnv, encoding: 'utf8', timeout: 5000,
+    });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 0, result.stderr);
+  };
+  try {
+    git('init', '--initial-branch=main');
+    writeFileSync(join(directory, 'fixture.txt'), 'first release');
+    git('add', 'fixture.txt'); git('commit', '-m', 'Initial fixture');
+    git('tag', 'v2026.10.27');
+    writeFileSync(join(directory, 'fixture.txt'), 'changed source');
+    git('add', 'fixture.txt'); git('commit', '-m', 'Change fixture');
+    mkdirSync(join(directory, 'bin'));
+    writeFileSync(join(directory, 'bin/date'), '#!/bin/bash\necho 2026.10.27\n', { mode: 0o755 });
+    writeFileSync(join(directory, 'bin/npm'), `#!/bin/bash
+[[ "$1" == view && "$3" == version ]] || exit 2
+version="\${2#pm-brand@}"
+[[ " $REGISTRY_VERSIONS " == *" $version "* ]]
+`, { mode: 0o755 });
+    for (const [existing, expected] of [['', '2026.10.27-1'], ['2026.10.27-1', '2026.10.27-2']]) {
+      const output = join(directory, 'output');
+      writeFileSync(output, '');
+      const result: SpawnSyncReturns<string> = spawnSync('bash', ['--noprofile', '--norc', '-e', '-o', 'pipefail', '-c', decide.run], {
+        cwd: directory, encoding: 'utf8', timeout: 5000,
+        env: { ...fixtureEnv, PATH: `${join(directory, 'bin')}:${process.env.PATH}`, GITHUB_OUTPUT: output, REGISTRY_VERSIONS: existing },
+      });
+      assert.equal(result.error, undefined);
+      assert.equal(result.status, 0, result.stderr);
+      const outputs = readFileSync(output, 'utf8');
+      assert.ok(outputs.includes('should_release=true\n'));
+      assert.ok(outputs.includes(`version=${expected}\n`), outputs);
+      const releaseSteps = mapping(jobs?.release)?.steps;
+      assert.ok(Array.isArray(releaseSteps));
+      const commands = releaseSteps.flatMap(step => {
+        const run = mapping(step)?.run;
+        return typeof run === 'string' ? publications(run).filter(command => command.registry) : [];
+      });
+      assert.equal(commands.length, 1);
+      const args = commands[0].args;
+      assert.equal(args[args.indexOf('--tag') + 1], 'latest', `${expected} needs an explicit latest dist-tag`);
+      assert.ok(args.includes('--provenance'));
+      assert.deepEqual(inspectWorkflow(source, 'release.yml'), []);
+    }
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

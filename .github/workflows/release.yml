@@ -113,7 +113,7 @@ jobs:
           if [[ -n "$existing" ]]; then
             [[ "$existing" == "$expected" ]]
           else
-            npm publish package.tgz --access public --provenance --ignore-scripts
+            npm publish package.tgz --access public --provenance --tag latest --ignore-scripts
           fi
           # Publication is accepted only with the exact artifact and provenance.
           for attempt in $(seq 1 21); do
