@@ -43,9 +43,9 @@ npm install pm-brand
 bun add pm-brand
 ```
 
-This is an asset and SDK library with documented subpath exports, no standalone
-`bin` and no pm extension. `npx` and `bunx` cannot execute it, and `pm package
-install` does not activate it. A pm integration imports its exports directly.
+This is an asset and SDK library with documented subpath exports and a standalone
+`pm-brand diagnose` command. It is not a pm extension; a pm integration imports
+its exports directly. npm and Bun install the pm SDK peer for report accounting.
 Before the first npm release, the exact-commit Git dependency below remains
 available. Daily releases version the verified artifact automatically when main
 changes; unchanged tagged source skips publication.
@@ -94,6 +94,28 @@ Status tokens are `--pm-status-<open|in_progress|blocked|closed|canceled>-<fg|bg
 The label text carries state and meets 4.5:1 in both themes. Chip borders are
 decorative; canary, rose and rule stay unchanged. [All 68 measured comparisons](docs/contrast.md)
 classify decorative borders separately and enforce text and focus thresholds.
+
+## Rendered accessibility fault locations
+
+Diagnose resolved consumer component roles with `diagnoseAccessibility` from
+`pm-brand/accessibility`, or run:
+
+```sh
+pm-brand diagnose examples/accessibility.json --format toon --budget 1600
+```
+
+Every failure retains its component locator, theme, token references, resolved
+foreground/background colours and measured ratio. Text, focus and decoration
+use separate rules. JSON/TOON reports use the pm SDK's canonical budget accounting;
+an insufficient budget returns a typed refusal with full failure counts and a
+remedy. [Input contract and SDK example](docs/accessibility.md),
+[runnable fixture](examples/accessibility.json).
+
+## Without git
+
+Token, contrast, component diagnostics, report rendering, CLI and image APIs work
+in plain directories. They need no git repository or tracker. Repository release
+and build-parity maintenance scripts require a checkout.
 
 ## Type
 
@@ -218,10 +240,12 @@ the same public catalog, so the intended appearance remains identical.
 
 | Export | Contents |
 |---|---|
-| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName` |
+| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName`, `diagnoseAccessibility` and diagnostic types |
 | `pm-brand/banner` | `banner`, `BannerOptions` |
 | `pm-brand/og` | `ogImage`, `renderPng`, `OgOptions` |
 | `pm-brand/contrast` | WCAG colour parsing, luminance, contrast and complete audit |
+| `pm-brand/accessibility` | Strict consumer request schema, typed diagnostics and complete fault locations |
+| `pm-brand/accessibility-report` | Budgeted TOON/JSON reports, lazy public SDK acquisition and host injection |
 | `pm-brand/tokens.css` | All custom properties and theme/motion selectors |
 | `pm-brand/fonts.css` | Brand faces and measured fallback faces |
 | `pm-brand/fonts/*` | Three WOFF2 subsets, OFL licences, source receipts |
