@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { packageManagerEnv } from './environment.ts';
+import { acceptAccessibilityInstalls } from './accessibility-acceptance.ts';
 /** Isolated consumers receive only packed files and the optional renderer peer. */
 const scratch = mkdtempSync(join(tmpdir(), 'pm-brand-consumer-'));
 const [pack] = JSON.parse(execFileSync('npm', ['pack', '--ignore-scripts', '--json'], { encoding: 'utf8', env: packageManagerEnv() })) as { filename: string }[];
@@ -19,6 +20,7 @@ try {
     execFileSync(installer === 'npm' ? process.execPath : 'bun', ['smoke.ts'], { cwd: root, stdio: 'inherit' });
     console.log(`Packed ${installer} consumer: passed`);
   }
+  acceptAccessibilityInstalls(tarball, scratch);
 } finally {
   rmSync(scratch, { recursive: true, force: true });
   rmSync(tarball, { force: true });

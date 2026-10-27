@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "format": "toon",
+  "budget": 1600,
+  "pairs": [
+    {
+      "locator": "components/StatusChip.tsx:24#label",
+      "theme": "light",
+      "rule": "text",
+      "foreground": { "token": "rose", "color": "#DE7F9C" },
+      "background": { "token": "sheet", "color": "#FFFFFF" }
+    },
+    {
+      "locator": "components/StatusChip.tsx:25#focus-ring",
+      "theme": "light",
+      "rule": "focus",
+      "foreground": { "token": "rose", "color": "#DE7F9C" },
+      "background": { "token": "paper", "color": "#F3F5F8" }
+    },
+    {
+      "locator": "components/StatusChip.tsx:26#border",
+      "theme": "light",
+      "rule": "decorative",
+      "foreground": { "token": "rule", "color": "rgba(27, 35, 64, .14)" },
+      "background": { "token": "sheet", "color": "#FFFFFF" }
+    }
+  ]
+}
