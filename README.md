@@ -316,3 +316,6 @@ before this workflow can protect PRs. The repository administrator must then
 require `trusted-identity` from this trusted workflow (prefer a required-workflow
 ruleset where available), retaining strict up-to-date checks and the existing
 required checks. A PR-local green result does not establish that protection.
+
+Release jobs with write permissions are restricted to `unbraind/pm-brand` at job
+level, so a fork cannot run publication with its own approval variable.

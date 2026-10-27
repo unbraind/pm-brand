@@ -11,7 +11,7 @@ concurrency:
 jobs:
   prepare:
     # New packages stay unreleased until the maintainer sets the repository variable PM_RELEASE_APPROVED=true.
-    if: github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true'
+    if: github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true'
     runs-on: ubuntu-latest
     outputs:
       commit: ${{ steps.pack.outputs.commit }}
@@ -48,11 +48,11 @@ jobs:
           echo "should_release=true" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
       - run: npm ci
-        if: steps.decide.outputs.should_release == 'true'
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
       - run: npm run release:check && bun run release:check
-        if: steps.decide.outputs.should_release == 'true'
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
       - id: pack
-        if: steps.decide.outputs.should_release == 'true'
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -65,7 +65,7 @@ jobs:
           echo "version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')" >> "$GITHUB_OUTPUT"
           echo "sha256=$(sha256sum package.tgz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: steps.decide.outputs.should_release == 'true'
+        if: github.repository == 'unbraind/pm-brand' && steps.decide.outputs.should_release == 'true'
         with:
           name: verified-package
           path: |
@@ -75,7 +75,7 @@ jobs:
           retention-days: 1
   release:
     needs: prepare
-    if: github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' && needs.prepare.outputs.should_release == 'true'
+    if: github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' && needs.prepare.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     # Dependency code ran in the read-only job. This job only publishes its
     # verified tarball with scripts disabled, then tags the exact tested commit.
