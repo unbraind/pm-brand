@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "labels": [
+    { "locator": "#ready", "role": "display", "text": "Ready" },
+    { "locator": "#combining", "role": "body", "text": "Café" },
+    { "locator": "#ship", "role": "caption", "text": "Ship 🚀" },
+    { "locator": "#international", "role": "body", "text": "日本語" }
+  ]
+}

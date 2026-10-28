@@ -44,7 +44,7 @@ bun add pm-brand
 ```
 
 This is an asset and SDK library with documented subpath exports and a standalone
-`pm-brand diagnose` command. It is not a pm extension; a pm integration imports
+`pm-brand diagnose` and `pm-brand font-coverage` commands. A pm integration imports
 its exports directly. npm and Bun install the pm SDK peer for report accounting.
 Before the first npm release, the exact-commit Git dependency below remains
 available. Daily releases version the verified artifact automatically when main
@@ -111,9 +111,26 @@ an insufficient budget returns a typed refusal with full failure counts and a
 remedy. [Input contract and SDK example](docs/accessibility.md),
 [runnable fixture](examples/accessibility.json).
 
+## Font coverage preflight
+
+Check proposed UI and banner labels before the shipped outline renderer turns
+missing glyphs into `?`. `preflightFontCoverage` returns selected fonts, every
+unsupported code point and the strings needing explicit replacement. A batch
+accepts 100 labels and returns only failures by default.
+
+```sh
+pm-brand font-coverage examples/font-coverage.json --format toon --budget 1600
+```
+
+Use `preflightFontCoverage` or `renderFontCoverageReport` from `pm-brand` or
+`pm-brand/font-coverage`. See [the schema and SDK example](docs/font-coverage.md)
+for code point accounting, fallback routes and typed refusal remedies. This
+checks shipped outline coverage; browser fallback and shaping require separate
+validation.
+
 ## Without git
 
-Token, contrast, component diagnostics, report rendering, CLI and image APIs work
+Token, contrast, component and font diagnostics, report rendering, CLI and image APIs work
 in plain directories. They need no git repository or tracker. Repository release
 and build-parity maintenance scripts require a checkout.
 
@@ -240,12 +257,13 @@ the same public catalog, so the intended appearance remains identical.
 
 | Export | Contents |
 |---|---|
-| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName`, `diagnoseAccessibility` and diagnostic types |
+| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName`, `diagnoseAccessibility`, `preflightFontCoverage`, `renderFontCoverageReport` and diagnostic types |
 | `pm-brand/banner` | `banner`, `BannerOptions` |
 | `pm-brand/og` | `ogImage`, `renderPng`, `OgOptions` |
 | `pm-brand/contrast` | WCAG colour parsing, luminance, contrast and complete audit |
 | `pm-brand/accessibility` | Strict consumer request schema, typed diagnostics and complete fault locations |
 | `pm-brand/accessibility-report` | Budgeted TOON/JSON reports, lazy public SDK acquisition and host injection |
+| `pm-brand/font-coverage` | Strict font coverage schema, exact renderer routes and budgeted reports |
 | `pm-brand/tokens.css` | All custom properties and theme/motion selectors |
 | `pm-brand/fonts.css` | Brand faces and measured fallback faces |
 | `pm-brand/fonts/*` | Three WOFF2 subsets, OFL licences, source receipts |

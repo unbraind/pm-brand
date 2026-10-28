@@ -41,6 +41,11 @@
       "import": "./dist/accessibility.js",
       "default": "./dist/accessibility.js"
     },
+    "./font-coverage": {
+      "types": "./dist/font-coverage.d.ts",
+      "import": "./dist/font-coverage.js",
+      "default": "./dist/font-coverage.js"
+    },
     "./accessibility-report": {
       "types": "./dist/accessibility-report.d.ts",
       "import": "./dist/accessibility-report.js",
@@ -61,7 +66,9 @@
     "docs/contrast.md",
     "banners/",
     "docs/accessibility.md",
-    "examples/accessibility.json"
+    "examples/accessibility.json",
+    "docs/font-coverage.md",
+    "examples/font-coverage.json"
   ],
   "devDependencies": {
     "@babel/eslint-parser": "8.0.7",

@@ -1,0 +1,32 @@
+id: pm-brand-font-coverage-preflight
+title: Preflight text for unsupported brand font glyphs
+description: Diagnose proposed UI and banner labels using the exact shipped outline glyph route before rendering.
+type: Feature
+status: in_progress
+priority: 1
+tags[3]: cli,fonts,sdk
+created_at: "2026-10-28T22:10:30.152Z"
+updated_at: "2026-10-28T22:27:33.380Z"
+author: codex-agent
+acceptance_criteria: "Latin, combining-mark, emoji and non-Latin fixtures account for every input code point; unsupported glyphs never silently disappear; one batch handles 100 labels and returns only failures by default; typed SDK and CLI return bounded TOON/JSON with refusals and remedies; packed install modes, non-git SDK model and public read-only tracker validation pass."
+comments[6]{created_at,author,text}:
+  "2026-10-28T22:10:35.307Z",codex-agent,"Overlap rechecked against the current CLI src/sdk and sibling pm-brand, pm-web, pm-starter and pm-ts-starter sources: no consumer font-coverage diagnostic exists. Existing text.ts glyph resolution and font-data.ts supply facts; reuse the existing report SDK loader, host token accounting and TOON encoder. Separate from localization-safe composition and generic text output. Pure read-only feature: no import/export/sync mutations, journal, leases, status classification or count ratios; those mutation-specific contracts are inapplicable. Test input/report round trips and SDK read-back invariance with 500 seeded sequences instead. Exact shipped glyph and XML behavior remain authoritative; browser/system shaping is outside this diagnostic."
+  "2026-10-28T22:19:51.222Z",codex-agent,"Implemented exact outline coverage with shared supportsGlyph lookup and XML validator, strict bounded input, lossless text_json for malformed UTF-16 in TOON, default failure-only rows and typed budget remedies. Targeted tests: 19/19 pass; font module coverage 100/100/100/100. Seeded model: 500 sequences, 6000 operations, 1200 older-input replays, 500 native SDK read-backs; relationships and native metadata unchanged. Four behavioral reverts (missing glyphs, XML refusal, default filtering, input cap) each fail their regression in disposable source copies; the untouched implementation then passes all targeted tests."
+  "2026-10-28T22:19:52.770Z",codex-agent,"Public real-data validation: read-only non-git copy of unbraind/pm-web main snapshot ef224a95f41558fbefb63c18c51a60ccb18e1896, read with PmClient.listAllComplete. 189 titles in batches of 100 and 89; 13657 code points all supported, 0 unsupported/invalid/failing labels. JSON reports 124/123 bytes; TOON 123/122 bytes; all 31 core-estimated tokens. Empty PATH and external Git ceiling; SDK read-back and all copied tracker bytes unchanged, digest 7a5adee296c319749bfe149569c3c5b0d865575606224882089d958ea9da3d0c. Controlled fixtures independently establish Unicode failures; the public corpus was not modified."
+  "2026-10-28T22:21:36.716Z",codex-agent,"Pinned pm linked test run passed (19/19); project test-result tracking is disabled, so the command emitted execution evidence without persisting test results. This comment records that result without changing tracker policy. Typecheck, lint and docstrings pass; Bun runtime acceptance 3/3. Model corpus additionally includes 500 deterministic Unicode scalars and verifies UTF-16 repair offsets. Install harness now exercises both commands across six acquisition modes and both wire formats: 24 command-format scenarios, including 12 font preflights, from one captured tarball. Full unchanged-threshold npm and Bun release gates will run in PR CI to avoid loading the shared host."
+  "2026-10-28T22:22:29.264Z",codex-agent,Local strict health reports only extension_host_pm_cli_version_skew for the ambient pm-github extension (pinned host 2026.10.25 versus ambient extension 2026.10.28); history/integrity are clean. No dependency pin or extension configuration changed. The clean CI runner supplies authoritative full release-gate evidence. Current targeted font tests remain 8/8 with 100/100/100/100 coverage after adding the arbitrary Unicode corpus.
+  "2026-10-28T22:27:33.379Z",codex-agent,"Implementation head 5d88db1 passed clean CI https://github.com/unbraind/pm-brand/actions/runs/40779578297 for PR https://github.com/unbraind/pm-brand/pull/26: npm release:check on Node 22 and 26, Bun release:check on Node 26, 115/115 tests in each full suite with no failures/skips, all-source coverage 100/100/100/100. Each release gate passed 24/24 packed command-format scenarios across six install modes (12 font coverage), plus npm/Bun packed SDK consumers. Native Bun acceptance 3/3; Git dependency acceptance, CodeQL and trusted identity passed. Captured artifact sha256 bb6b838702cb0b34087eb09508f768c8c70e409edfad86e37df920ddcb3f22aa. This final tracker-only evidence commit will receive fresh exact-head CI; no product source changed after the successful gates. Item stays in_progress for independent verification and my claim remains released."
+files[6]{path,scope}:
+  scripts/font-coverage-real-data.ts,project
+  scripts/font-coverage-revert-proof.ts,project
+  src/cli.ts,project
+  src/font-coverage.ts,project
+  src/text.ts,project
+  test/font-coverage.test.ts,project
+tests[1]{command,scope,timeout_seconds,provenance{author,created_at,source_kind,source_ref}}:
+  node --test --test-concurrency=2 test/font-coverage.test.ts test/text.test.ts test/accessibility.test.ts,project,180,codex-agent,"2026-10-28T22:19:57.148Z",local_mutation,feat/font-coverage-preflight
+docs[3]{path,scope}:
+  docs/font-coverage.md,project
+  examples/font-coverage.json,project
+  README.md,project
+body: ""

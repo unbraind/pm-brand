@@ -8,6 +8,8 @@ export declare const MAX_TEXT_CODE_POINTS = 512;
 export declare function boundText(text: string): string;
 /** Validate XML text and escape every syntax-bearing character before interpolation. */
 export declare function escapeXml(value: string): string;
+/** Test the exact shipped repertoire used by measurement, rendering and preflight. */
+export declare function supportsGlyph(char: string, role: FontRole): boolean;
 /** Measure one glyph; injectable into layout helpers for deterministic work budgets. */
 export declare function glyphAdvance(char: string, role: FontRole, size: number): number;
 /** Measure the same advances that textPaths uses, in SVG pixels. */
