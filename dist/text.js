@@ -31,14 +31,19 @@ export function escapeXml(value) {
         throw new TypeError('Text contains XML control characters');
     return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
 }
+/** Test the exact shipped repertoire used by measurement, rendering and preflight. */
+export function supportsGlyph(char, role) {
+    return Object.hasOwn(fontData[role].glyphs, char);
+}
 /** Resolve a glyph in the subset, substituting a visible question mark for missing characters. */
-function glyphFor(face, char) {
-    return face.glyphs[char] ?? face.glyphs['?'];
+function glyphFor(role, char) {
+    const face = fontData[role];
+    return face.glyphs[supportsGlyph(char, role) ? char : '?'];
 }
 /** Measure one glyph; injectable into layout helpers for deterministic work budgets. */
 export function glyphAdvance(char, role, size) {
     const face = fontData[role];
-    return glyphFor(face, char).advance * size / face.em;
+    return glyphFor(role, char).advance * size / face.em;
 }
 /** Measure the same advances that textPaths uses, in SVG pixels. */
 export function textWidth(text, role, size, measure = glyphAdvance) {
@@ -50,7 +55,7 @@ export function textPaths(text, role, x, y, size) {
     const face = fontData[role];
     let cursor = x;
     return [...text].map(char => {
-        const glyph = glyphFor(face, char);
+        const glyph = glyphFor(role, char);
         const path = `<path transform="translate(${cursor.toFixed(3)} ${y}) scale(${size / face.em} ${-size / face.em})" d="${glyph.d}"/>`;
         cursor += glyph.advance * size / face.em;
         return path;
