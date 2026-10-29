@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { Resvg } from '@resvg/resvg-js';
 import { decode } from '@toon-format/toon';
 import * as sdk from '@unbrained/pm-cli/sdk';
 import { compareSemanticAssets, renderSemanticAssetReport } from '../dist/semantic-assets.js';
@@ -28,6 +29,51 @@ test('review topology and lexical corpus agrees across SDK and both complete wir
       assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result, row.name);
     }
   }
+});
+
+test('document boundary references agree with the independent XML parser and preserve legal controls', () => {
+  for (const row of semanticReviewCases().filter(entry => entry.name.startsWith('document-'))) {
+    check(compareSemanticAssets(row.request), row.expected);
+    if (row.expected === 'unsupported_svg') {
+      const malformed = row.request.before.includes('&#') ? row.request.before : row.request.after;
+      assert.throws(() => new Resvg(malformed, { font: { loadSystemFonts: false } }), row.name);
+    } else {
+      assert.doesNotThrow(() => new Resvg(row.request.before, { font: { loadSystemFonts: false } }), row.name);
+      assert.doesNotThrow(() => new Resvg(row.request.after, { font: { loadSystemFonts: false } }), row.name);
+    }
+  }
+});
+
+test('document context model preserves lexical boundaries across 500 replay sequences', async () => {
+  const document = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>';
+  let seed = 0xd0c, replays = 0, refused = 0;
+  /** Deterministic independent input schedule, including older source replays. */
+  const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
+  type State = { source: string; legal: boolean };
+  for (let sequence = 0; sequence < 500; sequence++) {
+    const history: State[] = [{ source: document, legal: true }];
+    for (let step = 0; step < 8; step++) {
+      const point = [9, 10, 13, 32][next() % 4], hex = next() % 2 === 0;
+      const ref = `&#${hex ? 'x' : ''}${'0'.repeat(next() % 8)}${point.toString(hex ? 16 : 10)};`;
+      const where = next() % 5, noise = [' ', '\t', '\r\n', '<!--&#32;-->'][next() % 4];
+      let state: State = { legal: where >= 2, source: where === 0 ? `${noise}${ref}${document}`
+        : where === 1 ? `${document}${ref}${noise}` : where === 2 ? `${noise}${document}${noise}`
+        : where === 3 ? document.replace('<rect', `${ref}<rect`) : document.replace('<svg ', `<svg aria-label="A${ref}B" `) };
+      if (next() % 5 === 0) { state = history[next() % history.length]; replays++; }
+      history.push(state);
+      const request = { version: 1, before: next() % 2 ? document : state.source, after: state.source };
+      const result = compareSemanticAssets(request);
+      assert.equal(result.ok, state.legal);
+      if (state.legal) assert.doesNotThrow(() => new Resvg(state.source, { font: { loadSystemFonts: false } }));
+      else { check(result, 'unsupported_svg'); assert.throws(() => new Resvg(state.source, { font: { loadSystemFonts: false } })); refused++; }
+      for (const format of ['json', 'toon'] as const) {
+        const report = await renderSemanticAssetReport({ ...request, format, budget: 1000000 }, sdk);
+        assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+      }
+    }
+  }
+  assert.ok(replays > 500); assert.ok(refused > 1000);
+  console.log(`Document context model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${refused} refusals`);
 });
 
 test('metadata order changes are localized accessibility findings without paint noise', () => {

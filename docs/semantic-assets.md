@@ -80,7 +80,10 @@ Elements: `svg`, `g`, `path`, `rect`, `circle`, `ellipse`, `line`, `polyline`,
 accepted. Only svg/g may contain child elements. Mixed text/child content,
 tspan shaping, nested SVGs and duplicate ids are refused.
 Ids follow `[A-Za-z_][A-Za-z0-9_.:-]*` and are at most 256 characters. XML 1.0
-declarations with optional UTF-8 encoding and standard/numeric entities work.
+declarations with optional UTF-8 encoding and standard/numeric entities inside
+elements and attributes work. Outside the root element, only literal XML whitespace
+and comments are accepted. Character/entity references in the prolog or epilog
+refuse before decoding, even when they would expand to whitespace.
 DTD, custom entities, CSS, classes, styles, references (`use`, href, url), images,
 gradients, filters, animation, scripts and unknown elements/attributes refuse.
 Use a resolved static producer or split the asset into supported components.
@@ -168,6 +171,13 @@ A further 500-sequence / 4,000-transition metadata model independently tracks ti
 and description ordering across root SVGs, groups and outline groups, including
 older-input replays, reparenting and membership changes. Positive controls keep
 paint order separate and retain harmless serialization changes.
+
+A document-context model adds 500 sequences / 4,000 transitions with older-input
+replays, decimal/hex whitespace references, both boundaries and both inputs. A
+separate offline Resvg parser checks malformed references and legal controls without
+raster generation or system font loading; product execution needs neither renderer
+nor network. Shared fixtures carry those refusals and legal controls through every
+supported consumer.
 
 `node scripts/semantic-assets-real-data.ts <read-only-tracker-root>` reads a public
 fleet tracker copy in a non-git scratch directory, renders title-derived SVGs and

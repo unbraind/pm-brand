@@ -180,10 +180,12 @@ export function parseStaticSvg(source) {
             if (source[offset] !== '<') {
                 const next = source.indexOf('<', offset);
                 const end = next === -1 ? source.length : next;
-                const text = decode(source.slice(offset, end));
+                const raw = source.slice(offset, end);
+                // XML Misc outside the document element permits literal S, never references.
+                // Validate that lexical context before expansion can erase illegal syntax.
                 if (stack.length)
-                    stack.at(-1).text += text;
-                else if (/[^\t\n\r ]/u.test(text))
+                    stack.at(-1).text += decode(raw);
+                else if (/[^\t\n\r ]/u.test(raw))
                     invalid();
                 offset = end;
                 continue;

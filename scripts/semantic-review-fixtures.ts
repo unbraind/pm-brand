@@ -59,13 +59,31 @@ export function semanticReviewCases(): SemanticReviewCase[] {
   for (const field of ['aria-labelledby', 'aria-describedby'] as const) cases.push({ name: `reference-order-${field}`, expected: field,
     request: { version: 1, before: `<svg ${field}="alpha beta"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>`,
       after: `<svg ${field}="beta alpha"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>` } });
+  const document = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>';
+  for (const reference of ['&#9;', '&#10;', '&#13;', '&#32;', '&#x9;', '&#xA;', '&#xD;', '&#x20;', '&#00032;', '&#x00020;']) {
+    for (const edge of ['prefix', 'suffix']) for (const comment of [false, true]) for (const side of ['before', 'after'] as const) {
+      const outside = comment ? `<!--before-->${reference}<!--after-->` : reference;
+      const malformed = edge === 'prefix' ? `${outside}${document}` : `${document}${outside}`;
+      cases.push({ name: `document-reference-${reference}-${edge}-${comment}-${side}`, expected: 'unsupported_svg',
+        request: { version: 1, before: document, after: document, [side]: malformed } });
+    }
+  }
+  for (const [name, before, after] of [
+    ['literal-space', document, ` \t\r\n<!--before-->${document}<!--after-->\r\n `],
+    ['declaration', document, `\ufeff<?xml version="1.0" encoding="UTF-8"?>\r\n<!--before-->${document}\r\n`],
+    ['inner-reference', document, document.replace('<rect', '&#32;<!--split-->&#x9;<rect')],
+    ['attribute-reference', '<svg xmlns="http://www.w3.org/2000/svg" aria-label="A B"/>', '<svg xmlns="http://www.w3.org/2000/svg" aria-label="A&#32;B"/>'],
+    ['text-reference', '<svg xmlns="http://www.w3.org/2000/svg"><text>A B</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>A&#32;B</text></svg>'],
+    ['comment-reference', document, `<!--&#32; &amp;-->${document}<!--&#x20;-->`],
+  ]) cases.push({ name: `document-control-${name}`, expected: 'unchanged', request: { version: 1, before, after } });
   return cases;
 }
 
 /** Keep packed acceptance bounded while carrying both classes through every install mode. */
 export function packedSemanticReviewCases(): SemanticReviewCase[] {
   const names = new Set(['reparent-0', 'reparent-11', 'order-and-insert', 'arc-A-3-0.0', 'missing-transform-separator', 'valid-arc-aliases',
-    'metadata-title-svg-swap', 'metadata-desc-outline-insert', 'metadata-cross-kind-control']);
+    'metadata-title-svg-swap', 'metadata-desc-outline-insert', 'metadata-cross-kind-control',
+    'document-reference-&#32;-prefix-false-after', 'document-reference-&#x20;-suffix-true-before', 'document-control-inner-reference', 'document-control-declaration']);
   const rows = semanticReviewCases().filter(row => names.has(row.name));
   if (rows.length !== names.size) throw new Error('Missing or duplicate packed review case');
   return rows;

@@ -30,6 +30,7 @@ try {
     { file: 'semantic-assets.ts', name: 'sort away description precedence', from: 'add(locator, field, ordered(a, left, tag), ordered(b, right, tag));', to: "add(locator, field, tag === 'desc' ? ordered(a, left, tag).sort() : ordered(a, left, tag), tag === 'desc' ? ordered(b, right, tag).sort() : ordered(b, right, tag));", pattern: 'metadata order changes', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'discard metadata while grouping outlines', from: "node.children.splice(0, node.children.length, ...node.children.filter(child => byLocator.get(child)!.tag !== 'path'));", to: 'node.children.length = 0;', pattern: 'metadata order changes', test: 'test/semantic-review.test.ts' },
     { file: 'semantic-assets.ts', name: 'misclassify metadata order as paint', from: "!['title', 'desc'].includes(map.get(child)!.tag)", to: 'true', pattern: 'metadata order changes', test: 'test/semantic-review.test.ts' },
+    { file: 'static-svg.ts', name: 'expand references outside the document element', from: "if (stack.length) stack.at(-1)!.text += decode(raw);\n        else if (/[^\\t\\n\\r ]/u.test(raw)) invalid();", to: "const text = decode(raw);\n        if (stack.length) stack.at(-1)!.text += text; else if (/[^\\t\\n\\r ]/u.test(text)) invalid();", pattern: 'document boundary', test: 'test/semantic-review.test.ts' },
   ];
   for (const probe of probes) {
     const path = join(scratch, 'src', probe.file), original = readFileSync(path, 'utf8');
@@ -44,6 +45,6 @@ try {
     } finally { writeFileSync(path, original); }
   }
   execFileSync(process.execPath, [resolve('node_modules/typescript/bin/tsc')], { cwd: scratch, stdio: 'pipe' });
-  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color|Unicode whitespace|review topology|arc flag lexical|color lexical|metadata order changes', 'test/semantic-assets.test.ts', 'test/semantic-review.test.ts', 'test/contrast.test.ts'], { cwd: scratch, stdio: 'pipe' });
-  console.log(`${probes.length}/${probes.length} behavioral reverts caught; restored implementation passes 7/7 unchanged regressions`);
+  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color|Unicode whitespace|review topology|arc flag lexical|color lexical|metadata order changes|document boundary', 'test/semantic-assets.test.ts', 'test/semantic-review.test.ts', 'test/contrast.test.ts'], { cwd: scratch, stdio: 'pipe' });
+  console.log(`${probes.length}/${probes.length} behavioral reverts caught; restored implementation passes 8/8 unchanged regressions`);
 } finally { rmSync(scratch, { recursive: true, force: true }); }

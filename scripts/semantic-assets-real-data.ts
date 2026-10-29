@@ -41,6 +41,7 @@ const totals = { items: before.items.length, generated_assets: 0, identity_compa
   identity_changes: 0, noise_changes: 0, localized_changes: 0, wire_reports: 0, budget_refusals: 0, max_estimated_tokens: 0, max_report_bytes: 0 };
 const review = { parent_comparisons: 0, parent_findings: 0, arc_refusals: 0, wire_reports: 0, max_estimated_tokens: 0, max_report_bytes: 0 };
 const metadata = { title_comparisons: 0, desc_comparisons: 0, findings: 0, wire_reports: 0, max_estimated_tokens: 0, max_report_bytes: 0 };
+const documentBoundary = { comparisons: 0, refusals: 0, wire_reports: 0, max_estimated_tokens: 0, max_report_bytes: 0 };
 for (const item of before.items) {
   const svg = banner({ name: item.title, tagline: item.id });
   const beforeSvg = `<svg><rect id="status" fill="#fff"/><text id="label">${escapeXml(item.title)}</text></svg>`;
@@ -82,6 +83,20 @@ for (const item of before.items) {
       review.max_report_bytes = Math.max(review.max_report_bytes, Buffer.byteLength(report.text));
     }
   }
+  for (const malformed of [`&#32;${svg}`, `${svg}<!--boundary-->&#x20;`]) {
+    const request = { version: 1, before: svg, after: malformed };
+    const result = compareSemanticAssets(request);
+    assert.ok(!result.ok); assert.equal(result.code, 'unsupported_svg');
+    documentBoundary.comparisons++; documentBoundary.refusals++;
+    for (const format of ['json', 'toon'] as const) {
+      const report = await renderSemanticAssetReport({ ...request, format, budget: 512 });
+      assert.deepEqual(report.result, result); assert.equal(report.format, format);
+      const estimated = attachOutputTokenAccounting(report.result, () => report.text).token_accounting.total_estimated_tokens;
+      assert.ok(estimated <= 512); documentBoundary.wire_reports++;
+      documentBoundary.max_estimated_tokens = Math.max(documentBoundary.max_estimated_tokens, estimated);
+      documentBoundary.max_report_bytes = Math.max(documentBoundary.max_report_bytes, Buffer.byteLength(report.text));
+    }
+  }
   for (const tag of ['title', 'desc'] as const) {
     const alpha = `<${tag} id="alpha">${escapeXml(item.title)} Alpha</${tag}>`, beta = `<${tag} id="beta">${escapeXml(item.title)} Beta</${tag}>`;
     const left = `<svg role="img">${alpha}${beta}<rect width="10" height="10"/></svg>`;
@@ -102,5 +117,5 @@ for (const item of before.items) {
 }
 assert.deepEqual((await client.listAllComplete({ includeBody: true })).items, before.items);
 assert.equal(digest(root), beforeDigest);
-console.log(JSON.stringify({ source: process.argv[3] ?? 'public fleet tracker', totals, review, metadata, tracker_bytes_sha256: beforeDigest,
+console.log(JSON.stringify({ source: process.argv[3] ?? 'public fleet tracker', totals, review, metadata, document_boundary: documentBoundary, tracker_bytes_sha256: beforeDigest,
   sdk_read_back_unchanged: true, tracker_bytes_unchanged: true, raster_calls: 0, network_calls: 0 }, null, 2));
