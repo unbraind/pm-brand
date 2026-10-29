@@ -158,6 +158,10 @@ test('emitted numbers remain finite and in range under extreme IEEE-754 fuzz', a
       assert.equal(result.ok, Number.isSafeInteger(n) && (field === 'changes' ? n === 0 : n >= 1 && n <= 4096));
     }
     assert.equal(compareSemanticAssets({ ...request(), budget: n }).ok, Number.isSafeInteger(n) && n >= 512 && n <= 1000000);
+    for (const [field, valid] of [['x', Number.isFinite(n) && Math.abs(n) <= 1e9],
+      ['width', Number.isFinite(n) && n >= 0 && n <= 1e9], ['opacity', Number.isFinite(n) && n >= 0 && n <= 1]] as const) {
+      assert.equal(compareSemanticAssets(request(`<svg ${field}="${n}"/>`)).ok, valid);
+    }
   }
   for (const n of [NaN, Infinity, -Infinity, -1, .5, 1e20]) {
     const host: AccessibilityOutputSdk = { attachOutputTokenAccounting(value) {
