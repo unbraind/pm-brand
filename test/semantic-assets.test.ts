@@ -49,6 +49,15 @@ test('changed status color and truncated label yield exactly two localized findi
   assert.deepEqual(result.findings.map(row => JSON.parse(row.after_json)), ['#ff0000', 'Re…']);
 });
 
+test('Unicode whitespace remains visible while only XML text whitespace is normalized', () => {
+  for (const text of ['\u00a0Ready\u00a0', '\u2003Ready\u2003', '\ufeffReady\ufeff']) {
+    const result = success(compareSemanticAssets(request('<svg><text>Ready</text></svg>', `<svg><text>${text}</text></svg>`)));
+    assert.equal(result.summary.changes, 1); assert.equal(JSON.parse(result.findings[0].after_json), text);
+    assert.equal(compareSemanticAssets(request(`<svg><g>${text}</g></svg>`)).ok, false);
+    assert.equal(compareSemanticAssets(request(`<svg/>${text}`)).ok, false);
+  }
+});
+
 test('token roles, geometry, accessibility, additions and paint order remain distinct', () => {
   const before = '<svg role="img" aria-label="A"><g data-role="status" data-token="status-open-bg"><rect id="a" x="1"/><circle id="b" r="2"/></g></svg>';
   const after = '<svg role="presentation" aria-label="B"><g data-role="progress" data-token="status-closed-bg"><circle id="b" r="3"/><rect id="a" x="2"/></g></svg>';
@@ -106,6 +115,7 @@ test('unsupported and malformed SVG refuses the affected side before loading the
     '<svg role="button"/>', '<svg fill="url(http://example.invalid)"/>', '<svg fill="var(--pm-unknown)"/>', '<svg x="NaN"/>', '<svg x="Infinity"/>', '<svg x="1e309"/>', '<svg x="1000000001"/>', '<svg x="1 2"/>', '<svg x="(1)"/>', '<svg width="-1"/>', '<svg opacity="1.1"/>', '<svg viewBox="0 0 -1 1"/>', '<svg viewBox="0 0 1"/>', '<svg points="0 1 2"/>',
     '<svg><path d="L0 0"/></svg>', '<svg><path d="M0"/></svg>', '<svg><path d="M0 0 Z1"/></svg>', '<svg><path d="M0 0 F1"/></svg>', '<svg><path d="M0 0 A-1 1 0 0 0 1 1"/></svg>', '<svg><path d="M0 0 A1 1 0 2 0 1 1"/></svg>',
     '<svg transform="matrix(1 2)"/>', '<svg transform="translate()"/>', '<svg transform="translate(1) invalid"/>', '<svg transform="oops(1)"/>', '<svg points="0,,1"/>', '<svg x="%"/>', '<svg x="1px"/>',
+    '<svg><path d="M,0 0"/></svg>', '<svg><path d="M0 0,L1 1"/></svg>', '<svg transform="translate(1,)"/>', '<svg transform="translate(,1)"/>', '<svg transform="translate(1),,scale(2)"/>',
     '<svg><g data-text="A"><rect/></g></svg>', '<svg><g data-text="A"><path fill="#fff"/></g></svg>', '<svg data-text="A"/>',
     `<svg>${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg>${'<rect/>'.repeat(4096)}</svg>`, `<svg><path d="M${'1 '.repeat(32769)}"/></svg>`,
     '<svg x=1/>', '<svg><g></svg>', '<svg><g/></svg>\ud800', '<svg><!--\uffff--></svg>',

@@ -34,7 +34,8 @@ function decode(text, attribute = false) {
 }
 /** Parse finite bounded numeric tokens, preserving commands but erasing numeric spelling noise. */
 function geometry(value, field) {
-    if (field !== 'transform' && (/[()]/u.test(value) || /,\s*,|^\s*,|,\s*$/u.test(value)))
+    if (/,\s*,|^\s*,|,\s*$|\(\s*,|,\s*\)/u.test(value) || (field !== 'transform' && /[()]/u.test(value))
+        || (field === 'd' && /[a-zA-Z]\s*,|,\s*[a-zA-Z]/u.test(value)))
         invalid();
     const parts = value.match(field === 'd' ? /[a-zA-Z]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/gu : /[a-zA-Z]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/gu) ?? [];
     if (value.replace(/[a-zA-Z]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?|[\s,()]/gu, '') || parts.length > 32768)
@@ -150,8 +151,8 @@ export function parseStaticSvg(source) {
         /** Finish text according to SVG default whitespace processing. */
         const finish = (frame) => {
             if (['text', 'title', 'desc'].includes(frame.node.tag))
-                frame.node.fields.text = frame.text.replace(/[\t\n]/gu, ' ').replace(/ +/gu, ' ').trim();
-            else if (frame.text.trim())
+                frame.node.fields.text = frame.text.replace(/[\t\n]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
+            else if (/[^\t\n\r ]/u.test(frame.text))
                 invalid();
         };
         while (offset < source.length) {
@@ -175,7 +176,7 @@ export function parseStaticSvg(source) {
                 const text = decode(source.slice(offset, end));
                 if (stack.length)
                     stack.at(-1).text += text;
-                else if (text.trim())
+                else if (/[^\t\n\r ]/u.test(text))
                     invalid();
                 offset = end;
                 continue;

@@ -53,7 +53,8 @@ function decode(text: string, attribute = false): string {
 
 /** Parse finite bounded numeric tokens, preserving commands but erasing numeric spelling noise. */
 function geometry(value: string, field: string): string {
-  if (field !== 'transform' && (/[()]/u.test(value) || /,\s*,|^\s*,|,\s*$/u.test(value))) invalid();
+  if (/,\s*,|^\s*,|,\s*$|\(\s*,|,\s*\)/u.test(value) || (field !== 'transform' && /[()]/u.test(value))
+    || (field === 'd' && /[a-zA-Z]\s*,|,\s*[a-zA-Z]/u.test(value))) invalid();
   const parts = value.match(field === 'd' ? /[a-zA-Z]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/gu : /[a-zA-Z]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/gu) ?? [];
   if (value.replace(/[a-zA-Z]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?|[\s,()]/gu, '') || parts.length > 32768) invalid();
   const values = parts.map(part => /^[a-zA-Z]+$/u.test(part) ? part : Number(part));
@@ -133,8 +134,8 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
     let offset = 0, rootClosed = false;
     /** Finish text according to SVG default whitespace processing. */
     const finish = (frame: Frame): void => {
-      if (['text', 'title', 'desc'].includes(frame.node.tag)) frame.node.fields.text = frame.text.replace(/[\t\n]/gu, ' ').replace(/ +/gu, ' ').trim();
-      else if (frame.text.trim()) invalid();
+      if (['text', 'title', 'desc'].includes(frame.node.tag)) frame.node.fields.text = frame.text.replace(/[\t\n]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
+      else if (/[^\t\n\r ]/u.test(frame.text)) invalid();
     };
     while (offset < source.length) {
       if (source.startsWith('<!--', offset)) {
@@ -151,7 +152,7 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
         const next = source.indexOf('<', offset);
         const end = next === -1 ? source.length : next;
         const text = decode(source.slice(offset, end));
-        if (stack.length) stack.at(-1)!.text += text; else if (text.trim()) invalid();
+        if (stack.length) stack.at(-1)!.text += text; else if (/[^\t\n\r ]/u.test(text)) invalid();
         offset = end; continue;
       }
       const close = /^<\/([a-zA-Z]+)\s*>/u.exec(source.slice(offset));

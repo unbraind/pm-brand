@@ -14,6 +14,7 @@ try {
     { file: 'semantic-assets.ts', name: 'ignore visible text', from: "if (JSON.stringify(a) !== JSON.stringify(b))", to: "if (field !== 'text' && JSON.stringify(a) !== JSON.stringify(b))", pattern: 'changed status color' },
     { file: 'static-svg.ts', name: 'ignore attribute values', from: 'fields[attr[1]] = attribute(attr[1], decode(attr[2] ?? attr[3], true));', to: "fields[attr[1]] = attr[1] === 'fill' ? '#ffffff' : attribute(attr[1], decode(attr[2] ?? attr[3], true));", pattern: 'changed status color' },
     { file: 'static-svg.ts', name: 'retain numeric spelling noise', from: "return values.join(' ');", to: 'return value;', pattern: 'attribute reordering' },
+    { file: 'static-svg.ts', name: 'erase visible Unicode spaces', from: ".replace(/^ +| +$/gu, '')", to: '.trim()', pattern: 'Unicode whitespace' },
   ];
   for (const probe of probes) {
     const path = join(scratch, 'src', probe.file), original = readFileSync(path, 'utf8');
@@ -28,6 +29,6 @@ try {
     } finally { writeFileSync(path, original); }
   }
   execFileSync(process.execPath, [resolve('node_modules/typescript/bin/tsc')], { cwd: scratch, stdio: 'pipe' });
-  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color', 'test/semantic-assets.test.ts'], { cwd: scratch, stdio: 'pipe' });
-  console.log('4/4 behavioral reverts caught; restored implementation passes 2/2 unchanged regressions');
+  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color|Unicode whitespace', 'test/semantic-assets.test.ts'], { cwd: scratch, stdio: 'pipe' });
+  console.log('5/5 behavioral reverts caught; restored implementation passes 3/3 unchanged regressions');
 } finally { rmSync(scratch, { recursive: true, force: true }); }

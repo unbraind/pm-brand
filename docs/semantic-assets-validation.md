@@ -37,10 +37,10 @@ body and ambient focus remain intact. The feature touches no native field.
 Focused source coverage measured 100% statements, branches, functions and lines
 for both new modules, with unchanged repository coverage thresholds.
 
-`node scripts/semantic-assets-revert-proof.ts` caught 4/4 independent behavioral
+`node scripts/semantic-assets-revert-proof.ts` caught 5/5 independent behavioral
 reverts: ignored paint, ignored visible text, ignored parsed paint values, and
-retained numeric spelling noise. All reverts ran in disposable copies. The
-restored implementation passed both unchanged acceptance regressions afterward.
+retained numeric spelling noise, plus erased visible Unicode spaces. All reverts ran in disposable copies. The
+restored implementation passed all three unchanged acceptance regressions afterward.
 
 The 52 rebuilt committed SVG banners change only `data-text` metadata. SVG
 snapshot hashes were refreshed for that serialization change; font outlines,

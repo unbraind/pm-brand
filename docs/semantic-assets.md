@@ -50,7 +50,8 @@ per-element-type sibling path (`svg[1]/g[2]/path[1]`). Attribute reordering,
 single/double quotes, comments, element indentation, UTF-8 BOM, CRLF, equivalent XML entities,
 self-closing syntax, decimal/exponent spelling, hex case/shorthand and the five
 supported named color equivalents produce no findings. XML attribute whitespace
-and default SVG text whitespace are normalized by the parser. Unicode text is
+and [SVG 2 default text whitespace](https://www.w3.org/TR/SVG2/text.html#WhiteSpace)
+are normalized by the parser. Non-breaking and other Unicode spaces are retained. Unicode text is
 otherwise preserved. Numeric spelling is canonicalized without rounding.
 
 New banners and OG cards annotate each visible outlined run with `data-text`.
