@@ -37,24 +37,28 @@ body and ambient focus remain intact. The feature touches no native field.
 Focused source coverage measured 100% statements, branches, functions and lines
 for both new modules, with unchanged repository coverage thresholds.
 
-`node scripts/semantic-assets-revert-proof.ts` caught 21/21 independent behavioral
+`node scripts/semantic-assets-revert-proof.ts` caught 26/26 independent behavioral
 reverts in disposable copies. These cover the original paint/text/number/Unicode
 regressions plus lost parent context, order hidden by changed membership, coerced
 arc flags, signed radii, list separators, Unicode geometry/XML/CSS separators,
 normalized invalid ids, and discarded refusal encoding. Metadata probes additionally
 catch discarded non-painting order, sorted-away title/description precedence,
 metadata lost during outline grouping, and paint-order misclassification. The XML
-context probe restores entity expansion before the outside-root lexical check. The
-restored implementation passed all eight selected acceptance regressions afterward.
+context probe restores entity expansion before the outside-root lexical check.
+New probes reject valid attribute delimiters, discard decoded text, erase namespace
+aliases and permit unknown entities. A complete behavioral replacement restores
+the previous hand-written parser from Git into the disposable copy; the XML
+conformance test must fail. No legacy decoder is kept in current source. The
+restored implementation passed all ten selected acceptance regressions afterward.
 
 Review round 1 added a second independent reference model: 500 topology sequences,
 4,000 transitions and 802 older-input replays, with parent membership and retained
 sibling order checked independently of the parser. A separate 500-probe lexical
 property spans both arc commands, both flags and explicit/implicit segments. The
-shared adversarial corpus now has 180 cases across shapes, metadata, annotated outlines
+shared adversarial corpus now has 234 cases across shapes, metadata, annotated outlines
 and contextual lexical boundaries. SDK, CLI, JSON/TOON, packed npm/Bun and Git
 consumers share its representative fixtures. Packed CLI acceptance now executes
-204 command-format scenarios across six installation modes, including 156 semantic
+252 command-format scenarios across six installation modes, including 204 semantic
 review regressions and 12 consumer color refusals.
 
 Review round 2 adds an independent metadata model: 500 sequences, 4,000 transitions,
@@ -70,8 +74,24 @@ prefix/suffix placement, intervening comments and both comparison sides. An
 independent Resvg parser agrees without generating rasters or loading system fonts.
 The document-context model covers 500 sequences, 4,000 transitions, 817 older-input
 replays and 1,440 typed refusals, round-tripped through both complete encodings.
-Runtime validation checks raw document whitespace before expanding entities;
-inside-root text and attribute references retain their existing behavior.
+The maintained XML parser now enforces these document-boundary rules alongside
+contextual attribute/text decoding; inside-root references retain their behavior.
+
+Review round 4 replaces XML tokenization/decoding with `@rgrove/parse-xml` 5.0.0,
+a maintained, pure JavaScript, dependency-free parser. It never loads DTDs or
+resolves custom entities and is given no resolver. Package limits bound input
+bytes before parsing and element/attribute/depth/geometry counts during projection.
+`unsupported_svg` now denotes parser failures or limits; well-formed constructs
+outside the semantic subset return `unsupported_semantics`. Every previous refusal
+input remains tested with its exact side, code and remedy; no refusal is relaxed.
+
+The conformance corpus adds 54 equivalent pairs across attribute/text escaping,
+numeric/hex references, CDATA, comments, processing instructions, namespace aliases,
+BOM and CRLF. Exact decoded-value assertions and changed-CDATA probes prevent a
+lossy parser from satisfying equality by discarding both sides. A separate seeded
+model re-serializes 500 random SVG sequences, 4,000 transitions and 808 older-input
+replays with zero findings and complete JSON/TOON agreement. It also checks raw
+accessible labels read from the canonical projection against its source-value model.
 
 The public read-only validation was repeated after these changes. Its original
 16 items, 48 source assets, 48 comparisons, 32 localized findings and 96 reports
@@ -82,7 +102,7 @@ remain unchanged. Additional title-derived review probes produced:
 | Reparenting comparisons / parent findings | 16 / 16 |
 | Invalid arc flag refusals | 16 |
 | Additional JSON/TOON reports | 64 |
-| Largest review report, estimated tokens / bytes | 91 / 361 |
+| Largest review report, estimated tokens / bytes | 63 / 251 |
 
 Additional round-2 probes on the same immutable copy yielded:
 
@@ -100,7 +120,18 @@ Round-3 prefix/suffix probes on the same immutable copy yielded:
 | --- | ---: |
 | Comparisons / typed refusals | 32 / 32 |
 | Additional JSON/TOON reports | 64 |
-| Largest boundary report, estimated tokens / bytes | 91 / 361 |
+| Largest boundary report, estimated tokens / bytes | 53 / 211 |
+
+Round-4 conformance probes on the same immutable copy yielded:
+
+| XML conformance measurement | Result |
+| --- | ---: |
+| Equivalent title-derived comparisons / findings | 16 / 0 |
+| Additional JSON/TOON reports | 32 |
+| Largest XML report, estimated tokens / bytes | 21 / 83 |
+
+The existing parent/arc and boundary report maxima above reflect the shorter,
+more precise XML versus semantic-policy remedies emitted by this revision.
 
 Both complete SDK read-back and the tracker byte hash above stayed unchanged.
 Runtime raster and network calls remained zero. Original tests were retained;

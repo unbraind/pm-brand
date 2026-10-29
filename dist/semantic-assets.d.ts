@@ -48,7 +48,7 @@ export interface SemanticAssetRefusal {
     /** Unsuccessful evaluation. */
     readonly ok: false;
     /** Stable machine-readable reason. */
-    readonly code: 'invalid_input' | 'unsupported_svg' | 'numeric_result' | 'sdk_unavailable' | 'budget_exceeded';
+    readonly code: 'invalid_input' | 'unsupported_svg' | 'unsupported_semantics' | 'numeric_result' | 'sdk_unavailable' | 'budget_exceeded';
     /** Request side or field; no supplied file paths. */
     readonly path: string;
     /** Next action for the caller. */

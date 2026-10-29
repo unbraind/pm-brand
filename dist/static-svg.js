@@ -1,37 +1,11 @@
 /** Deliberately bounded XML/SVG grammar; unsupported rendering constructs fail closed. */
 import { tokens } from './tokens.js';
 import { createHash } from 'node:crypto';
-/** Stop at the first unsupported or malformed construct without exposing its content. */
-function invalid() { throw new Error('unsupported_svg'); }
-/** XML 1.0 character domain including paired supplementary code points. */
-function validXml(text) {
-    return !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff\p{Cs}]/u.test(text);
-}
-/** Decode only standard XML entities; never resolve a DTD or external entity. */
-function decode(text, attribute = false) {
-    if (text.includes('<') || text.includes(']]>'))
-        invalid();
-    // XML line-end and attribute whitespace processing precedes entity expansion.
-    text = text.replace(/\r\n?/gu, '\n');
-    if (attribute)
-        text = text.replace(/[\t\n]/gu, ' ');
-    const entities = new Map([['amp', '&'], ['lt', '<'], ['gt', '>'], ['quot', '"'], ['apos', "'"]]);
-    text = text.replace(/&([^;]*);|&/gu, (_match, entity) => {
-        if (entity === undefined)
-            return invalid();
-        if (entities.has(entity))
-            return entities.get(entity);
-        if (!/^#(?:[0-9]+|x[0-9a-fA-F]+)$/u.test(entity))
-            return invalid();
-        const point = entity.startsWith('#x') ? Number.parseInt(entity.slice(2), 16) : Number(entity.slice(1));
-        if (point > 0x10ffff)
-            return invalid();
-        return String.fromCodePoint(point);
-    });
-    if (!validXml(text))
-        invalid();
-    return text;
-}
+import { parseXml, XmlElement, XmlText } from '@rgrove/parse-xml';
+/** Reject unsupported semantic interpretation without exposing supplied content. */
+function invalid() { throw new Error('unsupported_semantics'); }
+/** Stop at a documented parser/projection resource limit. */
+function limit() { throw new Error('unsupported_svg'); }
 /** Numeric lists require XML whitespace or a comma between complete number lexemes. */
 const NUMBER_LIST = /^[ \t\r\n]*[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?(?:(?:[ \t\r\n]*,[ \t\r\n]*|[ \t\r\n]+)[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)*[ \t\r\n]*$/u;
 /** Validate each contextual grammar before erasing numeric spelling or flag identity. */
@@ -42,7 +16,9 @@ function geometry(value, field) {
         || (field === 'd' && /[a-zA-Z]\s*,|,\s*[a-zA-Z]/u.test(value)))
         invalid();
     const parts = value.match(field === 'd' ? /[a-zA-Z]|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?/gu : /[a-zA-Z]+|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?/gu) ?? [];
-    if (value.replace(/[a-zA-Z]+|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?|[\s,()]/gu, '') || parts.length > 32768)
+    if (parts.length > 32768)
+        limit();
+    if (value.replace(/[a-zA-Z]+|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?|[\s,()]/gu, ''))
         invalid();
     if (field === 'd') {
         const arities = new Map([['m', 2], ['l', 2], ['h', 1], ['v', 1], ['c', 6], ['s', 4], ['q', 4], ['t', 2], ['a', 7], ['z', 0]]);
@@ -98,11 +74,6 @@ function geometry(value, field) {
 }
 /** Validate and normalize supported presentation attributes using one grammar. */
 function attribute(field, value) {
-    if (field === 'xmlns') {
-        if (value !== 'http://www.w3.org/2000/svg')
-            invalid();
-        return value;
-    }
     if (field === 'id') {
         if (!/^[a-zA-Z_][a-zA-Z0-9_.:-]{0,255}$/u.test(value))
             invalid();
@@ -146,107 +117,79 @@ function attribute(field, value) {
         return geometry(value, field);
     return invalid();
 }
-/** Read strict XML into at most 4096 nodes and 32 levels; no forgiving HTML parsing. */
+/** Read XML 1.0 with a maintained parser, then project the bounded static SVG domain. */
 export function parseStaticSvg(source) {
     try {
-        source = source.replace(/^\ufeff/u, '');
-        if (!validXml(source))
-            invalid();
-        const nodes = [], stack = [];
+        if (Buffer.byteLength(source) > 1048576)
+            limit();
+        // No resolver is supplied. The parser never loads DTDs or expands custom entities.
+        const document = parseXml(source, { ignoreUndefinedEntities: false, preserveDocumentType: true, preserveXmlDeclaration: true });
+        const nodes = [];
         const ids = new Set();
-        let offset = 0, rootClosed = false;
-        /** Finish text according to SVG default whitespace processing. */
-        const finish = (frame) => {
-            if (['text', 'title', 'desc'].includes(frame.node.tag))
-                frame.node.fields.text = frame.text.replace(/[\t\n\r]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
-            else if (/[^\t\n\r ]/u.test(frame.text))
-                invalid();
-        };
-        while (offset < source.length) {
-            if (source.startsWith('<!--', offset)) {
-                const end = source.indexOf('-->', offset + 4);
-                if (end < 0 || source.slice(offset + 4, end).includes('--') || source[end - 1] === '-')
-                    invalid();
-                offset = end + 3;
-                continue;
+        if (document.children.some(child => child.type === 'doctype'
+            || (child.type === 'xmldecl' && 'version' in child && child.version !== '1.0')
+            || (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet')))
+            invalid();
+        /** Project parsed names, text and attributes; XML tokenization/decoding stays in the dependency. */
+        const visit = (element, parent, counts, inherited, depth) => {
+            if (depth > 32 || nodes.length >= 4096 || Object.keys(element.attributes).length > 32)
+                limit();
+            const namespaces = new Map(inherited);
+            for (const [name, value] of Object.entries(element.attributes)) {
+                if (name === 'xmlns' || name.startsWith('xmlns:')) {
+                    const prefix = name === 'xmlns' ? '' : name.slice(6);
+                    if (prefix.includes(':') || prefix === 'xmlns' || (prefix !== '' && value === '')
+                        || value === 'http://www.w3.org/2000/xmlns/'
+                        || (prefix === 'xml') !== (value === 'http://www.w3.org/XML/1998/namespace'))
+                        invalid();
+                    namespaces.set(prefix, value);
+                }
             }
-            if (source.startsWith('<?xml ', offset) && offset === 0) {
-                const declaration = /^<\?xml version=(?:"1\.0"|'1\.0')(?: encoding=(?:"UTF-8"|'UTF-8'))?[ \t\r\n]*\?>/u.exec(source);
-                if (!declaration)
-                    invalid();
-                offset = declaration[0].length;
-                continue;
-            }
-            if (source[offset] !== '<') {
-                const next = source.indexOf('<', offset);
-                const end = next === -1 ? source.length : next;
-                const raw = source.slice(offset, end);
-                // XML Misc outside the document element permits literal S, never references.
-                // Validate that lexical context before expansion can erase illegal syntax.
-                if (stack.length)
-                    stack.at(-1).text += decode(raw);
-                else if (/[^\t\n\r ]/u.test(raw))
-                    invalid();
-                offset = end;
-                continue;
-            }
-            const close = /^<\/([a-zA-Z]+)[ \t\r\n]*>/u.exec(source.slice(offset));
-            if (close) {
-                const frame = stack.pop();
-                if (!frame || frame.node.tag !== close[1])
-                    invalid();
-                finish(frame);
-                if (stack.length === 0)
-                    rootClosed = true;
-                offset += close[0].length;
-                continue;
-            }
-            const start = /^<([a-zA-Z]+)(?=[ \t\r\n/>])/u.exec(source.slice(offset));
-            if (!start || !['svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'title', 'desc'].includes(start[1]))
+            const parts = element.name.split(':');
+            if (parts.length > 2)
                 invalid();
-            const tag = start[1], parent = stack.at(-1);
-            if ((!parent && (tag !== 'svg' || nodes.length > 0 || rootClosed)) || (parent && tag === 'svg') || stack.length >= 32 || nodes.length >= 4096)
+            const tag = parts.at(-1);
+            const uri = namespaces.get(parts.length === 2 ? parts[0] : '');
+            if ((uri !== undefined && uri !== '' && uri !== 'http://www.w3.org/2000/svg') || (parts.length === 2 && !uri))
                 invalid();
-            // Mixed text/tspan content needs shaping/context to compare faithfully; refuse it.
-            if (parent && !['svg', 'g'].includes(parent.node.tag))
+            if (!['svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'title', 'desc'].includes(tag)
+                || (!parent && tag !== 'svg') || (parent && (tag === 'svg' || !['svg', 'g'].includes(parent.tag))))
                 invalid();
-            offset += start[0].length;
             const fields = Object.create(null);
-            while (!/^[ \t\r\n]*\/?>/u.test(source.slice(offset))) {
-                const attr = /^[ \t\r\n]+([a-zA-Z][a-zA-Z0-9:-]*)[ \t\r\n]*=[ \t\r\n]*(?:"([^"<]*)"|'([^'<]*)')/u.exec(source.slice(offset));
-                if (!attr || Object.hasOwn(fields, attr[1]) || Object.keys(fields).length >= 32)
-                    invalid();
-                fields[attr[1]] = attribute(attr[1], decode(attr[2] ?? attr[3], true));
-                offset += attr[0].length;
+            for (const [name, value] of Object.entries(element.attributes)) {
+                if (name === 'xmlns' || name.startsWith('xmlns:'))
+                    continue;
+                fields[name] = attribute(name, value);
             }
-            const end = /^[ \t\r\n]*(\/?)>/u.exec(source.slice(offset));
-            offset += end[0].length;
             if (fields.id) {
                 if (ids.has(fields.id))
                     invalid();
                 ids.add(fields.id);
             }
-            const ordinal = (parent?.counts.get(tag) ?? 0) + 1;
-            parent?.counts.set(tag, ordinal);
-            const locator = fields.id ? `#${fields.id}` : `${parent ? `${parent.node.locator}/` : ''}${tag}[${ordinal}]`;
-            const node = { locator, tag, parent: parent ? parent.node.locator : null, fields, children: [] };
-            // XML ids and namespace serialization do not themselves affect pixels; references remain explicit fields.
+            const ordinal = (counts.get(tag) ?? 0) + 1;
+            counts.set(tag, ordinal);
+            const locator = fields.id ? `#${fields.id}` : `${parent ? `${parent.locator}/` : ''}${tag}[${ordinal}]`;
+            const node = { locator, tag, parent: parent ? parent.locator : null, fields, children: [] };
             delete fields.id;
-            delete fields.xmlns;
             nodes.push(node);
             if (parent)
-                parent.node.children.push(locator);
-            const frame = { node, counts: new Map(), text: '' };
-            if (end[1]) {
-                finish(frame);
-                if (!parent)
-                    rootClosed = true;
+                parent.children.push(locator);
+            const childCounts = new Map();
+            let text = '';
+            for (const child of element.children) {
+                if (child instanceof XmlElement)
+                    visit(child, node, childCounts, namespaces, depth + 1);
+                else if (child instanceof XmlText)
+                    text += child.text;
+                else if (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet')
+                    invalid();
             }
-            else
-                stack.push(frame);
-        }
-        if (stack.length || !rootClosed)
-            invalid();
+            if (['text', 'title', 'desc'].includes(tag))
+                fields.text = text.replace(/[\t\n\r]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
+            else if (/[^\t\n\r ]/u.test(text))
+                invalid();
+        };
+        visit(document.root, null, new Map(), new Map(), 1);
         // Annotated outline runs are localized as one unit. Their canonical geometry
         // remains in a digest so edited outlines cannot disappear behind metadata.
         const byLocator = new Map(nodes.map(node => [node.locator, node]));
@@ -267,7 +210,7 @@ export function parseStaticSvg(source) {
             }
         return nodes.filter(node => !grouped.has(node.locator));
     }
-    catch {
-        return null;
+    catch (error) {
+        return { code: error instanceof Error && error.message === 'unsupported_semantics' ? 'unsupported_semantics' : 'unsupported_svg' };
     }
 }

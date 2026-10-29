@@ -165,6 +165,7 @@
     "url": "https://github.com/unbraind/pm-brand/issues"
   },
   "dependencies": {
+    "@rgrove/parse-xml": "5.0.0",
     "@toon-format/toon": "4.4.0"
   },
   "bin": {

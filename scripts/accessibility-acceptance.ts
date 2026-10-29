@@ -46,9 +46,9 @@ function checkCommand(command: string, prefix: string[], cwd: string, childEnv: 
         cwd, env: childEnv, encoding: 'utf8', timeout: 180_000,
       });
       assert.equal(review.error, undefined);
-      assert.equal(review.status, row.expected === 'unsupported_svg' ? 2 : row.expected === 'unchanged' ? 0 : 1, review.stderr);
+      assert.equal(review.status, row.expected.startsWith('unsupported_') ? 2 : row.expected === 'unchanged' ? 0 : 1, review.stderr);
       const value = (format === 'json' ? JSON.parse(review.stdout) : decode(review.stdout)) as Record<string, unknown>;
-      if (row.expected === 'unsupported_svg') { assert.equal(value.ok, false); assert.equal(value.code, 'unsupported_svg'); }
+      if (row.expected.startsWith('unsupported_')) { assert.equal(value.ok, false); assert.equal(value.code, row.expected); }
       else {
         assert.equal(value.ok, true);
         const findings = value.findings as { field: string }[];
@@ -121,5 +121,5 @@ export function acceptAccessibilityInstalls(tarball: string, scratch: string): v
   checkCommand('bun', ['x', '--package', artifact, 'pm-brand'], runnerRoot, runnerEnv, fixture, fontFixture, semanticFixture, reviewFixtures, colorFixture);
   console.log('Packed CLI bunx: 2/2 formats passed');
   assert.equal(createHash('sha256').update(readFileSync(artifact)).digest('hex'), digest, 'Every mode consumed the captured artifact');
-  console.log(`Packed CLI 6 install modes, 204/204 command-format scenarios (168 semantic comparisons, including 156 review regressions; 12 color refusals); sha256 ${digest}`);
+  console.log(`Packed CLI 6 install modes, 252/252 command-format scenarios (216 semantic comparisons, including 204 review regressions; 12 color refusals); sha256 ${digest}`);
 }

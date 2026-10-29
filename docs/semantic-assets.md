@@ -47,11 +47,12 @@ persisted, imported, exported into a tracker, synchronized or applied.
 
 Locators use a unique XML id (`#status`) when available, otherwise a deterministic
 per-element-type sibling path (`svg[1]/g[2]/path[1]`). Attribute reordering,
-single/double quotes, comments, element indentation, UTF-8 BOM, CRLF, equivalent XML entities,
+single/double quotes, comments, inert processing instructions, CDATA/text equivalents,
+SVG namespace prefixes, element indentation, UTF-8 BOM, CRLF, equivalent XML entities,
 self-closing syntax, decimal/exponent spelling, hex case/shorthand and the five
 supported named color equivalents produce no findings. XML attribute whitespace
 and [SVG 2 default text whitespace](https://www.w3.org/TR/SVG2/text.html#WhiteSpace)
-are normalized by the parser. Non-breaking and other Unicode spaces are retained. Unicode text is
+are normalized by the XML parser and SVG projection respectively. Non-breaking and other Unicode spaces are retained. Unicode text is
 otherwise preserved. Numeric spelling is canonicalized without rounding.
 
 New banners and OG cards annotate each visible outlined run with `data-text`.
@@ -81,16 +82,36 @@ accepted. Only svg/g may contain child elements. Mixed text/child content,
 tspan shaping, nested SVGs and duplicate ids are refused.
 Ids follow `[A-Za-z_][A-Za-z0-9_.:-]*` and are at most 256 characters. XML 1.0
 declarations with optional UTF-8 encoding and standard/numeric entities inside
-elements and attributes work. Outside the root element, only literal XML whitespace
-and comments are accepted. Character/entity references in the prolog or epilog
+elements and attributes work. A maintained, dependency-free XML 1.0 parser,
+[@rgrove/parse-xml](https://github.com/rgrove/parse-xml), owns XML tokenization,
+contextual decoding and line endings. No hand-written XML decoder remains.
+Literal `]]>` is legal inside an attribute; in text use `]]&gt;` or split CDATA
+sections. CDATA and ordinary text project to the same content, and comments/inert
+processing instructions preserve surrounding text. Default and prefixed SVG
+namespace bindings canonicalize by local element name and resolved SVG URI;
+foreign namespaces and namespaced presentation attributes are outside the subset.
+Outside the root element, literal XML whitespace, comments and inert processing
+instructions are accepted. Character/entity references in the prolog or epilog
 refuse before decoding, even when they would expand to whitespace.
+The XML parser never loads an external DTD or resolves custom entities; no
+resolver is installed and the parser has no file or network I/O. Parsed DTDs
+and stylesheet processing instructions are refused by semantic policy. The 1 MiB
+byte bound is enforced before parsing; projection bounds are 4,096 elements,
+32 levels, 32 attributes per element (including namespace declarations), and
+32,768 geometry lexemes per attribute. Parser failures, including its resource
+exhaustion rejection, are caught and sanitized.
+
+`unsupported_svg` means XML parser rejection or an exceeded resource limit.
+`unsupported_semantics` means well-formed XML outside the documented comparison
+domain; both preserve the requested format, failing input side and remedy.
+All previous must-refuse inputs remain refused under this more precise distinction.
 DTD, custom entities, CSS, classes, styles, references (`use`, href, url), images,
 gradients, filters, animation, scripts and unknown elements/attributes refuse.
 Use a resolved static producer or split the asset into supported components.
 
 Supported attributes:
 
-- `xmlns` (SVG namespace), `id`, `data-role`, `data-token`, `data-text`, `data-lines`.
+- `xmlns` / `xmlns:prefix` (namespace bindings), `id`, `data-role`, `data-token`, `data-text`, `data-lines`.
 - `role`: img, presentation, none, graphics-document, graphics-symbol;
   `aria-label`, `aria-labelledby`, `aria-describedby`, `aria-hidden` (true/false).
 - `fill`, `stroke`, `color`: 3/6/8-digit hex, black/white/red/green/blue,
@@ -178,6 +199,12 @@ separate offline Resvg parser checks malformed references and legal controls wit
 raster generation or system font loading; product execution needs neither renderer
 nor network. Shared fixtures carry those refusals and legal controls through every
 supported consumer.
+
+The XML conformance corpus adds 54 equivalent pairs spanning attribute delimiters,
+escaping, decimal/hex references, CDATA, comments, processing instructions,
+namespaces, BOM and CRLF. A further 500-sequence / 4,000-transition serialization
+model replays random source values in equivalent namespace/escaping/CDATA forms;
+every comparison must have zero findings in both complete wire encodings.
 
 `node scripts/semantic-assets-real-data.ts <read-only-tracker-root>` reads a public
 fleet tracker copy in a non-git scratch directory, renders title-derived SVGs and

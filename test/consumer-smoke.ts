@@ -26,7 +26,7 @@ assert.equal((await renderSemanticAssetReport(semanticRequest)).result.summary?.
 const reviewCases = JSON.parse(readFileSync('semantic-review-cases.json', 'utf8')) as { semantic: { request: SemanticAssetRequest; expected: string }[]; color: AccessibilityRequest };
 for (const row of reviewCases.semantic) {
   const result = compareSemanticAssets(row.request);
-  if (row.expected === 'unsupported_svg') { assert.ok(!result.ok); assert.equal(result.code, 'unsupported_svg'); }
+  if (row.expected.startsWith('unsupported_')) { assert.ok(!result.ok); assert.equal(result.code, row.expected); }
   else { assert.ok(result.ok); if (row.expected === 'unchanged') assert.equal(result.findings.length, 0); else assert.ok(result.findings.some(finding => finding.field === row.expected)); }
   for (const format of ['json', 'toon'] as const) {
     const report = await renderSemanticAssetReport({ ...row.request, format, budget: 1000000 });

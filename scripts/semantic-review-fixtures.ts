@@ -9,7 +9,7 @@ export interface SemanticReviewCase {
   /** The same request reaches every public entry point. */
   readonly request: SemanticAssetRequest;
   /** Required finding or typed refusal; unchanged is the positive control. */
-  readonly expected: 'parent' | 'paint_order' | 'aria-title-order' | 'aria-desc-order' | 'aria-labelledby' | 'aria-describedby' | 'unsupported_svg' | 'unchanged';
+  readonly expected: 'parent' | 'paint_order' | 'aria-title-order' | 'aria-desc-order' | 'aria-labelledby' | 'aria-describedby' | 'unsupported_svg' | 'unsupported_semantics' | 'unchanged';
 }
 
 /** Generate both topology and lexical-domain cases without depending on the parser. */
@@ -28,7 +28,7 @@ export function semanticReviewCases(): SemanticReviewCase[] {
   const valid = '<svg><path d="M0 0 A20 20 0 0 1 40 40"/></svg>';
   for (const command of ['A', 'a']) for (const flag of [3, 4]) for (const lexeme of ['0.0', '1.0', '+0', '+1', '-0', '00', '01', '0e0', '1e0', '.0', '0e-999']) {
     const args = ['20', '20', '0', '0', '1', '40', '40']; args[flag] = lexeme;
-    cases.push({ name: `arc-${command}-${flag}-${lexeme}`, expected: 'unsupported_svg', request: { version: 1, before: valid,
+    cases.push({ name: `arc-${command}-${flag}-${lexeme}`, expected: 'unsupported_semantics', request: { version: 1, before: valid,
       after: `<svg><path d="M0 0 ${command}${args.join(' ')}"/></svg>` } });
   }
   for (const [name, after] of [
@@ -41,7 +41,7 @@ export function semanticReviewCases(): SemanticReviewCase[] {
     ['missing-point-separator', '<svg><polyline points="0-1 2-3"/></svg>'], ['unicode-xml-space', '<svg\u00a0role="img"/>'],
     ['unicode-close-space', '<svg></svg\u00a0>'], ['unicode-attribute-equals', '<svg x\u00a0="1"/>'],
     ['whitespace-id', '<svg><rect id=" target "/></svg>'], ['unicode-id', '<svg><rect id="\u00a0target\u00a0"/></svg>'],
-  ]) cases.push({ name, expected: 'unsupported_svg', request: { version: 1, before: valid, after } });
+  ]) cases.push({ name, expected: ['unicode-xml-space', 'unicode-close-space', 'unicode-attribute-equals'].includes(name) ? 'unsupported_svg' : 'unsupported_semantics', request: { version: 1, before: valid, after } });
   cases.push({ name: 'valid-arc-aliases', expected: 'unchanged', request: { version: 1, before: valid,
     after: '<svg><path d="M0.0 0e0 A20.0 2e1 +0 0 1 4e1 40.0"/></svg>' } });
   for (const tag of ['title', 'desc'] as const) for (const container of ['svg', 'group', 'outline']) {
@@ -76,6 +76,40 @@ export function semanticReviewCases(): SemanticReviewCase[] {
     ['text-reference', '<svg xmlns="http://www.w3.org/2000/svg"><text>A B</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>A&#32;B</text></svg>'],
     ['comment-reference', document, `<!--&#32; &amp;-->${document}<!--&#x20;-->`],
   ]) cases.push({ name: `document-control-${name}`, expected: 'unchanged', request: { version: 1, before, after } });
+  return [...cases, ...xmlConformanceCases()];
+}
+
+/** Equivalent serializations share one independent source-value oracle across every consumer. */
+export function xmlConformanceCases(): SemanticReviewCase[] {
+  const cases: SemanticReviewCase[] = [];
+  for (const [name, escaped, alternate] of [
+    ['attribute-delimiter', 'A]]&gt;B', 'A]]>B'], ['numeric', 'A&gt;B', 'A&#62;B'],
+    ['hex', 'A&gt;B', 'A&#x3e;B'], ['ampersand', 'A&amp;B', 'A&#38;B'],
+    ['less-than', 'A&lt;B', 'A&#x3C;B'], ['quotes', '&quot;&apos;', '&#34;&#39;'],
+    ['supplementary', '🚀', '&#x1F680;'], ['unicode-space', 'A\u0085\u2028B', 'A&#133;&#x2028;B'],
+  ]) for (const context of ['label', 'outline', 'text', 'title', 'desc']) {
+    /** Both values are already independent, valid XML serializations of the same source value. */
+    const wrap = (value: string): string => context === 'label' ? `<svg aria-label="${value}"/>`
+      : context === 'outline' ? `<svg><g data-text="${value}"><path d="M0 0L1 1"/></g></svg>`
+      : `<svg><${context}>${value}</${context}></svg>`;
+    // A literal CDATA terminator is forbidden in character data, but legal in attributes.
+    if (name === 'attribute-delimiter' && !['label', 'outline'].includes(context)) continue;
+    cases.push({ name: `xml-${name}-${context}`, expected: 'unchanged', request: { version: 1, before: wrap(escaped), after: wrap(alternate) } });
+  }
+  for (const tag of ['text', 'title', 'desc']) for (const [name, before, after] of [
+    ['cdata', 'A&lt;&amp;&gt;B', '<![CDATA[A<&>B]]>'],
+    ['split-cdata', 'A]]&gt;B', '<![CDATA[A]]]]><![CDATA[>B]]>'],
+    ['comments-pi', 'AlphaBeta', 'Alpha<!--split--><?agent review?>Beta'],
+    ['crlf', 'A B', 'A\r\nB'],
+  ]) cases.push({ name: `xml-${name}-${tag}`, expected: 'unchanged', request: { version: 1,
+    before: `<svg><${tag}>${before}</${tag}></svg>`, after: `<svg><${tag}>${after}</${tag}></svg>` } });
+  for (const [name, after] of [
+    ['namespace-default', '<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>'],
+    ['namespace-prefix', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><s:text>Ready</s:text></s:svg>'],
+    ['namespace-rebound', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><t:text xmlns:t="http://www.w3.org/2000/svg">Ready</t:text></s:svg>'],
+    ['bom-declaration', '\ufeff<?xml version="1.0" encoding="utf-8" standalone="yes"?>\r\n<svg><text>Ready</text></svg>'],
+    ['document-pi', '<?agent before?><svg><text>Ready</text></svg><?agent after?>'],
+  ]) cases.push({ name: `xml-${name}`, expected: 'unchanged', request: { version: 1, before: '<svg><text>Ready</text></svg>', after } });
   return cases;
 }
 
@@ -83,7 +117,8 @@ export function semanticReviewCases(): SemanticReviewCase[] {
 export function packedSemanticReviewCases(): SemanticReviewCase[] {
   const names = new Set(['reparent-0', 'reparent-11', 'order-and-insert', 'arc-A-3-0.0', 'missing-transform-separator', 'valid-arc-aliases',
     'metadata-title-svg-swap', 'metadata-desc-outline-insert', 'metadata-cross-kind-control',
-    'document-reference-&#32;-prefix-false-after', 'document-reference-&#x20;-suffix-true-before', 'document-control-inner-reference', 'document-control-declaration']);
+    'document-reference-&#32;-prefix-false-after', 'document-reference-&#x20;-suffix-true-before', 'document-control-inner-reference', 'document-control-declaration',
+    'xml-attribute-delimiter-label', 'xml-split-cdata-title', 'xml-namespace-rebound', 'xml-document-pi']);
   const rows = semanticReviewCases().filter(row => names.has(row.name));
   if (rows.length !== names.size) throw new Error('Missing or duplicate packed review case');
   return rows;

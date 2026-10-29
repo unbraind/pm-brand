@@ -35,7 +35,7 @@ test('Bun compares semantic asset changes and loads the public report SDK', asyn
 test('Bun preserves topology and refuses invalid lexical domains in both wire formats', async () => {
   for (const row of packedSemanticReviewCases()) {
     const result = compareSemanticAssets(row.request);
-    if (row.expected === 'unsupported_svg') { expect(result.ok).toBe(false); if (!result.ok) expect(result.code).toBe('unsupported_svg'); }
+    if ((row.expected === 'unsupported_svg' || row.expected === 'unsupported_semantics')) { expect(result.ok).toBe(false); if (!result.ok) expect(result.code).toBe(row.expected); }
     else { expect(result.ok).toBe(true); if (result.ok) expect(row.expected === 'unchanged' ? result.findings.length === 0 : result.findings.some(finding => finding.field === row.expected)).toBe(true); }
     for (const format of ['json', 'toon'] as const) {
       const report = await renderSemanticAssetReport({ ...row.request, format, budget: 1000000 });

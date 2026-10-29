@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { parseStaticSvg } from '../dist/static-svg.js';
 import { Resvg } from '@resvg/resvg-js';
 import { decode } from '@toon-format/toon';
 import * as sdk from '@unbrained/pm-cli/sdk';
@@ -14,7 +15,7 @@ import { semanticReviewCases, packedSemanticReviewCases, renderedColorReviewRequ
 
 /** Assert the independent oracle without depending on internal normalization. */
 function check(result: SemanticAssetResult, expected: string): void {
-  if (expected === 'unsupported_svg') { assert.ok(!result.ok); assert.equal(result.code, expected); return; }
+  if (expected.startsWith('unsupported_')) { assert.ok(!result.ok); assert.equal(result.code, expected); return; }
   assert.ok(result.ok, JSON.stringify(result));
   if (expected === 'unchanged') assert.equal(result.summary.changes, 0);
   else assert.ok(result.findings.some(row => row.field === expected), `Missing ${expected}: ${JSON.stringify(result)}`);
@@ -31,10 +32,100 @@ test('review topology and lexical corpus agrees across SDK and both complete wir
   }
 });
 
+test('XML parser limits and semantic policy refuse independently with exact typed remedies', () => {
+  for (const source of ['<svg><text>]]></text></svg>', '<svg aria-label="&#0;"/>', '<svg aria-label="&bogus;"/>',
+    '<svg><text><![CDATA[unterminated</text></svg>', '<svg><!--x---></svg>', '<svg><?agent?></svg>tail',
+    '<svg><text>\u0000</text></svg>', '<svg>\ud800</svg>']) {
+    const result = compareSemanticAssets({ version: 1, before: '<svg/>', after: source });
+    check(result, 'unsupported_svg'); assert.ok(!result.ok); assert.equal(result.path, '$.after'); assert.ok(result.remedy.length);
+  }
+  for (const source of ['<!DOCTYPE svg SYSTEM "https://example.invalid/never-fetch"><svg/>',
+    '<!DOCTYPE svg SYSTEM "file:///never-read"><svg/>', '<!DOCTYPE svg [<!ENTITY x "ignored">]><svg/>',
+    '<?xml-stylesheet href="https://example.invalid/never-fetch"?><svg/>', '<svg><?xml-stylesheet href="file:///never-read"?></svg>',
+    '<svg><style/></svg>', '<svg><script/></svg>', '<svg><path d="M0 0@"/></svg>', '<svg xmlns="urn:foreign"/>',
+    '<svg xmlns:bad:prefix="urn:inert"/>', '<svg xmlns:xmlns="urn:inert"/>', '<svg xmlns:p=""/>',
+    '<svg xmlns="http://www.w3.org/2000/xmlns/"/>', '<svg xmlns:xml="urn:wrong"/>', '<svg xmlns:p="http://www.w3.org/XML/1998/namespace"/>', '<unbound:svg/>', '<a:b:svg/>',
+    '<?xml version="1.1"?><svg/>']) check(compareSemanticAssets({ version: 1, before: source, after: '<svg/>' }), 'unsupported_semantics');
+  for (const source of [`<svg>${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg>${'<rect/>'.repeat(4096)}</svg>`,
+    `<svg ${Array.from({ length: 33 }, (_, i) => `xmlns:n${i}="urn:inert"`).join(' ')}/>`, ' '.repeat(1048571) + '<svg/>']) {
+    const parsed = parseStaticSvg(source); assert.ok(!Array.isArray(parsed)); assert.equal(parsed.code, 'unsupported_svg');
+  }
+  for (const source of ['<svg xmlns=""/>', '<svg xmlns:xml="http://www.w3.org/XML/1998/namespace"/>', `<svg>${'<g>'.repeat(31)}${'</g>'.repeat(31)}</svg>`, `<svg>${'<rect/>'.repeat(4095)}</svg>`,
+    `<svg ${Array.from({ length: 32 }, (_, i) => `xmlns:n${i}="urn:inert"`).join(' ')}/>`, ' '.repeat(1048570) + '<svg/>']) {
+    const parsed = parseStaticSvg(source); assert.ok(Array.isArray(parsed));
+  }
+});
+
+test('XML conformance pairs preserve escaping, CDATA, comments, PI, namespaces, BOM and CRLF', () => {
+  for (const row of semanticReviewCases().filter(entry => entry.name.startsWith('xml-'))) {
+    check(compareSemanticAssets(row.request), 'unchanged');
+    check(compareSemanticAssets({ ...row.request, before: row.request.after, after: row.request.before }), 'unchanged');
+  }
+});
+
+test('XML conformance retains decoded source values and distinguishes changed CDATA content', () => {
+  for (const tag of ['text', 'title', 'desc']) {
+    const before = `<svg><${tag} id="value"><![CDATA[A<&>B]]></${tag}></svg>`;
+    const after = `<svg><${tag} id="value"><![CDATA[C<&>D]]></${tag}></svg>`;
+    const parsed = parseStaticSvg(before); assert.ok(Array.isArray(parsed));
+    assert.equal(parsed.find(node => node.locator === '#value')!.fields.text, 'A<&>B');
+    const result = compareSemanticAssets({ version: 1, before, after }); assert.ok(result.ok);
+    assert.equal(result.findings.length, 1); assert.equal(result.findings[0].field, tag === 'text' ? 'text' : `aria-${tag}`);
+    assert.equal(JSON.parse(result.findings[0].before_json), 'A<&>B'); assert.equal(JSON.parse(result.findings[0].after_json), 'C<&>D');
+  }
+  const parsed = parseStaticSvg('<svg aria-label="A]]>B &lt;&amp;&#x1f680;"/>'); assert.ok(Array.isArray(parsed));
+  assert.equal(parsed[0].fields['aria-label'], 'A]]>B <&🚀');
+});
+
+test('equivalent XML serialization model replays 500 random SVG sequences without semantic changes', async () => {
+  const alphabet = ['A', 'B', ']]>', '<&', '"', "'", '🚀', 'é', '\u00a0', '\u2028', ' '];
+  let seed = 0x5e21a1, replays = 0;
+  /** Deterministic independent source-value schedule. */
+  const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
+  /** Serialize raw values without reading or normalizing comparator state. */
+  const escape = (value: string, mode: number): string => [...value].map(char => mode === 2 ? `&#${char.codePointAt(0)};`
+    : mode === 3 ? `&#x${char.codePointAt(0)!.toString(16)};`
+    : char === '&' ? '&amp;' : char === '<' ? '&lt;' : char === '"' ? '&quot;' : char === "'" ? '&apos;' : char === '>' && mode === 0 ? '&gt;' : char).join('');
+  type Model = { label: string; title: string; text: string; x: number; fill: string };
+  /** Re-serialize the same SVG model with independently chosen namespace and lexical forms. */
+  const serialize = (model: Model, variant: number): string => {
+    const prefix = variant % 2 ? 's:' : '', ns = `xmlns${prefix ? ':s' : ''}="http://www.w3.org/2000/svg"`;
+    const quote = variant % 2 ? "'" : '"';
+    const mode = variant % 4;
+    const attrs = [['aria-label', model.label], ['role', 'img']];
+    if (variant % 2) attrs.reverse();
+    const attributes = attrs.map(([key, value]) => `${key}=${quote}${escape(value, mode)}${quote}`).join(variant % 2 ? '\r\n' : ' ');
+    /** CDATA splitting is a serializer operation on source values, not a comparator normalizer. */
+    const text = (value: string): string => variant % 2 ? `<![CDATA[${value.replaceAll(']]>', ']]]]><![CDATA[>')}]]>` : escape(value, mode === 1 ? 0 : mode);
+    const noise = variant % 2 ? '<!--serialize--><?agent compare?>' : '';
+    return `${variant % 2 ? '\ufeff<?xml version="1.0"?>\r\n' : ''}<${prefix}svg ${ns} ${attributes}>${noise}<${prefix}title id="title">${text(model.title)}</${prefix}title><${prefix}g><${prefix}rect id="shape" x="${model.x}" fill="${model.fill}"/><${prefix}text id="label">${text(model.text)}</${prefix}text></${prefix}g></${prefix}svg>`;
+  };
+  for (let sequence = 0; sequence < 500; sequence++) {
+    /** Random source strings always include the formerly misclassified attribute delimiter. */
+    const value = (): string => 'A]]>B' + Array.from({ length: 1 + next() % 20 }, () => alphabet[next() % alphabet.length]).join('');
+    let model: Model = { label: value(), title: value(), text: value(), x: next() % 100, fill: next() % 2 ? '#ff0000' : '#ffffff' };
+    const history = [structuredClone(model)];
+    for (let step = 0; step < 8; step++) {
+      if (next() % 5 === 0) { model = structuredClone(history[next() % history.length]); replays++; }
+      else { model = { ...model, label: value(), text: value() }; }
+      history.push(structuredClone(model));
+      const request = { version: 1, before: serialize(model, 0), after: serialize(model, next() % 8) };
+      const result = compareSemanticAssets(request); check(result, 'unchanged');
+      const parsed = parseStaticSvg(request.after); assert.ok(Array.isArray(parsed)); assert.equal(parsed[0].fields['aria-label'], model.label);
+      for (const format of ['json', 'toon'] as const) {
+        const report = await renderSemanticAssetReport({ ...request, format, budget: 1000000 }, sdk);
+        assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+      }
+    }
+  }
+  assert.ok(replays > 500);
+  console.log(`XML serialization model: 500 sequences, 4000 transitions, ${replays} older-input replays, zero changes`);
+});
+
 test('document boundary references agree with the independent XML parser and preserve legal controls', () => {
   for (const row of semanticReviewCases().filter(entry => entry.name.startsWith('document-'))) {
     check(compareSemanticAssets(row.request), row.expected);
-    if (row.expected === 'unsupported_svg') {
+    if (row.expected.startsWith('unsupported_')) {
       const malformed = row.request.before.includes('&#') ? row.request.before : row.request.after;
       assert.throws(() => new Resvg(malformed, { font: { loadSystemFonts: false } }), row.name);
     } else {
@@ -214,7 +305,7 @@ test('arc flag lexical property rejects numeric aliases in every flag and arc se
     const args = ['20', '20', '0', '0', '1', '40', '40']; args[slot] = aliases[Math.floor(sample / 12) % aliases.length];
     const prefix = '20 20 0 0 1 40 40 '.repeat(segment);
     const bad = `<svg><path d="M0 0 ${command}${prefix}${args.join(' ')}"/></svg>`;
-    check(compareSemanticAssets({ version: 1, before: '<svg/>', after: bad }), 'unsupported_svg');
+    check(compareSemanticAssets({ version: 1, before: '<svg/>', after: bad }), 'unsupported_semantics');
     args[slot] = sample % 2 ? '1' : '0';
     const good = `<svg><path d="M0 0 ${command}${prefix}${args.join(' ')}"/></svg>`;
     check(compareSemanticAssets({ version: 1, before: good, after: good }), 'unchanged');
@@ -243,7 +334,7 @@ test('review classes reach the actual CLI in a non-git tracker with no git execu
     const output = spawnSync(process.execPath, [resolve('dist/cli.js'), 'semantic-diff', file], {
       cwd: root, env: { PATH: bin, GIT_CEILING_DIRECTORIES: root }, encoding: 'utf8', timeout: 30000,
     });
-    assert.equal(output.status, row.expected === 'unsupported_svg' ? 2 : row.expected === 'unchanged' ? 0 : 1, output.stderr);
+    assert.equal(output.status, row.expected.startsWith('unsupported_') ? 2 : row.expected === 'unchanged' ? 0 : 1, output.stderr);
     const result = (format === 'json' ? JSON.parse(output.stdout) : decode(output.stdout)) as SemanticAssetDiagnosis;
     check(result, row.expected);
     assert.deepEqual(result, compareSemanticAssets(row.request));

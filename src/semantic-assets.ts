@@ -58,7 +58,7 @@ export interface SemanticAssetRefusal {
   /** Unsuccessful evaluation. */
   readonly ok: false;
   /** Stable machine-readable reason. */
-  readonly code: 'invalid_input' | 'unsupported_svg' | 'numeric_result' | 'sdk_unavailable' | 'budget_exceeded';
+  readonly code: 'invalid_input' | 'unsupported_svg' | 'unsupported_semantics' | 'numeric_result' | 'sdk_unavailable' | 'budget_exceeded';
   /** Request side or field; no supplied file paths. */
   readonly path: string;
   /** Next action for the caller. */
@@ -160,8 +160,12 @@ function evaluate(input: unknown): { request: SemanticAssetRequest; result: Sema
   const request = parseRequest(input);
   if ('ok' in request) return request;
   const before = parseStaticSvg(request.before), after = parseStaticSvg(request.after);
-  if (!Array.isArray(before) || !Array.isArray(after)) return { request, result: refuse('unsupported_svg', !Array.isArray(before) ? '$.before' : '$.after',
-    'Supply a well-formed static SVG using svg/g/path/rect/circle/ellipse/line/polyline/polygon/text/title/desc, supported attributes and finite coordinates within ±1e9; use exact arc flags 0/1 and XML whitespace; remove CSS, references, scripts and external resources. See docs/semantic-assets.md.') };
+  if (!Array.isArray(before) || !Array.isArray(after)) {
+    const failed = !Array.isArray(before) ? before : after as Exclude<typeof after, StaticSvgNode[]>;
+    return { request, result: refuse(failed.code, !Array.isArray(before) ? '$.before' : '$.after', failed.code === 'unsupported_svg'
+      ? 'Supply well-formed XML within 1 MiB, 4096 elements, depth 32, 32 attributes per element and 32768 geometry lexemes; see docs/semantic-assets.md.'
+      : 'Use the documented static SVG subset with finite coordinates within ±1e9 and exact arc flags 0/1; remove DTDs, CSS, scripts and resource references. See docs/semantic-assets.md.') };
+  }
   return { request, result: validateSemanticAssetNumbers(compare(before, after)) };
 }
 

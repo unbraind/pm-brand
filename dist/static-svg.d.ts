@@ -11,5 +11,10 @@ export interface StaticSvgNode {
     /** Retained direct children in source order; grouped glyphs are represented by their outline digest. */
     readonly children: string[];
 }
-/** Read strict XML into at most 4096 nodes and 32 levels; no forgiving HTML parsing. */
-export declare function parseStaticSvg(source: string): StaticSvgNode[] | null;
+/** Distinguish XML/limit failures from well-formed constructs outside the comparison domain. */
+export interface StaticSvgRefusal {
+    /** Malformed XML or exceeded limits, versus unsupported semantic interpretation. */
+    readonly code: 'unsupported_svg' | 'unsupported_semantics';
+}
+/** Read XML 1.0 with a maintained parser, then project the bounded static SVG domain. */
+export declare function parseStaticSvg(source: string): StaticSvgNode[] | StaticSvgRefusal;

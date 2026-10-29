@@ -307,6 +307,11 @@ budget accounting and retain complete counts on refusal. No raster generation,
 network or tracker writes are needed. See [the SDK example and supported static SVG
 grammar](docs/semantic-assets.md).
 
+XML syntax uses the maintained `@rgrove/parse-xml` parser. Equivalent escaping,
+CDATA, namespace prefixes, comments and inert processing instructions produce no
+findings. Malformed XML/limits return `unsupported_svg`; well-formed constructs
+outside the comparison subset return `unsupported_semantics`, both with remedies.
+
 ### Without git
 
 Semantic comparisons, font coverage, accessibility diagnostics, tokens and SVG

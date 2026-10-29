@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { parseXml } from '@rgrove/parse-xml';
 import { decode, encode } from '@toon-format/toon';
 import * as sdk from '@unbrained/pm-cli/sdk';
 import { compareSemanticAssets, renderSemanticAssetReport } from '../dist/index.js';
@@ -122,7 +123,12 @@ test('unsupported and malformed SVG refuses the affected side before loading the
   ];
   for (const svg of bad) {
     const result = compareSemanticAssets(request(svg)); assert.equal(result.ok, false, `must refuse ${svg.slice(0, 100)}`);
-    if (!result.ok) { assert.equal(result.code, 'unsupported_svg'); assert.equal(result.path, '$.before'); assert.ok(result.remedy.length > 0); }
+    if (!result.ok) {
+      let expected = 'unsupported_semantics';
+      try { parseXml(svg); } catch { expected = 'unsupported_svg'; }
+      if ([`<svg>${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg>${'<rect/>'.repeat(4096)}</svg>`, `<svg><path d="M${'1 '.repeat(32769)}"/></svg>`].includes(svg)) expected = 'unsupported_svg';
+      assert.equal(result.code, expected); assert.equal(result.path, '$.before'); assert.ok(result.remedy.length > 0);
+    }
   }
   const after = compareSemanticAssets(request('<svg/>', '<script/>')); assert.ok(!after.ok); if (!after.ok) assert.equal(after.path, '$.after');
   assert.equal((await renderSemanticAssetReport(request('<script/>'), {} as AccessibilityOutputSdk)).result.ok, false);
@@ -201,7 +207,7 @@ test('CLI compares assets in a non-git tracker with no git executable or rendere
         (await renderSemanticAssetReport(input === null ? null : { ...input, format })).result);
     }
   }
-  assert.equal(parseStaticSvg('<svg/>')?.length, 1);
+  const parsed = parseStaticSvg('<svg/>'); assert.ok(Array.isArray(parsed)); assert.equal(parsed.length, 1);
 });
 
 test('500 seeded model sequences replay older assets and read all native state back through the real SDK', async t => {
