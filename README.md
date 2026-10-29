@@ -208,7 +208,7 @@ capped again after conversion. Width truncation uses cumulative glyph advances
 in linear time and adds an ellipsis only at a complete grapheme boundary.
 
 `pm-brand/banner` works without native dependencies. `pm-brand/og` and its
-`renderPng` require the optional peer `@resvg/resvg-js` (`npm install @resvg/resvg-js`).
+`renderPng` use the pinned runtime dependency `@resvg/resvg-js`.
 The root token export never imports the native renderer and is suitable for web
 bundlers. Rendering helpers are intended for build tools and server environments.
 
@@ -309,10 +309,14 @@ grammar](docs/semantic-assets.md).
 
 XML syntax uses the maintained `@rgrove/parse-xml` parser. Equivalent escaping,
 CDATA, namespace prefixes, comments and inert processing instructions produce no
-findings. Malformed XML/limits return `unsupported_svg`; well-formed constructs
+findings. Both original documents must also pass the brand renderer (Resvg);
+its constructor validates without producing pixels or loading system fonts.
+Malformed XML, renderer rejection and limits return `unsupported_svg`; other constructs
 outside the comparison subset return `unsupported_semantics`, both with remedies.
 Empty namespace resets and missing defaults after an SVG namespace boundary are
-refused; qualified SVG elements and documented bare-root compatibility remain supported.
+refused; qualified SVG elements remain supported. Namespace-free or empty-namespace
+roots return `unsupported_svg` with Resvg’s reason. Native rejection diagnostics
+are bounded to 512 characters and included in both JSON and TOON.
 
 ### Without git
 

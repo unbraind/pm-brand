@@ -25,8 +25,10 @@ The same exports are available from `pm-brand/semantic-assets`. Hosts may pass
 their real `AccessibilityOutputSdk` as the second renderer argument. The existing
 supported SDK loader handles standalone, global, project-local and runner
 installations; it never searches argv or executable symlinks. Runtime comparison
-needs no git, network, rasterizer, system fonts, tracker or writable directory.
-The package's optional raster renderer is not imported on this path.
+needs no git, network, raster generation, system fonts, tracker or writable directory.
+It lazily loads the pinned `@resvg/resvg-js` 2.6.2 binding used by brand images,
+and validates both original strings with its constructor before comparison.
+It never calls `render`, resolves images or supplies font paths.
 
 The **one strict request schema** accepts only `version: 1`, `before`, `after`,
 optional `format` (`json` or `toon`, default TOON), and optional integer `budget`
@@ -90,14 +92,13 @@ sections. CDATA and ordinary text project to the same content, and comments/iner
 processing instructions preserve surrounding text. Default and prefixed SVG
 namespace bindings canonicalize by local element name and resolved SVG URI;
 foreign namespaces and namespaced presentation attributes are outside the subset.
-Legacy unprefixed SVG fragments, including a root with `xmlns=""`, retain their
-existing compatibility behavior. This mode follows ancestry: once an element
-resolves to the SVG namespace, its descendants must also resolve to that namespace.
-An empty reset or absent default beneath a prefixed SVG parent returns
-`unsupported_semantics`; it never becomes an SVG element by local-name matching.
-A prefixed SVG element remains valid when its default namespace is empty, and a
-descendant may explicitly restore the SVG default. Sibling branches keep their
-own bindings and compatibility context.
+Both original roots must resolve to the SVG namespace. Namespace-free roots,
+including `xmlns=""`, are rejected by Resvg and return `unsupported_svg` with its
+bounded diagnostic; no implicit SVG namespace is injected. An empty reset or absent
+default beneath a prefixed SVG parent returns `unsupported_semantics`; it never
+becomes an SVG element by local-name matching. A prefixed SVG element remains valid
+when its default namespace is empty, and a descendant may explicitly restore the
+SVG default. Sibling branches keep their own bindings.
 Outside the root element, literal XML whitespace, comments and inert processing
 instructions are accepted. Character/entity references in the prolog or epilog
 refuse before decoding, even when they would expand to whitespace.
@@ -109,7 +110,15 @@ byte bound is enforced before parsing; projection bounds are 4,096 elements,
 32,768 geometry lexemes per attribute. Parser failures, including its resource
 exhaustion rejection, are caught and sanitized.
 
-`unsupported_svg` means XML parser rejection or an exceeded resource limit.
+`unsupported_svg` means XML parser rejection, Resvg rejection or an exceeded resource limit.
+A Resvg refusal includes `reason`, its diagnostic capped at 512 characters with
+control characters replaced by spaces, alongside the failing input side and remedy.
+The maintained parsers own XML and namespace well-formedness; the package only
+resolves accepted namespace bindings for semantic identity. A bounded parser walk
+rejects resource-bearing constructs before native validation because the binding
+can otherwise read local images. DTDs, stylesheet PIs, unsupported element kinds,
+href/src/style attributes and presentation URL references never reach Resvg.
+System font loading is disabled; no file paths or resource resolvers are supplied.
 `unsupported_semantics` means well-formed XML outside the documented comparison
 domain; both preserve the requested format, failing input side and remedy.
 All previous must-refuse inputs remain refused under this more precise distinction.
@@ -180,7 +189,7 @@ color syntax cannot be normalized into a valid consumer accessibility result.
 ## Validation
 
 `node --test --test-concurrency=2 test/semantic-assets.test.ts` covers exact
-acceptance cases, must-allow legacy assets, must-refuse constructs, extreme
+acceptance cases, must-allow previously generated assets, must-refuse constructs, extreme
 numeric inputs/outputs and no-git CLI execution with no git executable. A seeded
 model exercises 500 sequences / 6,000 transitions, older-input replays, JSON/TOON
 round trips, CRLF and attribute whitespace. It compares findings to an independent
@@ -204,8 +213,8 @@ paint order separate and retain harmless serialization changes.
 A document-context model adds 500 sequences / 4,000 transitions with older-input
 replays, decimal/hex whitespace references, both boundaries and both inputs. A
 separate offline Resvg parser checks malformed references and legal controls without
-raster generation or system font loading; product execution needs neither renderer
-nor network. Shared fixtures carry those refusals and legal controls through every
+raster generation or system font loading; product validation also uses the same constructor without raster generation
+or network. Shared fixtures carry those refusals and legal controls through every
 supported consumer.
 
 The XML conformance corpus adds 54 equivalent pairs spanning attribute delimiters,
@@ -218,7 +227,7 @@ A namespace model adds 500 sequences / 4,000 transitions with older-input replay
 default resets, qualified names and inherited bindings. An independent Resvg
 geometry oracle distinguishes retained rectangles from missing content without
 raster generation or font loading. A shared 102-case namespace corpus covers every
-supported element family and annotated glyph paths, both input sides, legacy
+supported element family and annotated glyph paths, both input sides, namespace-free refusal
 controls and valid qualified elements under empty defaults.
 
 `node scripts/semantic-assets-real-data.ts <read-only-tracker-root>` reads a public
@@ -226,3 +235,14 @@ fleet tracker copy in a non-git scratch directory, renders title-derived SVGs an
 measures identity/noise/change comparisons, both wire formats and SDK accounting.
 It checks complete SDK read-back and byte hashes before and after. Only aggregate
 counts and source provenance should be published.
+
+A renderer mutation model adds 500 sequences / 4,000 transitions, replaying older
+inputs and mutating namespace declarations, qualified prefixes, entities, attribute
+quoting and nesting. An independent Resvg invocation is the rejection oracle:
+every native rejection must return `unsupported_svg` on either comparison side,
+with JSON/TOON agreement. Documents accepted by both parsers still compare, and
+identity comparisons remain unchanged. Stricter XML parser refusals are retained
+(for example a Unicode reference outside the Unicode domain tolerated by Resvg).
+The renderer's namespace-prefix reason is checked exactly, and a throwing `render`
+method proves validation generates no raster. Representative mutations share the
+same packed npm/Bun local/global, npx/bunx and non-git consumer corpus.

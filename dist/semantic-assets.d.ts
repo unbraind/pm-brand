@@ -51,6 +51,8 @@ export interface SemanticAssetRefusal {
     readonly code: 'invalid_input' | 'unsupported_svg' | 'unsupported_semantics' | 'numeric_result' | 'sdk_unavailable' | 'budget_exceeded';
     /** Request side or field; no supplied file paths. */
     readonly path: string;
+    /** Bounded Resvg diagnostic when the renderer rejects the original document. */
+    readonly reason?: string;
     /** Next action for the caller. */
     readonly remedy: string;
     /** Complete counts when comparison finished. */

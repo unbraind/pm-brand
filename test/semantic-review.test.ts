@@ -6,6 +6,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseStaticSvg } from '../dist/static-svg.js';
+import { parseXml } from '@rgrove/parse-xml';
 import { Resvg } from '@resvg/resvg-js';
 import { decode } from '@toon-format/toon';
 import * as sdk from '@unbrained/pm-cli/sdk';
@@ -30,6 +31,87 @@ test('review topology and lexical corpus agrees across SDK and both complete wir
       assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result, row.name);
     }
   }
+});
+
+test('renderer acceptance gates every original document and retains bounded native reasons', async () => {
+  const originalRender = Resvg.prototype.render;
+  try {
+    Resvg.prototype.render = function () { throw new Error('Semantic validation must never rasterize'); };
+    for (const row of semanticReviewCases().filter(entry => entry.name.startsWith('renderer-'))) {
+      const result = compareSemanticAssets(row.request); check(result, row.expected);
+      for (const format of ['json', 'toon'] as const) {
+        const report = await renderSemanticAssetReport({ ...row.request, format, budget: 1000000 }, sdk);
+        assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+      }
+    }
+    for (const side of ['before', 'after'] as const) {
+      const valid = '<svg xmlns="http://www.w3.org/2000/svg"/>';
+      const malformed = valid.replace('xmlns=', 'xmlns:=');
+      const mixed = compareSemanticAssets({ version: 1, before: valid + '', after: valid,
+        [side]: malformed, [side === 'before' ? 'after' : 'before']: valid.replace('/>', ' class="unsupported"/>') });
+      assert.ok(!mixed.ok); assert.equal(mixed.code, 'unsupported_svg'); assert.equal(mixed.path, `$.${side}`);
+      for (const source of [valid.replace('xmlns=', 'xmlns:='), '<svg/>', '<svg xmlns=""/>', valid.replace('/>', `><${'p'.repeat(2048)}:rect/></svg>`)]) {
+        let reason = '';
+        try { new Resvg(source, { font: { loadSystemFonts: false }, logLevel: 'off' }); } catch (error) { reason = String(error); }
+        assert.ok(reason);
+        const result = compareSemanticAssets({ version: 1, before: valid, after: valid, [side]: source });
+        assert.ok(!result.ok); assert.equal(result.code, 'unsupported_svg'); assert.equal(result.path, `$.${side}`);
+        assert.ok(result.reason); assert.ok(result.reason.length <= 512);
+        if (reason.length <= 512) assert.equal(result.reason, reason);
+        else { assert.equal(result.reason.length, 512); assert.ok(reason.startsWith(result.reason)); }
+        assert.ok(result.remedy.includes('Resvg'));
+        for (const format of ['json', 'toon'] as const) {
+          const report = await renderSemanticAssetReport({ version: 1, before: valid, after: valid, [side]: source, format, budget: 512 }, sdk);
+          assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+        }
+      }
+    }
+  } finally { Resvg.prototype.render = originalRender; }
+});
+
+test('renderer mutation model refuses all rejected namespace prefix entity quote and nesting variants', async () => {
+  let seed = 0x6a7e, replays = 0, rejected = 0, accepted = 0, xmlRefusals = 0;
+  const domains = new Set<number>();
+  /** Reproducible mutations and replays of older original byte strings. */
+  const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
+  for (let sequence = 0; sequence < 500; sequence++) {
+    const valid = `<svg xmlns="http://www.w3.org/2000/svg" width="${1 + next() % 100}" height="20"><g><rect width="10" height="10"/></g><text>A&amp;B</text></svg>`;
+    const history: { source: string; domain: number }[] = [{ source: valid, domain: 0 }];
+    for (let step = 0; step < 8; step++) {
+      const domain = next() % 5, variant = next() % 5;
+      const alphabet = ['p', 's', '_', ':', '0', '-', '.', '名', '\u00a0'];
+      const prefix = Array.from({ length: next() % 8 }, () => alphabet[next() % alphabet.length]).join('');
+      const point = [0, 32, 38, 0xd800, 0x110000, 65 + next() % 26][next() % 6];
+      const source = domain === 0 ? valid.replace('xmlns=', ['xmlns:=', 'xmlns:p:q=', 'xmlns:p=', 'xmlns=', `xmlns:${prefix}=`][variant])
+        : domain === 1 ? valid.replace('<rect ', `<${['missing:', ':', 'p:q:', '', `${prefix}:`][variant]}rect `)
+        : domain === 2 ? valid.replace('&amp;', ['&unknown;', '&#0;', `&#x${point.toString(16)};`, '&#38;', '&amp;'][variant])
+        : domain === 3 ? valid.replace('height="20"', ['height=20', 'height="20', "height='20'", 'height="20"', 'height=\"20\''][variant])
+        : [valid.replace('</g>', '</rect>'), valid + valid, valid.replace('</svg>', ''), valid, valid.replace('<g>', '<g><g>').replace('</g>', '</g></g>')][variant];
+      let state = { source, domain };
+      if (next() % 5 === 0) { state = history[next() % history.length]; replays++; }
+      history.push(state); domains.add(state.domain);
+      let nativeAccepted = true;
+      try { new Resvg(state.source, { font: { loadSystemFonts: false }, logLevel: 'off' }); } catch { nativeAccepted = false; }
+      for (const side of ['before', 'after'] as const) {
+        const request = { version: 1, before: valid, after: valid, [side]: state.source };
+        const result = compareSemanticAssets(request);
+        if (nativeAccepted) {
+          if (result.ok) {
+            check(compareSemanticAssets({ version: 1, before: state.source, after: state.source }), 'unchanged'); accepted++;
+          } else {
+            assert.throws(() => parseXml(state.source)); assert.equal(result.code, 'unsupported_svg'); xmlRefusals++;
+          }
+        }
+        else { assert.ok(!result.ok); assert.equal(result.code, 'unsupported_svg'); assert.equal(result.path, `$.${side}`); rejected++; }
+        for (const format of ['json', 'toon'] as const) {
+          const report = await renderSemanticAssetReport({ ...request, format, budget: 1000000 }, sdk);
+          assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+        }
+      }
+    }
+  }
+  assert.equal(domains.size, 5); assert.ok(replays > 500); assert.ok(rejected > 1000); assert.ok(accepted > 1000);
+  console.log(`Renderer mutation model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${rejected} rejected-side checks, ${accepted} accepted-side controls, ${xmlRefusals} stricter XML refusals, zero rasters`);
 });
 
 test('namespace identity never promotes an empty reset or missing default into SVG', () => {
@@ -87,25 +169,29 @@ test('namespace model agrees with independent SVG geometry across 500 replay seq
 });
 
 test('XML parser limits and semantic policy refuse independently with exact typed remedies', () => {
-  for (const source of ['<svg><text>]]></text></svg>', '<svg aria-label="&#0;"/>', '<svg aria-label="&bogus;"/>',
-    '<svg><text><![CDATA[unterminated</text></svg>', '<svg><!--x---></svg>', '<svg><?agent?></svg>tail',
-    '<svg><text>\u0000</text></svg>', '<svg>\ud800</svg>']) {
-    const result = compareSemanticAssets({ version: 1, before: '<svg/>', after: source });
+  for (const source of ['<svg xmlns="http://www.w3.org/2000/svg"><text>]]></text></svg>', '<svg xmlns="http://www.w3.org/2000/svg" aria-label="&#0;"/>', '<svg xmlns="http://www.w3.org/2000/svg" aria-label="&bogus;"/>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><text><![CDATA[unterminated</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><!--x---></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><?agent?></svg>tail',
+    '<svg xmlns="http://www.w3.org/2000/svg"><text>\u0000</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg">\ud800</svg>']) {
+    const result = compareSemanticAssets({ version: 1, before: '<svg xmlns="http://www.w3.org/2000/svg"/>', after: source });
     check(result, 'unsupported_svg'); assert.ok(!result.ok); assert.equal(result.path, '$.after'); assert.ok(result.remedy.length);
   }
-  for (const source of ['<!DOCTYPE svg SYSTEM "https://example.invalid/never-fetch"><svg/>',
-    '<!DOCTYPE svg SYSTEM "file:///never-read"><svg/>', '<!DOCTYPE svg [<!ENTITY x "ignored">]><svg/>',
-    '<?xml-stylesheet href="https://example.invalid/never-fetch"?><svg/>', '<svg><?xml-stylesheet href="file:///never-read"?></svg>',
-    '<svg><style/></svg>', '<svg><script/></svg>', '<svg><path d="M0 0@"/></svg>', '<svg xmlns="urn:foreign"/>',
+  for (const source of ['<!DOCTYPE svg SYSTEM "https://example.invalid/never-fetch"><svg xmlns="http://www.w3.org/2000/svg"/>',
+    '<!DOCTYPE svg SYSTEM "file:///never-read"><svg xmlns="http://www.w3.org/2000/svg"/>', '<!DOCTYPE svg [<!ENTITY x "ignored">]><svg xmlns="http://www.w3.org/2000/svg"/>',
+    '<?xml-stylesheet href="https://example.invalid/never-fetch"?><svg xmlns="http://www.w3.org/2000/svg"/>', '<svg xmlns="http://www.w3.org/2000/svg"><?xml-stylesheet href="file:///never-read"?></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><style/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0@"/></svg>', '<svg xmlns="urn:foreign"/>',
     '<svg xmlns:bad:prefix="urn:inert"/>', '<svg xmlns:xmlns="urn:inert"/>', '<svg xmlns:p=""/>',
     '<svg xmlns="http://www.w3.org/2000/xmlns/"/>', '<svg xmlns:xml="urn:wrong"/>', '<svg xmlns:p="http://www.w3.org/XML/1998/namespace"/>', '<unbound:svg/>', '<a:b:svg/>',
-    '<?xml version="1.1"?><svg/>']) check(compareSemanticAssets({ version: 1, before: source, after: '<svg/>' }), 'unsupported_semantics');
-  for (const source of [`<svg>${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg>${'<rect/>'.repeat(4096)}</svg>`,
-    `<svg ${Array.from({ length: 33 }, (_, i) => `xmlns:n${i}="urn:inert"`).join(' ')}/>`, ' '.repeat(1048571) + '<svg/>']) {
+    '<?xml version="1.1"?><svg xmlns="http://www.w3.org/2000/svg"/>']) {
+    let expected = 'unsupported_semantics';
+    try { new Resvg(source, { font: { loadSystemFonts: false } }); } catch { expected = 'unsupported_svg'; }
+    check(compareSemanticAssets({ version: 1, before: source, after: '<svg xmlns="http://www.w3.org/2000/svg"/>' }), expected);
+  }
+  for (const source of [`<svg xmlns="http://www.w3.org/2000/svg">${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg xmlns="http://www.w3.org/2000/svg">${'<rect/>'.repeat(4096)}</svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" ${Array.from({ length: 33 }, (_, i) => `xmlns:n${i}="urn:inert"`).join(' ')}/>`, ' '.repeat(1048536) + '<svg xmlns="http://www.w3.org/2000/svg"/>']) {
     const parsed = parseStaticSvg(source); assert.ok(!Array.isArray(parsed)); assert.equal(parsed.code, 'unsupported_svg');
   }
-  for (const source of ['<svg xmlns=""/>', '<svg xmlns:xml="http://www.w3.org/XML/1998/namespace"/>', `<svg>${'<g>'.repeat(31)}${'</g>'.repeat(31)}</svg>`, `<svg>${'<rect/>'.repeat(4095)}</svg>`,
-    `<svg ${Array.from({ length: 32 }, (_, i) => `xmlns:n${i}="urn:inert"`).join(' ')}/>`, ' '.repeat(1048570) + '<svg/>']) {
+  for (const source of ['<svg xmlns="http://www.w3.org/2000/svg"/>', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xml="http://www.w3.org/XML/1998/namespace"/>', `<svg xmlns="http://www.w3.org/2000/svg">${'<g>'.repeat(31)}${'</g>'.repeat(31)}</svg>`, `<svg xmlns="http://www.w3.org/2000/svg">${'<rect/>'.repeat(4095)}</svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" ${Array.from({ length: 31 }, (_, i) => `xmlns:n${i}="urn:inert"`).join(' ')}/>`, ' '.repeat(1048535) + '<svg xmlns="http://www.w3.org/2000/svg"/>']) {
     const parsed = parseStaticSvg(source); assert.ok(Array.isArray(parsed));
   }
 });
@@ -119,15 +205,15 @@ test('XML conformance pairs preserve escaping, CDATA, comments, PI, namespaces, 
 
 test('XML conformance retains decoded source values and distinguishes changed CDATA content', () => {
   for (const tag of ['text', 'title', 'desc']) {
-    const before = `<svg><${tag} id="value"><![CDATA[A<&>B]]></${tag}></svg>`;
-    const after = `<svg><${tag} id="value"><![CDATA[C<&>D]]></${tag}></svg>`;
+    const before = `<svg xmlns="http://www.w3.org/2000/svg"><${tag} id="value"><![CDATA[A<&>B]]></${tag}></svg>`;
+    const after = `<svg xmlns="http://www.w3.org/2000/svg"><${tag} id="value"><![CDATA[C<&>D]]></${tag}></svg>`;
     const parsed = parseStaticSvg(before); assert.ok(Array.isArray(parsed));
     assert.equal(parsed.find(node => node.locator === '#value')!.fields.text, 'A<&>B');
     const result = compareSemanticAssets({ version: 1, before, after }); assert.ok(result.ok);
     assert.equal(result.findings.length, 1); assert.equal(result.findings[0].field, tag === 'text' ? 'text' : `aria-${tag}`);
     assert.equal(JSON.parse(result.findings[0].before_json), 'A<&>B'); assert.equal(JSON.parse(result.findings[0].after_json), 'C<&>D');
   }
-  const parsed = parseStaticSvg('<svg aria-label="A]]>B &lt;&amp;&#x1f680;"/>'); assert.ok(Array.isArray(parsed));
+  const parsed = parseStaticSvg('<svg xmlns="http://www.w3.org/2000/svg" aria-label="A]]>B &lt;&amp;&#x1f680;"/>'); assert.ok(Array.isArray(parsed));
   assert.equal(parsed[0].fields['aria-label'], 'A]]>B <&🚀');
 });
 
@@ -203,7 +289,7 @@ test('document context model preserves lexical boundaries across 500 replay sequ
       const where = next() % 5, noise = [' ', '\t', '\r\n', '<!--&#32;-->'][next() % 4];
       let state: State = { legal: where >= 2, source: where === 0 ? `${noise}${ref}${document}`
         : where === 1 ? `${document}${ref}${noise}` : where === 2 ? `${noise}${document}${noise}`
-        : where === 3 ? document.replace('<rect', `${ref}<rect`) : document.replace('<svg ', `<svg aria-label="A${ref}B" `) };
+        : where === 3 ? document.replace('<rect', `${ref}<rect`) : document.replace('<svg xmlns="http://www.w3.org/2000/svg" ', `<svg xmlns="http://www.w3.org/2000/svg" aria-label="A${ref}B" `) };
       if (next() % 5 === 0) { state = history[next() % history.length]; replays++; }
       history.push(state);
       const request = { version: 1, before: next() % 2 ? document : state.source, after: state.source };
@@ -242,7 +328,7 @@ test('metadata model preserves ordered title and description membership across 5
   const render = (model: Model): string => {
     /** Each metadata identity keeps its own literal content throughout the model. */
     const content = (parent: typeof parents[number]): string => model[parent].map(id => `<${tags.get(id)} id="${id}">${id} label</${tags.get(id)}>`).join('');
-    return `<svg id="root" role="img">${content('root')}<g id="group" role="img">${content('group')}<rect/></g><g id="outline" data-text="A" role="img">${content('outline')}<path d="M0 0L1 1"/></g></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" id="root" role="img">${content('root')}<g id="group" role="img">${content('group')}<rect/></g><g id="outline" data-text="A" role="img">${content('outline')}<path d="M0 0L1 1"/></g></svg>`;
   };
   let seed = 0xa11c, replays = 0, changes = 0;
   const covered = new Set<string>();
@@ -300,7 +386,7 @@ test('topology model detects retained parent and order changes amid membership c
   const parents = ['root', 'one', 'two'] as const;
   type Model = Record<typeof parents[number], string[]>;
   /** The reference structure is explicit ordered membership, not parser output. */
-  const render = (model: Model): string => `<svg id="root"><g id="one" transform="translate(10 0)">${model.one.map(id => units.get(id)).join('')}</g><g id="two" fill="#f00" opacity=".5">${model.two.map(id => units.get(id)).join('')}</g>${model.root.map(id => units.get(id)).join('')}</svg>`;
+  const render = (model: Model): string => `<svg xmlns="http://www.w3.org/2000/svg" id="root"><g id="one" transform="translate(10 0)">${model.one.map(id => units.get(id)).join('')}</g><g id="two" fill="#f00" opacity=".5">${model.two.map(id => units.get(id)).join('')}</g>${model.root.map(id => units.get(id)).join('')}</svg>`;
   /** Model parent identity for every active comparison unit. */
   const membership = (model: Model): Map<string, string> => new Map(parents.flatMap(parent => model[parent].map(id => [id, `#${parent}`] as const)));
   /** Paint order ignores descriptive metadata but retains all other common children. */
@@ -358,10 +444,10 @@ test('arc flag lexical property rejects numeric aliases in every flag and arc se
     const command = sample % 2 ? 'a' : 'A', slot = 3 + (Math.floor(sample / 2) % 2), segment = Math.floor(sample / 4) % 3;
     const args = ['20', '20', '0', '0', '1', '40', '40']; args[slot] = aliases[Math.floor(sample / 12) % aliases.length];
     const prefix = '20 20 0 0 1 40 40 '.repeat(segment);
-    const bad = `<svg><path d="M0 0 ${command}${prefix}${args.join(' ')}"/></svg>`;
-    check(compareSemanticAssets({ version: 1, before: '<svg/>', after: bad }), 'unsupported_semantics');
+    const bad = `<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 ${command}${prefix}${args.join(' ')}"/></svg>`;
+    check(compareSemanticAssets({ version: 1, before: '<svg xmlns="http://www.w3.org/2000/svg"/>', after: bad }), 'unsupported_semantics');
     args[slot] = sample % 2 ? '1' : '0';
-    const good = `<svg><path d="M0 0 ${command}${prefix}${args.join(' ')}"/></svg>`;
+    const good = `<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 ${command}${prefix}${args.join(' ')}"/></svg>`;
     check(compareSemanticAssets({ version: 1, before: good, after: good }), 'unchanged');
   }
 });
@@ -370,7 +456,7 @@ test('numeric lexical validation refuses long malformed scalars within a bounded
   const result = spawnSync(process.execPath, ['--input-type=module', '-e', `
     import assert from 'node:assert/strict';
     import { compareSemanticAssets } from './dist/semantic-assets.js';
-    const svg = '<svg x="' + '9'.repeat(200000) + '!"/>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" x="' + '9'.repeat(200000) + '!"/>';
     assert.equal(compareSemanticAssets({version:1,before:svg,after:svg}).ok, false);
   `], { encoding: 'utf8', timeout: 10000, killSignal: 'SIGKILL' });
   assert.equal(result.status, 0, result.error?.message ?? result.stderr);

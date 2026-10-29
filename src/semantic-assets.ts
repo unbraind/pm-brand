@@ -1,9 +1,9 @@
-/** Bounded static SVG comparison: no DOM, rasterizer, network or tracker mutation. */
+/** Bounded static SVG comparison: no raster generation, network or tracker mutation. */
 import { encode } from '@toon-format/toon';
 import { loadAccessibilityOutputSdk } from './accessibility-report.js';
 import type { AccessibilityOutputSdk } from './accessibility-report.js';
 import { parseStaticSvg } from './static-svg.js';
-import type { StaticSvgNode } from './static-svg.js';
+import type { StaticSvgNode, StaticSvgRefusal } from './static-svg.js';
 
 /** Strict versioned request shared by the SDK and CLI. */
 export interface SemanticAssetRequest {
@@ -61,6 +61,8 @@ export interface SemanticAssetRefusal {
   readonly code: 'invalid_input' | 'unsupported_svg' | 'unsupported_semantics' | 'numeric_result' | 'sdk_unavailable' | 'budget_exceeded';
   /** Request side or field; no supplied file paths. */
   readonly path: string;
+  /** Bounded Resvg diagnostic when the renderer rejects the original document. */
+  readonly reason?: string;
   /** Next action for the caller. */
   readonly remedy: string;
   /** Complete counts when comparison finished. */
@@ -160,13 +162,15 @@ function evaluate(input: unknown): { request: SemanticAssetRequest; result: Sema
   const request = parseRequest(input);
   if ('ok' in request) return request;
   const before = parseStaticSvg(request.before), after = parseStaticSvg(request.after);
-  if (!Array.isArray(before) || !Array.isArray(after)) {
-    const failed = !Array.isArray(before) ? before : after as Exclude<typeof after, StaticSvgNode[]>;
-    return { request, result: refuse(failed.code, !Array.isArray(before) ? '$.before' : '$.after', failed.code === 'unsupported_svg'
-      ? 'Supply well-formed XML within 1 MiB, 4096 elements, depth 32, 32 attributes per element and 32768 geometry lexemes; see docs/semantic-assets.md.'
-      : 'Use the documented static SVG subset with finite coordinates within ±1e9 and exact arc flags 0/1; preserve SVG namespace bindings; remove DTDs, CSS, scripts and resource references. See docs/semantic-assets.md.') };
+  const failures = [{ value: before, path: '$.before' }, { value: after, path: '$.after' }]
+    .filter((entry): entry is { value: StaticSvgRefusal; path: string } => !Array.isArray(entry.value));
+  if (failures.length) {
+    const { value: failed, path } = failures.find(entry => entry.value.code === 'unsupported_svg') ?? failures[0];
+    return { request, result: { ...refuse(failed.code, path, failed.code === 'unsupported_svg'
+      ? 'Supply SVG accepted by Resvg with an SVG-namespaced root, within 1 MiB, 4096 elements, depth 32, 32 attributes per element and 32768 geometry lexemes; see docs/semantic-assets.md.'
+      : 'Use the documented static SVG subset with finite coordinates within ±1e9 and exact arc flags 0/1; preserve SVG namespace bindings; remove DTDs, CSS, scripts and resource references. See docs/semantic-assets.md.'), ...(failed.reason === undefined ? {} : { reason: failed.reason }) } };
   }
-  return { request, result: validateSemanticAssetNumbers(compare(before, after)) };
+  return { request, result: validateSemanticAssetNumbers(compare(before as StaticSvgNode[], after as StaticSvgNode[])) };
 }
 
 /** Compare two bounded generated SVG assets without loading the pm runtime. */

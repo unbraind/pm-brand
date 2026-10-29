@@ -24,7 +24,7 @@ try {
     { file: 'static-svg.ts', name: 'normalize invalid XML ids', from: "if (field === 'id') {", to: "if (field === 'id') { value = value.trim();", pattern: 'review topology', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'accept Unicode XML syntax separators', from: 'const document = parseXml(source,', to: "source = source.replace(/\\u00a0(?=>)/gu, ' '); const document = parseXml(source,", pattern: 'review topology', test: 'test/semantic-review.test.ts' },
     { file: 'contrast.ts', name: 'accept Unicode CSS separators', from: '[ \\t\\r\\n\\f]*', to: '\\s*', pattern: 'color lexical', test: 'test/contrast.test.ts' },
-    { file: 'semantic-assets.ts', name: 'discard validated refusal encoding', from: "return { request, result: refuse(failed.code", to: "return { request: { ...request, format: 'json' }, result: refuse(failed.code", pattern: 'review topology', test: 'test/semantic-review.test.ts' },
+    { file: 'semantic-assets.ts', name: 'discard validated refusal encoding', from: "return { request, result: { ...refuse(failed.code", to: "return { request: { ...request, format: 'json' }, result: { ...refuse(failed.code", pattern: 'review topology', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'discard non-painting child order', from: 'if (parent) parent.children.push(locator);', to: "if (parent && !['title', 'desc'].includes(tag)) parent.children.push(locator);", pattern: 'metadata model', test: 'test/semantic-review.test.ts' },
     { file: 'semantic-assets.ts', name: 'sort away title precedence', from: 'add(locator, field, ordered(a, left, tag), ordered(b, right, tag));', to: "add(locator, field, tag === 'title' ? ordered(a, left, tag).sort() : ordered(a, left, tag), tag === 'title' ? ordered(b, right, tag).sort() : ordered(b, right, tag));", pattern: 'metadata order changes', test: 'test/semantic-review.test.ts' },
     { file: 'semantic-assets.ts', name: 'sort away description precedence', from: 'add(locator, field, ordered(a, left, tag), ordered(b, right, tag));', to: "add(locator, field, tag === 'desc' ? ordered(a, left, tag).sort() : ordered(a, left, tag), tag === 'desc' ? ordered(b, right, tag).sort() : ordered(b, right, tag));", pattern: 'metadata order changes', test: 'test/semantic-review.test.ts' },
@@ -34,10 +34,11 @@ try {
     { file: 'static-svg.ts', name: 'restore context-free attribute delimiter rejection', from: 'fields[name] = attribute(name, value);', to: "if (value.includes(']]>')) invalid(); fields[name] = attribute(name, value);", pattern: 'XML conformance', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'discard parsed CDATA text', from: 'text += child.text;', to: "text += child.text.includes('<') ? '' : child.text;", pattern: 'XML conformance', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'discard namespace alias support', from: "const tag = parts.at(-1)!;", to: 'const tag = element.name;', pattern: 'XML conformance', test: 'test/semantic-review.test.ts' },
-    { file: 'static-svg.ts', name: 'permit unknown entities', from: 'ignoreUndefinedEntities: false', to: 'ignoreUndefinedEntities: true', pattern: 'unsupported and malformed' },
-    { file: 'static-svg.ts', name: 'promote absent namespaces after entering SVG', from: 'const bare = legacy && parts.length === 1 && !uri;', to: 'const bare = parts.length === 1 && !uri;', pattern: 'namespace identity', test: 'test/semantic-review.test.ts' },
-    { file: 'static-svg.ts', name: 'restart legacy mode for each child', from: 'visit(child, node, childCounts, namespaces, depth + 1, bare);', to: 'visit(child, node, childCounts, namespaces, depth + 1, true);', pattern: 'namespace model', test: 'test/semantic-review.test.ts' },
+    { file: 'static-svg.ts', name: 'erase unknown entities before validation', from: 'const document = parseXml(source,', to: "source = source.replaceAll('&unknown;', ''); const document = parseXml(source,", pattern: 'unsupported and malformed' },
+    { file: 'static-svg.ts', name: 'promote absent namespaces after entering SVG', from: "if (uri !== 'http://www.w3.org/2000/svg') invalid();", to: "if (uri && uri !== 'http://www.w3.org/2000/svg') invalid();", pattern: 'namespace identity', test: 'test/semantic-review.test.ts' },
+    { file: 'static-svg.ts', name: 'discard child namespace resets', from: 'const namespaces = new Map(inherited);', to: "const namespaces = new Map(inherited); if (element.attributes.xmlns === '' && parent) element.attributes.xmlns = 'http://www.w3.org/2000/svg';", pattern: 'namespace model', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'infer a default namespace from qualified parents', from: "const uri = namespaces.get(parts.length === 2 ? parts[0] : '');", to: "const uri = namespaces.get(parts.length === 2 ? parts[0] : '') || (parent ? 'http://www.w3.org/2000/svg' : undefined);", pattern: 'namespace identity', test: 'test/semantic-review.test.ts' },
+    { file: 'static-svg.ts', name: 'skip renderer acceptance', from: "new Resvg(source, { font: { loadSystemFonts: false }, logLevel: 'off' });", to: 'void source;', pattern: 'renderer mutation', test: 'test/semantic-review.test.ts' },
   ];
   for (const probe of probes) {
     const path = join(scratch, 'src', probe.file), original = readFileSync(path, 'utf8');
@@ -53,8 +54,8 @@ try {
   }
   const parserPath = join(scratch, 'src/static-svg.ts'), fixedParser = readFileSync(parserPath, 'utf8');
   try {
-    const previous = execFileSync('git', ['show', '7e7690f:src/static-svg.ts'], { encoding: 'utf8' })
-      .replace('StaticSvgNode[] | null', "StaticSvgNode[] | { code: 'unsupported_svg' }")
+    const previous = "export interface StaticSvgRefusal { readonly code: 'unsupported_svg' | 'unsupported_semantics'; readonly reason?: string }\n" + execFileSync('git', ['show', '7e7690f:src/static-svg.ts'], { encoding: 'utf8' })
+      .replace('StaticSvgNode[] | null', "StaticSvgNode[] | StaticSvgRefusal")
       .replace('return null;', "return { code: 'unsupported_svg' };");
     writeFileSync(parserPath, previous);
     execFileSync(process.execPath, [resolve('node_modules/typescript/bin/tsc')], { cwd: scratch, stdio: 'pipe' });
@@ -63,6 +64,6 @@ try {
     console.log('Caught behavioral replacement: previous hand-written XML parser');
   } finally { writeFileSync(parserPath, fixedParser); }
   execFileSync(process.execPath, [resolve('node_modules/typescript/bin/tsc')], { cwd: scratch, stdio: 'pipe' });
-  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color|Unicode whitespace|review topology|arc flag lexical|color lexical|metadata order changes|document boundary|XML conformance|namespace identity', 'test/semantic-assets.test.ts', 'test/semantic-review.test.ts', 'test/contrast.test.ts'], { cwd: scratch, stdio: 'pipe' });
-  console.log(`${probes.length + 1}/${probes.length + 1} behavioral reverts caught; restored implementation passes 11/11 unchanged regressions`);
+  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color|Unicode whitespace|review topology|arc flag lexical|color lexical|metadata order changes|document boundary|XML conformance|namespace identity|renderer acceptance', 'test/semantic-assets.test.ts', 'test/semantic-review.test.ts', 'test/contrast.test.ts'], { cwd: scratch, stdio: 'pipe' });
+  console.log(`${probes.length + 1}/${probes.length + 1} behavioral reverts caught; restored implementation passes 12/12 unchanged regressions`);
 } finally { rmSync(scratch, { recursive: true, force: true }); }

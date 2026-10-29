@@ -20,7 +20,7 @@ assert.equal((await renderAccessibilityReport({ version: 1, pairs: [], format: '
 const fontRequest = { version: 1, labels: [{ locator: '#title', role: 'display', text: 'Ship 🚀' }] };
 assert.equal(preflightFontCoverage(fontRequest).summary?.failed, 1);
 assert.equal((await renderFontCoverageReport(fontRequest)).result.summary?.unsupported, 1);
-const semanticRequest = { version: 1, before: '<svg><text>Ready</text></svg>', after: '<svg><text>Re…</text></svg>' };
+const semanticRequest = { version: 1, before: '<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>', after: '<svg xmlns="http://www.w3.org/2000/svg"><text>Re…</text></svg>' };
 assert.equal(compareSemanticAssets(semanticRequest).summary?.changes, 1);
 assert.equal((await renderSemanticAssetReport(semanticRequest)).result.summary?.changes, 1);
 const reviewCases = JSON.parse(readFileSync('semantic-review-cases.json', 'utf8')) as { semantic: { request: SemanticAssetRequest; expected: string }[]; color: AccessibilityRequest };

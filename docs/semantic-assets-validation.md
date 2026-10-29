@@ -37,7 +37,7 @@ body and ambient focus remain intact. The feature touches no native field.
 Focused source coverage measured 100% statements, branches, functions and lines
 for both new modules, with unchanged repository coverage thresholds.
 
-`node scripts/semantic-assets-revert-proof.ts` caught 29/29 independent behavioral
+`node scripts/semantic-assets-revert-proof.ts` caught 30/30 independent behavioral
 reverts in disposable copies. These cover the original paint/text/number/Unicode
 regressions plus lost parent context, order hidden by changed membership, coerced
 arc flags, signed radii, list separators, Unicode geometry/XML/CSS separators,
@@ -46,21 +46,21 @@ catch discarded non-painting order, sorted-away title/description precedence,
 metadata lost during outline grouping, and paint-order misclassification. The XML
 context probe restores entity expansion before the outside-root lexical check.
 New probes reject valid attribute delimiters, discard decoded text, erase namespace
-aliases and permit unknown entities. A complete behavioral replacement restores
+aliases and erase unknown entities before both validators. A complete behavioral replacement restores
 the previous hand-written parser from Git into the disposable copy; the XML
 conformance test must fail. No legacy decoder is kept in current source. Namespace probes additionally restore
-unconditional absent-URI promotion, restart legacy mode per child, and infer a
+unconditional absent-URI promotion, discard child namespace resets, and infer a
 default namespace from qualified parents; all must fail the namespace tests. The
-restored implementation passed all eleven selected acceptance regressions afterward.
+restored implementation passed all twelve selected acceptance regressions afterward.
 
 Review round 1 added a second independent reference model: 500 topology sequences,
 4,000 transitions and 802 older-input replays, with parent membership and retained
 sibling order checked independently of the parser. A separate 500-probe lexical
 property spans both arc commands, both flags and explicit/implicit segments. The
-shared adversarial corpus now has 336 cases across shapes, metadata, annotated outlines
+shared adversarial corpus now has 360 cases across shapes, metadata, annotated outlines
 and contextual lexical boundaries. SDK, CLI, JSON/TOON, packed npm/Bun and Git
 consumers share its representative fixtures. Packed CLI acceptance now executes
-312 command-format scenarios across six installation modes, including 264 semantic
+384 command-format scenarios across six installation modes, including 336 semantic
 review regressions and 12 consumer color refusals.
 
 Review round 2 adds an independent metadata model: 500 sequences, 4,000 transitions,
@@ -83,7 +83,7 @@ Review round 4 replaces XML tokenization/decoding with `@rgrove/parse-xml` 5.0.0
 a maintained, pure JavaScript, dependency-free parser. It never loads DTDs or
 resolves custom entities and is given no resolver. Package limits bound input
 bytes before parsing and element/attribute/depth/geometry counts during projection.
-`unsupported_svg` now denotes parser failures or limits; well-formed constructs
+`unsupported_svg` denotes parser failures, renderer rejection or limits; well-formed constructs
 outside the semantic subset return `unsupported_semantics`. Every previous refusal
 input remains tested with its exact side, code and remedy; no refusal is relaxed.
 
@@ -95,12 +95,12 @@ model re-serializes 500 random SVG sequences, 4,000 transitions and 808 older-in
 replays with zero findings and complete JSON/TOON agreement. It also checks raw
 accessible labels read from the canonical projection against its source-value model.
 
-Review round 5 makes namespace compatibility lineage-scoped. A bare unprefixed
-legacy root (including the previously accepted empty root declaration) retains its
-contract. Once a node resolves to the actual SVG namespace, empty/default-missing
-descendants cannot reactivate compatibility. Qualified SVG names under an empty
-default and explicit SVG default restoration remain valid; sibling scopes stay
-independent. Namespace loss returns `unsupported_semantics` with a binding remedy.
+Review round 5 preserves resolved namespace identity. Round 6 supersedes its
+bare-root compatibility with the renderer acceptance requirement: namespace-free
+roots, including an empty root declaration, return `unsupported_svg`. Qualified
+SVG names under an empty default and explicit SVG default restoration remain valid;
+sibling scopes stay independent. Namespace loss within a renderer-accepted document
+returns `unsupported_semantics` with a binding remedy.
 The shared namespace corpus has 102 cases across every supported element family,
 annotated glyph paths, both inputs, inherited resets and missing defaults. A new
 500-sequence / 4,000-transition model agrees with independent Resvg geometry:
@@ -134,7 +134,7 @@ Round-3 prefix/suffix probes on the same immutable copy yielded:
 | --- | ---: |
 | Comparisons / typed refusals | 32 / 32 |
 | Additional JSON/TOON reports | 64 |
-| Largest boundary report, estimated tokens / bytes | 53 / 211 |
+| Largest boundary report, estimated tokens / bytes | 62 / 246 |
 
 Round-4 conformance probes on the same immutable copy yielded:
 
@@ -153,6 +153,39 @@ Round-5 namespace probes on the same immutable copy yielded:
 | Qualified controls / findings | 16 / 0 |
 | Additional JSON/TOON reports | 96 |
 | Largest namespace report, estimated tokens / bytes | 71 / 284 |
+
+Round-6 renderer validation probes on the same immutable copy yielded:
+
+| Renderer measurement | Result |
+| --- | ---: |
+| Comparisons | 48 |
+| Invalid namespace-prefix typed refusals | 32 |
+| Accepted serialization controls / findings | 16 / 0 |
+| Additional JSON/TOON reports | 96 |
+| Largest renderer report, estimated tokens / bytes | 86 / 344 |
+
+Both original strings must pass the pinned brand Resvg constructor before a
+comparison succeeds. Its rejection yields `unsupported_svg` with the input side,
+remedy and native diagnostic bounded to 512 characters. The maintained parsers
+own namespace well-formedness; the projection only resolves semantic identity.
+No additional hand-written prefix validation is introduced. Resource-bearing
+constructs are refused before the constructor because the native binding can read
+local images. System fonts are disabled, no resource resolver is installed and
+`render()` is never called. The native binding loads lazily for comparison and is
+a pinned runtime dependency; token-only imports do not load it.
+
+Twenty-four shared renderer cases cover namespace declarations, prefixes, entities,
+quoting and nesting on both input sides, including accepted controls. Six additional
+packed representatives carry these checks through npm/Bun local/global installs,
+npx/bunx, direct Bun, Git consumers and a non-git tracker. Every original regression
+remains present. Valid synthetic semantic fixtures now declare the SVG namespace;
+namespace-free originals remain explicitly tested as renderer refusals, as required
+by round 6. The 500-sequence / 4,000-transition mutation property independently
+checks Resvg rejection against both input sides and both complete encodings:
+799 older-input replays, 4,290 native-rejected side checks, 3,592 accepted controls
+and 118 stricter XML refusals. Parser-only refusals retain stricter Unicode-domain
+validation. Exact native reasons and 512-character diagnostic bounds are tested,
+including long unknown prefixes and refusal priority across the two input sides.
 
 The existing parent/arc and boundary report maxima above reflect the more precise
 XML versus semantic-policy remedies, including preservation of SVG namespace bindings.

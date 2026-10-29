@@ -20,45 +20,45 @@ export function semanticReviewCases(): SemanticReviewCase[] {
     '<path id="target" d="M0 0L10 10"/>', '<text id="target">Ready</text>', '<title id="target">Label</title>', '<desc id="target">Description</desc>',
     '<g id="target"><rect id="nested" width="10" height="10"/></g>', '<g id="target" data-text="A"><path d="M0 0L10 10"/></g>'];
   for (const [index, unit] of units.entries()) cases.push({ name: `reparent-${index}`, expected: 'parent', request: { version: 1,
-    before: `<svg><g id="plain">${unit}</g><g id="shift" transform="translate(100 20)" fill="#f00" aria-label="Shifted"/></svg>`,
-    after: `<svg><g id="plain"/><g id="shift" transform="translate(100 20)" fill="#f00" aria-label="Shifted">${unit}</g></svg>` } });
+    before: `<svg xmlns="http://www.w3.org/2000/svg"><g id="plain">${unit}</g><g id="shift" transform="translate(100 20)" fill="#f00" aria-label="Shifted"/></svg>`,
+    after: `<svg xmlns="http://www.w3.org/2000/svg"><g id="plain"/><g id="shift" transform="translate(100 20)" fill="#f00" aria-label="Shifted">${unit}</g></svg>` } });
   for (const change of ['insert', 'remove']) cases.push({ name: `order-and-${change}`, expected: 'paint_order', request: { version: 1,
-    before: `<svg><rect id="a"/>${change === 'remove' ? '<rect id="c"/>' : ''}<rect id="b"/></svg>`,
-    after: `<svg><rect id="b"/>${change === 'insert' ? '<rect id="c"/>' : ''}<rect id="a"/></svg>` } });
-  const valid = '<svg><path d="M0 0 A20 20 0 0 1 40 40"/></svg>';
+    before: `<svg xmlns="http://www.w3.org/2000/svg"><rect id="a"/>${change === 'remove' ? '<rect id="c"/>' : ''}<rect id="b"/></svg>`,
+    after: `<svg xmlns="http://www.w3.org/2000/svg"><rect id="b"/>${change === 'insert' ? '<rect id="c"/>' : ''}<rect id="a"/></svg>` } });
+  const valid = '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 A20 20 0 0 1 40 40"/></svg>';
   for (const command of ['A', 'a']) for (const flag of [3, 4]) for (const lexeme of ['0.0', '1.0', '+0', '+1', '-0', '00', '01', '0e0', '1e0', '.0', '0e-999']) {
     const args = ['20', '20', '0', '0', '1', '40', '40']; args[flag] = lexeme;
     cases.push({ name: `arc-${command}-${flag}-${lexeme}`, expected: 'unsupported_semantics', request: { version: 1, before: valid,
-      after: `<svg><path d="M0 0 ${command}${args.join(' ')}"/></svg>` } });
+      after: `<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 ${command}${args.join(' ')}"/></svg>` } });
   }
   for (const [name, after] of [
-    ['implicit-arc', '<svg><path d="M0 0 A20 20 0 0 1 40 40 20 20 0 0.0 1 80 80"/></svg>'],
-    ['signed-arc-radius', '<svg><path d="M0 0 A+20 20 0 0 1 40 40"/></svg>'],
-    ['signed-zero-arc-radius', '<svg><path d="M0 0 A20 -0 0 0 1 40 40"/></svg>'],
-    ['outline-arc', '<svg><g data-text="A"><path d="M0 0 A20 20 0 0.0 1 40 40"/></g></svg>'],
-    ['unicode-path-space', '<svg><path d="M0 0\u00a0L1 1"/></svg>'], ['unicode-list-space', '<svg viewBox="0\u00a00 10 10"/>'],
-    ['unicode-transform-space', '<svg transform="translate(1\u00a02)"/>'], ['missing-transform-separator', '<svg transform="translate(1-2)"/>'],
-    ['missing-point-separator', '<svg><polyline points="0-1 2-3"/></svg>'], ['unicode-xml-space', '<svg\u00a0role="img"/>'],
-    ['unicode-close-space', '<svg></svg\u00a0>'], ['unicode-attribute-equals', '<svg x\u00a0="1"/>'],
-    ['whitespace-id', '<svg><rect id=" target "/></svg>'], ['unicode-id', '<svg><rect id="\u00a0target\u00a0"/></svg>'],
+    ['implicit-arc', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 A20 20 0 0 1 40 40 20 20 0 0.0 1 80 80"/></svg>'],
+    ['signed-arc-radius', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 A+20 20 0 0 1 40 40"/></svg>'],
+    ['signed-zero-arc-radius', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 A20 -0 0 0 1 40 40"/></svg>'],
+    ['outline-arc', '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"><path d="M0 0 A20 20 0 0.0 1 40 40"/></g></svg>'],
+    ['unicode-path-space', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0\u00a0L1 1"/></svg>'], ['unicode-list-space', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0\u00a00 10 10"/>'],
+    ['unicode-transform-space', '<svg xmlns="http://www.w3.org/2000/svg" transform="translate(1\u00a02)"/>'], ['missing-transform-separator', '<svg xmlns="http://www.w3.org/2000/svg" transform="translate(1-2)"/>'],
+    ['missing-point-separator', '<svg xmlns="http://www.w3.org/2000/svg"><polyline points="0-1 2-3"/></svg>'], ['unicode-xml-space', '<svg\u00a0role="img"/>'],
+    ['unicode-close-space', '<svg xmlns="http://www.w3.org/2000/svg"></svg\u00a0>'], ['unicode-attribute-equals', '<svg xmlns="http://www.w3.org/2000/svg" x\u00a0="1"/>'],
+    ['whitespace-id', '<svg xmlns="http://www.w3.org/2000/svg"><rect id=" target "/></svg>'], ['unicode-id', '<svg xmlns="http://www.w3.org/2000/svg"><rect id="\u00a0target\u00a0"/></svg>'],
   ]) cases.push({ name, expected: ['unicode-xml-space', 'unicode-close-space', 'unicode-attribute-equals'].includes(name) ? 'unsupported_svg' : 'unsupported_semantics', request: { version: 1, before: valid, after } });
   cases.push({ name: 'valid-arc-aliases', expected: 'unchanged', request: { version: 1, before: valid,
-    after: '<svg><path d="M0.0 0e0 A20.0 2e1 +0 0 1 4e1 40.0"/></svg>' } });
+    after: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0.0 0e0 A20.0 2e1 +0 0 1 4e1 40.0"/></svg>' } });
   for (const tag of ['title', 'desc'] as const) for (const container of ['svg', 'group', 'outline']) {
     /** Place identical metadata in each supported container projection. */
-    const wrap = (body: string): string => container === 'svg' ? `<svg id="container" role="img">${body}<rect/></svg>`
-      : container === 'group' ? `<svg><g id="container" role="img">${body}<rect/></g></svg>`
-      : `<svg><g id="container" role="img" data-text="A">${body}<path d="M0 0L1 1"/></g></svg>`;
+    const wrap = (body: string): string => container === 'svg' ? `<svg xmlns="http://www.w3.org/2000/svg" id="container" role="img">${body}<rect/></svg>`
+      : container === 'group' ? `<svg xmlns="http://www.w3.org/2000/svg"><g id="container" role="img">${body}<rect/></g></svg>`
+      : `<svg xmlns="http://www.w3.org/2000/svg"><g id="container" role="img" data-text="A">${body}<path d="M0 0L1 1"/></g></svg>`;
     const a = `<${tag} id="alpha">Alpha</${tag}>`, b = `<${tag} id="beta">Beta</${tag}>`, c = `<${tag} id="gamma">Gamma</${tag}>`;
     for (const change of ['swap', 'insert', 'remove']) cases.push({ name: `metadata-${tag}-${container}-${change}`, expected: `aria-${tag}-order`,
       request: { version: 1, before: wrap(a + (change === 'remove' ? c : '') + b), after: wrap(b + (change === 'insert' ? c : '') + a) } });
   }
   cases.push({ name: 'metadata-cross-kind-control', expected: 'unchanged', request: { version: 1,
-    before: '<svg><title id="t">Name</title><desc id="d">Details</desc><rect/></svg>',
-    after: '<svg><desc id="d">Details</desc><title id="t">Name</title><rect/></svg>' } });
+    before: '<svg xmlns="http://www.w3.org/2000/svg"><title id="t">Name</title><desc id="d">Details</desc><rect/></svg>',
+    after: '<svg xmlns="http://www.w3.org/2000/svg"><desc id="d">Details</desc><title id="t">Name</title><rect/></svg>' } });
   for (const field of ['aria-labelledby', 'aria-describedby'] as const) cases.push({ name: `reference-order-${field}`, expected: field,
-    request: { version: 1, before: `<svg ${field}="alpha beta"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>`,
-      after: `<svg ${field}="beta alpha"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>` } });
+    request: { version: 1, before: `<svg xmlns="http://www.w3.org/2000/svg" ${field}="alpha beta"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>`,
+      after: `<svg xmlns="http://www.w3.org/2000/svg" ${field}="beta alpha"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>` } });
   const document = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>';
   for (const reference of ['&#9;', '&#10;', '&#13;', '&#32;', '&#x9;', '&#xA;', '&#xD;', '&#x20;', '&#00032;', '&#x00020;']) {
     for (const edge of ['prefix', 'suffix']) for (const comment of [false, true]) for (const side of ['before', 'after'] as const) {
@@ -76,7 +76,7 @@ export function semanticReviewCases(): SemanticReviewCase[] {
     ['text-reference', '<svg xmlns="http://www.w3.org/2000/svg"><text>A B</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>A&#32;B</text></svg>'],
     ['comment-reference', document, `<!--&#32; &amp;-->${document}<!--&#x20;-->`],
   ]) cases.push({ name: `document-control-${name}`, expected: 'unchanged', request: { version: 1, before, after } });
-  return [...cases, ...xmlConformanceCases(), ...namespaceReviewCases()];
+  return [...cases, ...xmlConformanceCases(), ...namespaceReviewCases(), ...rendererReviewCases()];
 }
 
 /** Equivalent serializations share one independent source-value oracle across every consumer. */
@@ -89,9 +89,9 @@ export function xmlConformanceCases(): SemanticReviewCase[] {
     ['supplementary', '🚀', '&#x1F680;'], ['unicode-space', 'A\u0085\u2028B', 'A&#133;&#x2028;B'],
   ]) for (const context of ['label', 'outline', 'text', 'title', 'desc']) {
     /** Both values are already independent, valid XML serializations of the same source value. */
-    const wrap = (value: string): string => context === 'label' ? `<svg aria-label="${value}"/>`
-      : context === 'outline' ? `<svg><g data-text="${value}"><path d="M0 0L1 1"/></g></svg>`
-      : `<svg><${context}>${value}</${context}></svg>`;
+    const wrap = (value: string): string => context === 'label' ? `<svg xmlns="http://www.w3.org/2000/svg" aria-label="${value}"/>`
+      : context === 'outline' ? `<svg xmlns="http://www.w3.org/2000/svg"><g data-text="${value}"><path d="M0 0L1 1"/></g></svg>`
+      : `<svg xmlns="http://www.w3.org/2000/svg"><${context}>${value}</${context}></svg>`;
     // A literal CDATA terminator is forbidden in character data, but legal in attributes.
     if (name === 'attribute-delimiter' && !['label', 'outline'].includes(context)) continue;
     cases.push({ name: `xml-${name}-${context}`, expected: 'unchanged', request: { version: 1, before: wrap(escaped), after: wrap(alternate) } });
@@ -102,14 +102,14 @@ export function xmlConformanceCases(): SemanticReviewCase[] {
     ['comments-pi', 'AlphaBeta', 'Alpha<!--split--><?agent review?>Beta'],
     ['crlf', 'A B', 'A\r\nB'],
   ]) cases.push({ name: `xml-${name}-${tag}`, expected: 'unchanged', request: { version: 1,
-    before: `<svg><${tag}>${before}</${tag}></svg>`, after: `<svg><${tag}>${after}</${tag}></svg>` } });
+    before: `<svg xmlns="http://www.w3.org/2000/svg"><${tag}>${before}</${tag}></svg>`, after: `<svg xmlns="http://www.w3.org/2000/svg"><${tag}>${after}</${tag}></svg>` } });
   for (const [name, after] of [
     ['namespace-default', '<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>'],
     ['namespace-prefix', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><s:text>Ready</s:text></s:svg>'],
     ['namespace-rebound', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><t:text xmlns:t="http://www.w3.org/2000/svg">Ready</t:text></s:svg>'],
-    ['bom-declaration', '\ufeff<?xml version="1.0" encoding="utf-8" standalone="yes"?>\r\n<svg><text>Ready</text></svg>'],
-    ['document-pi', '<?agent before?><svg><text>Ready</text></svg><?agent after?>'],
-  ]) cases.push({ name: `xml-${name}`, expected: 'unchanged', request: { version: 1, before: '<svg><text>Ready</text></svg>', after } });
+    ['bom-declaration', '\ufeff<?xml version="1.0" encoding="utf-8" standalone="yes"?>\r\n<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>'],
+    ['document-pi', '<?agent before?><svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg><?agent after?>'],
+  ]) cases.push({ name: `xml-${name}`, expected: 'unchanged', request: { version: 1, before: '<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>', after } });
   return cases;
 }
 
@@ -127,7 +127,7 @@ export function namespaceReviewCases(): SemanticReviewCase[] {
     const after = placement === 'direct' ? `<svg xmlns="http://www.w3.org/2000/svg">${unit.replace(' id=', ' xmlns="" id=')}</svg>`
       : placement === 'ancestor' ? `<svg xmlns="http://www.w3.org/2000/svg"><g xmlns="">${unit}</g></svg>`
       : placement === 'prefix-missing-default' ? `<s:svg xmlns:s="http://www.w3.org/2000/svg">${unit}</s:svg>`
-      : `<svg><g xmlns="http://www.w3.org/2000/svg"><g xmlns="">${unit}</g></g></svg>`;
+      : `<svg xmlns="http://www.w3.org/2000/svg"><g xmlns="http://www.w3.org/2000/svg"><g xmlns="">${unit}</g></g></svg>`;
     for (const side of ['before', 'after'] as const) cases.push({ name: `namespace-loss-${index}-${placement}-${side}`, expected: 'unsupported_semantics',
       request: { version: 1, before, after: before, [side]: after } });
   }
@@ -135,9 +135,9 @@ export function namespaceReviewCases(): SemanticReviewCase[] {
     ['qualified-empty-default', '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg"><s:rect xmlns="" width="10" height="10"/></svg>'],
     ['qualified-container', '<svg xmlns="http://www.w3.org/2000/svg"><g><rect width="10" height="10"/></g></svg>', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><s:g xmlns=""><s:rect width="10" height="10"/></s:g></s:svg>'],
     ['restored-default', '<svg xmlns="http://www.w3.org/2000/svg"><g><rect width="10" height="10"/></g></svg>', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg"><s:g xmlns=""><rect xmlns="http://www.w3.org/2000/svg" width="10" height="10"/></s:g></svg>'],
-    ['legacy-root-empty', '<svg><g><rect/></g></svg>', '<svg xmlns=""><g><rect/></g></svg>'],
+    ['legacy-root-empty', '<svg xmlns="http://www.w3.org/2000/svg"><g><rect/></g></svg>', '<svg xmlns=""><g><rect/></g></svg>'],
     ['legacy-sibling', '<svg><g/><rect/></svg>', '<svg><g xmlns="http://www.w3.org/2000/svg"/><rect/></svg>'],
-  ]) cases.push({ name: `namespace-control-${name}`, expected: 'unchanged', request: { version: 1, before, after } });
+  ]) cases.push({ name: `namespace-control-${name}`, expected: name.startsWith('legacy-') ? 'unsupported_svg' : 'unchanged', request: { version: 1, before, after } });
   cases.push({ name: 'namespace-loss-outline-path', expected: 'unsupported_semantics', request: { version: 1,
     before: '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"><path d="M0 0L1 1"/></g></svg>',
     after: '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"><path xmlns="" d="M0 0L1 1"/></g></svg>' } });
@@ -150,7 +150,7 @@ export function packedSemanticReviewCases(): SemanticReviewCase[] {
     'metadata-title-svg-swap', 'metadata-desc-outline-insert', 'metadata-cross-kind-control',
     'document-reference-&#32;-prefix-false-after', 'document-reference-&#x20;-suffix-true-before', 'document-control-inner-reference', 'document-control-declaration',
     'xml-attribute-delimiter-label', 'xml-split-cdata-title', 'xml-namespace-rebound', 'xml-document-pi',
-    'namespace-loss-0-direct-after', 'namespace-loss-0-prefix-missing-default-before', 'namespace-loss-outline-path', 'namespace-control-qualified-container', 'namespace-control-legacy-root-empty']);
+    'namespace-loss-0-direct-after', 'namespace-loss-0-prefix-missing-default-before', 'namespace-loss-outline-path', 'namespace-control-qualified-container', 'namespace-control-legacy-root-empty', 'renderer-namespace-empty-prefix-after', 'renderer-namespace-double-colon-before', 'renderer-prefix-unbound-after', 'renderer-quote-unquoted-before', 'renderer-nesting-close-after', 'renderer-control-qualified-after']);
   const rows = semanticReviewCases().filter(row => names.has(row.name));
   if (rows.length !== names.size) throw new Error('Missing or duplicate packed review case');
   return rows;
@@ -160,4 +160,29 @@ export function packedSemanticReviewCases(): SemanticReviewCase[] {
 export function renderedColorReviewRequest(color = 'rgba(0,\u00a00,0,1)'): AccessibilityRequest {
   return { version: 1, pairs: [{ locator: '#label', theme: 'light', rule: 'text',
     foreground: { token: 'carbon', color }, background: { token: 'sheet', color: '#FFFFFF' } }] };
+}
+
+/** Original-byte renderer rejections and accepted serialization controls on either input side. */
+export function rendererReviewCases(): SemanticReviewCase[] {
+  const valid = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><g><rect width="10" height="10"/></g><text>A&amp;B</text></svg>';
+  const variants = [
+    ['namespace-empty-prefix', valid.replace('xmlns=', 'xmlns:='), false],
+    ['namespace-double-colon', valid.replace('xmlns=', 'xmlns:p:q='), false],
+    ['namespace-unbound', valid.replace('xmlns=', 'xmlns:p='), false],
+    ['prefix-unbound', valid.replace('<rect ', '<missing:rect '), false],
+    ['entity-undefined', valid.replace('&amp;', '&undefined;'), false],
+    ['entity-illegal', valid.replace('&amp;', '&#0;'), false],
+    ['quote-unquoted', valid.replace('width="20"', 'width=20'), false],
+    ['quote-unclosed', valid.replace('height="20"', 'height="20'), false],
+    ['nesting-close', valid.replace('</g>', '</rect>'), false],
+    ['nesting-root', valid + valid, false],
+    ['control-qualified', valid.replace('<svg xmlns=', '<s:svg xmlns:s=').replace('</svg>', '</s:svg>').replace('<g>', '<s:g>').replace('</g>', '</s:g>').replace('<rect ', '<s:rect ').replace('<text>', '<s:text>').replace('</text>', '</s:text>'), true],
+    ['control-references', valid.replace('&amp;', '&#x26;').replaceAll('"', "'"), true],
+  ] as const;
+  const cases: SemanticReviewCase[] = [];
+  for (const [name, source, accepted] of variants) for (const side of ['before', 'after'] as const) {
+    cases.push({ name: `renderer-${name}-${side}`, expected: accepted ? 'unchanged' : 'unsupported_svg',
+      request: { version: 1, before: valid, after: valid, [side]: source } });
+  }
+  return cases;
 }

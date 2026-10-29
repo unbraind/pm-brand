@@ -1,4 +1,6 @@
 /** Deliberately bounded XML/SVG grammar; unsupported rendering constructs fail closed. */
+import { createRequire } from 'node:module';
+import type * as ResvgBinding from '@resvg/resvg-js';
 import { tokens } from './tokens.js';
 import { createHash } from 'node:crypto';
 import { parseXml, XmlElement, XmlText } from '@rgrove/parse-xml';
@@ -21,6 +23,8 @@ export interface StaticSvgNode {
 export interface StaticSvgRefusal {
   /** Malformed XML or exceeded limits, versus unsupported semantic interpretation. */
   readonly code: 'unsupported_svg' | 'unsupported_semantics';
+  /** Bounded native parser diagnostic when Resvg rejects the original document. */
+  readonly reason?: string;
 }
 
 /** Reject unsupported semantic interpretation without exposing supplied content. */
@@ -119,29 +123,42 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | StaticSvgRefus
     if (document.children.some(child => child.type === 'doctype'
       || (child.type === 'xmldecl' && 'version' in child && child.version !== '1.0')
       || (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet'))) invalid();
+    // The binding can resolve local images. Reject resource-bearing constructs before
+    // native parsing; never pass supplied file paths or font configuration to it.
+    const pending = [{ element: document.root!, depth: 1 }];
+    let count = 0;
+    while (pending.length) {
+      const { element, depth } = pending.pop()!;
+      if (depth > 32 || ++count > 4096 || Object.keys(element.attributes).length > 32) limit();
+      if (!['svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'title', 'desc'].includes(element.name.split(':').at(-1)!)
+        || Object.entries(element.attributes).some(([name, value]) => ['href', 'src', 'style'].includes(name.split(':').at(-1)!) || (['fill', 'stroke', 'filter', 'clip-path', 'mask', 'cursor'].includes(name) && /url\(/iu.test(value)))) invalid();
+      for (const child of element.children) {
+        if (child instanceof XmlElement) pending.push({ element: child, depth: depth + 1 });
+        else if (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet') invalid();
+      }
+    }
+    try {
+      // Constructor only: validate the original bytes with the brand renderer,
+      // without generating pixels, loading system fonts or resolving resources.
+      const { Resvg } = createRequire(import.meta.url)('@resvg/resvg-js') as typeof ResvgBinding;
+      new Resvg(source, { font: { loadSystemFonts: false }, logLevel: 'off' });
+    } catch (error) {
+      return { code: 'unsupported_svg', reason: String(error).replace(/[\p{Cc}]/gu, ' ').slice(0, 512) };
+    }
     /** Project parsed names, text and attributes; XML tokenization/decoding stays in the dependency. */
-    const visit = (element: XmlElement, parent: StaticSvgNode | null, counts: Map<string, number>, inherited: ReadonlyMap<string, string>, depth: number, legacy: boolean): void => {
-      if (depth > 32 || nodes.length >= 4096 || Object.keys(element.attributes).length > 32) limit();
+    const visit = (element: XmlElement, parent: StaticSvgNode | null, counts: Map<string, number>, inherited: ReadonlyMap<string, string>): void => {
       const namespaces = new Map(inherited);
       for (const [name, value] of Object.entries(element.attributes)) {
         if (name === 'xmlns' || name.startsWith('xmlns:')) {
           const prefix = name === 'xmlns' ? '' : name.slice(6);
-          if (prefix.includes(':') || prefix === 'xmlns' || (prefix !== '' && value === '')
-            || value === 'http://www.w3.org/2000/xmlns/'
-            || (prefix === 'xml') !== (value === 'http://www.w3.org/XML/1998/namespace')) invalid();
           namespaces.set(prefix, value);
         }
       }
       const parts = element.name.split(':');
-      if (parts.length > 2) invalid();
       const tag = parts.at(-1)!;
       const uri = namespaces.get(parts.length === 2 ? parts[0] : '');
-      // Bare legacy SVG is a lineage-scoped compatibility mode, never a fallback
-      // for missing namespaces after a real SVG element has been encountered.
-      const bare = legacy && parts.length === 1 && !uri;
-      if (uri !== 'http://www.w3.org/2000/svg' && !bare) invalid();
-      if (!['svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'title', 'desc'].includes(tag)
-        || (!parent && tag !== 'svg') || (parent && (tag === 'svg' || !['svg', 'g'].includes(parent.tag)))) invalid();
+      if (uri !== 'http://www.w3.org/2000/svg') invalid();
+      if (parent && (tag === 'svg' || !['svg', 'g'].includes(parent.tag))) invalid();
       const fields: Record<string, string> = Object.create(null);
       for (const [name, value] of Object.entries(element.attributes)) {
         if (name === 'xmlns' || name.startsWith('xmlns:')) continue;
@@ -158,14 +175,13 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | StaticSvgRefus
       const childCounts = new Map<string, number>();
       let text = '';
       for (const child of element.children) {
-        if (child instanceof XmlElement) visit(child, node, childCounts, namespaces, depth + 1, bare);
+        if (child instanceof XmlElement) visit(child, node, childCounts, namespaces);
         else if (child instanceof XmlText) text += child.text;
-        else if (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet') invalid();
       }
       if (['text', 'title', 'desc'].includes(tag)) fields.text = text.replace(/[\t\n\r]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
       else if (/[^\t\n\r ]/u.test(text)) invalid();
     };
-    visit(document.root!, null, new Map(), new Map(), 1, true);
+    visit(document.root!, null, new Map(), new Map());
     // Annotated outline runs are localized as one unit. Their canonical geometry
     // remains in a digest so edited outlines cannot disappear behind metadata.
     const byLocator = new Map(nodes.map(node => [node.locator, node]));

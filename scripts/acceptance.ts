@@ -6,7 +6,7 @@ import { join, resolve } from 'node:path';
 import { packageManagerEnv } from './environment.ts';
 import { acceptAccessibilityInstalls } from './accessibility-acceptance.ts';
 import { packedSemanticReviewCases, renderedColorReviewRequest } from './semantic-review-fixtures.ts';
-/** Isolated consumers receive only packed files and the optional renderer peer. */
+/** Isolated consumers receive only packed files and the pinned renderer binding. */
 const scratch = mkdtempSync(join(tmpdir(), 'pm-brand-consumer-'));
 const [pack] = JSON.parse(execFileSync('npm', ['pack', '--ignore-scripts', '--json'], { encoding: 'utf8', env: packageManagerEnv() })) as { filename: string }[];
 const tarball = resolve(pack.filename);

@@ -14,7 +14,7 @@ test('Bun consumes typed tokens and portable banners', () => {
   expect(banner({ name: 'pm-web', tagline: 'In triplicate' })).toContain('width="1280"');
 });
 
-test('Bun renders a dark OG PNG with the optional native peer', () => {
+test('Bun renders a dark OG PNG with the pinned native binding', () => {
   const png = Buffer.from(renderPng(ogImage({ title: 'In triplicate', eyebrow: 'pm', product: 'pm-web', theme: 'dark' })));
   expect(png.readUInt32BE(16)).toBe(1200);
   expect(png.readUInt32BE(20)).toBe(630);
@@ -27,7 +27,7 @@ test('Bun diagnoses every missing font point and loads the public report SDK', a
 });
 
 test('Bun compares semantic asset changes and loads the public report SDK', async () => {
-  const request = { version: 1, before: '<svg><text>Ready</text></svg>', after: '<svg><text>Re…</text></svg>' };
+  const request = { version: 1, before: '<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>', after: '<svg xmlns="http://www.w3.org/2000/svg"><text>Re…</text></svg>' };
   expect(compareSemanticAssets(request).summary?.changes).toBe(1);
   expect((await renderSemanticAssetReport(request)).result.summary?.changes).toBe(1);
 });

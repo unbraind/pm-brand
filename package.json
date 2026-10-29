@@ -80,7 +80,6 @@
   "devDependencies": {
     "@babel/eslint-parser": "8.0.7",
     "@babel/plugin-syntax-typescript": "8.0.3",
-    "@resvg/resvg-js": "2.6.2",
     "@types/bun": "1.4.4",
     "@types/node": "26.6.5",
     "@unbrained/pm-cli": "2026.10.25",
@@ -144,13 +143,7 @@
     "ignore": []
   },
   "peerDependencies": {
-    "@resvg/resvg-js": "^2.6.2",
     "@unbrained/pm-cli": ">=2026.10.23"
-  },
-  "peerDependenciesMeta": {
-    "@resvg/resvg-js": {
-      "optional": true
-    }
   },
   "publishConfig": {
     "access": "public",
@@ -165,6 +158,7 @@
     "url": "https://github.com/unbraind/pm-brand/issues"
   },
   "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@rgrove/parse-xml": "5.0.0",
     "@toon-format/toon": "4.4.0"
   },

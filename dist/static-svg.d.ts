@@ -15,6 +15,8 @@ export interface StaticSvgNode {
 export interface StaticSvgRefusal {
     /** Malformed XML or exceeded limits, versus unsupported semantic interpretation. */
     readonly code: 'unsupported_svg' | 'unsupported_semantics';
+    /** Bounded native parser diagnostic when Resvg rejects the original document. */
+    readonly reason?: string;
 }
 /** Read XML 1.0 with a maintained parser, then project the bounded static SVG domain. */
 export declare function parseStaticSvg(source: string): StaticSvgNode[] | StaticSvgRefusal;

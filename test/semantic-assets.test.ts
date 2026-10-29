@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { Resvg } from '@resvg/resvg-js';
 import { parseXml } from '@rgrove/parse-xml';
 import { decode, encode } from '@toon-format/toon';
 import * as sdk from '@unbrained/pm-cli/sdk';
@@ -38,9 +39,9 @@ test('attribute reordering and XML serialization noise produce zero semantic cha
   const before = `<svg xmlns="http://www.w3.org/2000/svg"><rect id="status" fill="#fff" x="-0.0"/><text id="label">Ready &amp; steady</text><title>Status</title></svg>`;
   const after = `\ufeff<?xml version='1.0' encoding='UTF-8'?>\r\n<!-- serialization -->\r\n<svg xmlns='http://www.w3.org/2000/svg'>\r\n<rect x='0e2' fill='WHITE' id='status'></rect><text id='label'>Ready &#38; steady</text><title>Status</title></svg>\r\n`;
   assert.equal(success(compareSemanticAssets(request(before, after))).summary.changes, 0);
-  assert.equal(success(compareSemanticAssets(request('<svg><path d="M0,0L1.0,2Z"/></svg>', '<svg><path d="M 0 0 L 1 2 Z" /></svg>'))).summary.changes, 0);
-  assert.equal(success(compareSemanticAssets(request('<svg><g transform="translate(1,2) scale(.5 -0.5)"/></svg>', '<svg><g transform="translate(1.0 2.0)scale(0.5,-.5)" /></svg>'))).summary.changes, 0);
-  assert.equal(success(compareSemanticAssets(request('<svg><text>A\r\n B<!--x--> C</text></svg>', '<svg><text>A B C</text></svg>'))).summary.changes, 0);
+  assert.equal(success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><path d="M0,0L1.0,2Z"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M 0 0 L 1 2 Z" /></svg>'))).summary.changes, 0);
+  assert.equal(success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><g transform="translate(1,2) scale(.5 -0.5)"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><g transform="translate(1.0 2.0)scale(0.5,-.5)" /></svg>'))).summary.changes, 0);
+  assert.equal(success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><text>A\r\n B<!--x--> C</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>A B C</text></svg>'))).summary.changes, 0);
 });
 
 test('changed status color and truncated label yield exactly two localized findings', () => {
@@ -52,24 +53,24 @@ test('changed status color and truncated label yield exactly two localized findi
 
 test('Unicode whitespace remains visible while only XML text whitespace is normalized', () => {
   for (const text of ['\u00a0Ready\u00a0', '\u2003Ready\u2003', '\ufeffReady\ufeff']) {
-    const result = success(compareSemanticAssets(request('<svg><text>Ready</text></svg>', `<svg><text>${text}</text></svg>`)));
+    const result = success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>', `<svg xmlns="http://www.w3.org/2000/svg"><text>${text}</text></svg>`)));
     assert.equal(result.summary.changes, 1); assert.equal(JSON.parse(result.findings[0].after_json), text);
-    assert.equal(compareSemanticAssets(request(`<svg><g>${text}</g></svg>`)).ok, false);
-    assert.equal(compareSemanticAssets(request(`<svg/>${text}`)).ok, false);
+    assert.equal(compareSemanticAssets(request(`<svg xmlns="http://www.w3.org/2000/svg"><g>${text}</g></svg>`)).ok, false);
+    assert.equal(compareSemanticAssets(request(`<svg xmlns="http://www.w3.org/2000/svg"/>${text}`)).ok, false);
   }
 });
 
 test('token roles, geometry, accessibility, additions and paint order remain distinct', () => {
-  const before = '<svg role="img" aria-label="A"><g data-role="status" data-token="status-open-bg"><rect id="a" x="1"/><circle id="b" r="2"/></g></svg>';
-  const after = '<svg role="presentation" aria-label="B"><g data-role="progress" data-token="status-closed-bg"><circle id="b" r="3"/><rect id="a" x="2"/></g></svg>';
+  const before = '<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A"><g data-role="status" data-token="status-open-bg"><rect id="a" x="1"/><circle id="b" r="2"/></g></svg>';
+  const after = '<svg xmlns="http://www.w3.org/2000/svg" role="presentation" aria-label="B"><g data-role="progress" data-token="status-closed-bg"><circle id="b" r="3"/><rect id="a" x="2"/></g></svg>';
   const result = success(compareSemanticAssets(request(before, after)));
   assert.deepEqual(result.findings.map(row => row.kind), ['accessibility', 'accessibility', 'token_role', 'token_role', 'geometry', 'geometry', 'geometry']);
   assert.ok(result.findings.some(row => row.field === 'paint_order'));
-  for (const [a, b] of [['<svg/>', '<svg><rect/></svg>'], ['<svg><rect/></svg>', '<svg/>'], ['<svg><rect id="same"/></svg>', '<svg><circle id="same"/></svg>']]) {
+  for (const [a, b] of [['<svg xmlns="http://www.w3.org/2000/svg"/>', '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'], ['<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"/>'], ['<svg xmlns="http://www.w3.org/2000/svg"><rect id="same"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><circle id="same"/></svg>']]) {
     assert.equal(success(compareSemanticAssets(request(a, b))).summary.changes, 1);
   }
-  assert.equal(success(compareSemanticAssets(request('<svg><rect fill="none"/></svg>', '<svg><rect/></svg>'))).summary.changes, 1);
-  assert.equal(success(compareSemanticAssets(request('<svg><rect/></svg>', '<svg><rect fill="none"/></svg>'))).summary.changes, 1);
+  assert.equal(success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><rect fill="none"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'))).summary.changes, 1);
+  assert.equal(success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><rect fill="none"/></svg>'))).summary.changes, 1);
 });
 
 test('current generators annotate visible outlines without hiding independent path edits', () => {
@@ -77,8 +78,8 @@ test('current generators annotate visible outlines without hiding independent pa
     assert.equal(success(compareSemanticAssets(request(svg))).summary.changes, 0);
     assert.match(svg, /data-text=/u);
   }
-  const left = `<svg><rect id="status" fill="#fff"/><g data-text="Ready">${textPaths('Ready', 'body', 0, 20, 12)}</g></svg>`;
-  const right = `<svg><rect id="status" fill="#f00"/><g data-text="Re…">${textPaths('Re…', 'body', 0, 20, 12)}</g></svg>`;
+  const left = `<svg xmlns="http://www.w3.org/2000/svg"><rect id="status" fill="#fff"/><g data-text="Ready">${textPaths('Ready', 'body', 0, 20, 12)}</g></svg>`;
+  const right = `<svg xmlns="http://www.w3.org/2000/svg"><rect id="status" fill="#f00"/><g data-text="Re…">${textPaths('Re…', 'body', 0, 20, 12)}</g></svg>`;
   const changed = success(compareSemanticAssets(request(left, right)));
   assert.equal(changed.summary.changes, 2);
   assert.deepEqual(changed.findings.map(row => row.kind), ['token_role', 'text']);
@@ -90,8 +91,8 @@ test('current generators annotate visible outlines without hiding independent pa
   assert.equal(success(compareSemanticAssets(request(legacy))).summary.changes, 0);
   const released = readFileSync('icons/favicon.svg', 'utf8');
   assert.equal(success(compareSemanticAssets(request(released))).summary.changes, 0);
-  assert.equal(success(compareSemanticAssets(request('<svg><g data-text="A"/></svg>', '<svg><g/></svg>'))).summary.changes, 1);
-  assert.equal(success(compareSemanticAssets(request('<svg><g/></svg>', '<svg><g data-text="A"/></svg>'))).summary.changes, 1);
+  assert.equal(success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><g/></svg>'))).summary.changes, 1);
+  assert.equal(success(compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"><g/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"/></svg>'))).summary.changes, 1);
 });
 
 test('strict request schema rejects sparse arrays, accessors, extra fields and extreme domains', () => {
@@ -108,35 +109,37 @@ test('strict request schema rejects sparse arrays, accessors, extra fields and e
 });
 
 test('unsupported and malformed SVG refuses the affected side before loading the SDK', async () => {
-  const bad = ['', 'outside<svg/>', '<svg/>outside', '<svg/><svg/>', '<rect/>', '<svg><svg/></svg>', '<svg>', '</svg>', '<svg></g>',
-    '<svg><text>unsafe<rect/></text></svg>', '<svg><path><rect/></path></svg>', '<svg><tspan>unsupported</tspan></svg>', '<svg><g>outside text</g></svg>', '<svg><!-- unfinished</svg>', '<svg><!--a--b--></svg>', '<svg><!--x---></svg>',
-    '<?xml version="1.1"?><svg/>', '<?xml version="1.0"?><svg/><?xml version="1.0"?>', '<!DOCTYPE svg><svg/>', '<svg><script/></svg>', '<svg><style/></svg>', '<svg><use href="#x"/></svg>',
-    '<svg style="fill:red"/>', '<svg class="status"/>', '<svg onclick="x"/>', '<svg xmlns="wrong"/>', '<svg id="x" id="x"/>', '<svg id="bad id"/>', '<svg id="a/b"/>', '<svg><g id="x"/><g id="x"/></svg>',
-    '<svg data-role=""/>', `<svg data-token="${'x'.repeat(257)}"/>`, '<svg data-role="&#10;"/>', '<svg><text>&unknown;</text></svg>', '<svg><text>&unfinished</text></svg>', '<svg><text>&#x110000;</text></svg>', '<svg><text>&#0;</text></svg>', '<svg><text>]]></text></svg>', '<svg><text>\0</text></svg>',
-    '<svg role="button"/>', '<svg fill="url(http://example.invalid)"/>', '<svg fill="var(--pm-unknown)"/>', '<svg x="NaN"/>', '<svg x="Infinity"/>', '<svg x="1e309"/>', '<svg x="1000000001"/>', '<svg x="1 2"/>', '<svg x="(1)"/>', '<svg width="-1"/>', '<svg opacity="1.1"/>', '<svg viewBox="0 0 -1 1"/>', '<svg viewBox="0 0 1"/>', '<svg points="0 1 2"/>',
-    '<svg><path d="L0 0"/></svg>', '<svg><path d="M0"/></svg>', '<svg><path d="M0 0 Z1"/></svg>', '<svg><path d="M0 0 F1"/></svg>', '<svg><path d="M0 0 A-1 1 0 0 0 1 1"/></svg>', '<svg><path d="M0 0 A1 1 0 2 0 1 1"/></svg>',
-    '<svg transform="matrix(1 2)"/>', '<svg transform="translate()"/>', '<svg transform="translate(1) invalid"/>', '<svg transform="oops(1)"/>', '<svg points="0,,1"/>', '<svg x="%"/>', '<svg x="1px"/>',
-    '<svg><path d="M,0 0"/></svg>', '<svg><path d="M0 0,L1 1"/></svg>', '<svg transform="translate(1,)"/>', '<svg transform="translate(,1)"/>', '<svg transform="translate(1),,scale(2)"/>',
-    '<svg><g data-text="A"><rect/></g></svg>', '<svg><g data-text="A"><path fill="#fff"/></g></svg>', '<svg data-text="A"/>',
-    `<svg>${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg>${'<rect/>'.repeat(4096)}</svg>`, `<svg><path d="M${'1 '.repeat(32769)}"/></svg>`,
-    '<svg x=1/>', '<svg><g></svg>', '<svg><g/></svg>\ud800', '<svg><!--\uffff--></svg>',
+  const bad = ['', 'outside<svg xmlns="http://www.w3.org/2000/svg"/>', '<svg xmlns="http://www.w3.org/2000/svg"/>outside', '<svg xmlns="http://www.w3.org/2000/svg"/><svg xmlns="http://www.w3.org/2000/svg"/>', '<rect/>', '<svg xmlns="http://www.w3.org/2000/svg"><svg xmlns="http://www.w3.org/2000/svg"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg">', '</svg>', '<svg xmlns="http://www.w3.org/2000/svg"></g>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><text>unsafe<rect/></text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path><rect/></path></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><tspan>unsupported</tspan></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><g>outside text</g></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><!-- unfinished</svg>', '<svg xmlns="http://www.w3.org/2000/svg"><!--a--b--></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><!--x---></svg>',
+    '<?xml version="1.1"?><svg xmlns="http://www.w3.org/2000/svg"/>', '<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg"/><?xml version="1.0"?>', '<!DOCTYPE svg><svg xmlns="http://www.w3.org/2000/svg"/>', '<svg xmlns="http://www.w3.org/2000/svg"><script/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><style/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><use href="#x"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" style="fill:red"/>', '<svg xmlns="http://www.w3.org/2000/svg" class="status"/>', '<svg xmlns="http://www.w3.org/2000/svg" onclick="x"/>', '<svg xmlns="wrong"/>', '<svg xmlns="http://www.w3.org/2000/svg" id="x" id="x"/>', '<svg xmlns="http://www.w3.org/2000/svg" id="bad id"/>', '<svg xmlns="http://www.w3.org/2000/svg" id="a/b"/>', '<svg xmlns="http://www.w3.org/2000/svg"><g id="x"/><g id="x"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" data-role=""/>', `<svg xmlns="http://www.w3.org/2000/svg" data-token="${'x'.repeat(257)}"/>`, '<svg xmlns="http://www.w3.org/2000/svg" data-role="&#10;"/>', '<svg xmlns="http://www.w3.org/2000/svg"><text>&unknown;</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>&unfinished</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>&#x110000;</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>&#0;</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>]]></text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>\0</text></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" role="button"/>', '<svg xmlns="http://www.w3.org/2000/svg" fill="url(http://example.invalid)"/>', '<svg xmlns="http://www.w3.org/2000/svg" fill="var(--pm-unknown)"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="NaN"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="Infinity"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="1e309"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="1000000001"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="1 2"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="(1)"/>', '<svg xmlns="http://www.w3.org/2000/svg" width="-1"/>', '<svg xmlns="http://www.w3.org/2000/svg" opacity="1.1"/>', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 -1 1"/>', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1"/>', '<svg xmlns="http://www.w3.org/2000/svg" points="0 1 2"/>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><path d="L0 0"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 Z1"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 F1"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 A-1 1 0 0 0 1 1"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 A1 1 0 2 0 1 1"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" transform="matrix(1 2)"/>', '<svg xmlns="http://www.w3.org/2000/svg" transform="translate()"/>', '<svg xmlns="http://www.w3.org/2000/svg" transform="translate(1) invalid"/>', '<svg xmlns="http://www.w3.org/2000/svg" transform="oops(1)"/>', '<svg xmlns="http://www.w3.org/2000/svg" points="0,,1"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="%"/>', '<svg xmlns="http://www.w3.org/2000/svg" x="1px"/>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><path d="M,0 0"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0,L1 1"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg" transform="translate(1,)"/>', '<svg xmlns="http://www.w3.org/2000/svg" transform="translate(,1)"/>', '<svg xmlns="http://www.w3.org/2000/svg" transform="translate(1),,scale(2)"/>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"><rect/></g></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"><path fill="#fff"/></g></svg>', '<svg xmlns="http://www.w3.org/2000/svg" data-text="A"/>',
+    `<svg xmlns="http://www.w3.org/2000/svg">${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg xmlns="http://www.w3.org/2000/svg">${'<rect/>'.repeat(4096)}</svg>`, `<svg xmlns="http://www.w3.org/2000/svg"><path d="M${'1 '.repeat(32769)}"/></svg>`,
+    ...['width', 'height', 'rx', 'ry', 'stroke-width', 'font-size', 'data-lines'].map(field => `<svg xmlns="http://www.w3.org/2000/svg"><rect ${field}="-1"/></svg>`),
+    '<svg xmlns="http://www.w3.org/2000/svg"><circle r="-1"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" x=1/>', '<svg xmlns="http://www.w3.org/2000/svg"><g></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><g/></svg>\ud800', '<svg xmlns="http://www.w3.org/2000/svg"><!--\uffff--></svg>',
   ];
   for (const svg of bad) {
     const result = compareSemanticAssets(request(svg)); assert.equal(result.ok, false, `must refuse ${svg.slice(0, 100)}`);
     if (!result.ok) {
       let expected = 'unsupported_semantics';
-      try { parseXml(svg); } catch { expected = 'unsupported_svg'; }
-      if ([`<svg>${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg>${'<rect/>'.repeat(4096)}</svg>`, `<svg><path d="M${'1 '.repeat(32769)}"/></svg>`].includes(svg)) expected = 'unsupported_svg';
+      try { parseXml(svg); new Resvg(svg, { font: { loadSystemFonts: false } }); } catch { expected = 'unsupported_svg'; }
+      if ([`<svg xmlns="http://www.w3.org/2000/svg">${'<g>'.repeat(32)}${'</g>'.repeat(32)}</svg>`, `<svg xmlns="http://www.w3.org/2000/svg">${'<rect/>'.repeat(4096)}</svg>`, `<svg xmlns="http://www.w3.org/2000/svg"><path d="M${'1 '.repeat(32769)}"/></svg>`].includes(svg)) expected = 'unsupported_svg';
       assert.equal(result.code, expected); assert.equal(result.path, '$.before'); assert.ok(result.remedy.length > 0);
     }
   }
-  const after = compareSemanticAssets(request('<svg/>', '<script/>')); assert.ok(!after.ok); if (!after.ok) assert.equal(after.path, '$.after');
+  const after = compareSemanticAssets(request('<svg xmlns="http://www.w3.org/2000/svg"/>', '<script/>')); assert.ok(!after.ok); if (!after.ok) assert.equal(after.path, '$.after');
   assert.equal((await renderSemanticAssetReport(request('<script/>'), {} as AccessibilityOutputSdk)).result.ok, false);
   // Must-allow corpus includes previously released path-based generated assets and all supported attribute domains.
-  for (const svg of ['<svg/>', '<svg><text>&lt;&gt;&quot;&apos;&#x1F680;</text></svg>', '<svg aria-label="A\r\nB" data-role=" ready "/>',
-    '<svg fill="var(--pm-status-open-bg)" stroke="currentColor" color="transparent" aria-hidden="false" aria-labelledby="label" aria-describedby="desc"><text id="label">Ready</text><desc id="desc">Details</desc></svg>',
-    '<svg><path d=""/><path d="M0 0ZM1 1A1 2 0 0 1 3 4"/><g transform="matrix(1 0 0 1 0 0) rotate(1 2 3) skewX(2) skewY(3)"/><polygon points="0 0 1 1 2 2"/><ellipse rx="0" ry="1"/><line x1="0" y1="1" x2="2" y2="3"/><polyline points="0 0 1 1"/></svg>',
-    '<svg fill-rule="evenodd" stroke-linejoin="round" stroke-linecap="butt" text-anchor="end" font-size="12" opacity="0" fill-opacity="1" stroke-opacity=".5" stroke-width="0" data-lines="2" viewBox="0 0 1000000000 0"/>']) assert.equal(success(compareSemanticAssets(request(svg))).summary.changes, 0);
+  for (const svg of ['<svg xmlns="http://www.w3.org/2000/svg"/>', '<svg xmlns="http://www.w3.org/2000/svg"><text>&lt;&gt;&quot;&apos;&#x1F680;</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg" aria-label="A\r\nB" data-role=" ready "/>',
+    '<svg xmlns="http://www.w3.org/2000/svg" fill="var(--pm-status-open-bg)" stroke="currentColor" color="transparent" aria-hidden="false" aria-labelledby="label" aria-describedby="desc"><text id="label">Ready</text><desc id="desc">Details</desc></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg"><path d=""/><path d="M0 0ZM1 1A1 2 0 0 1 3 4"/><g transform="matrix(1 0 0 1 0 0) rotate(1 2 3) skewX(2) skewY(3)"/><polygon points="0 0 1 1 2 2"/><ellipse rx="0" ry="1"/><line x1="0" y1="1" x2="2" y2="3"/><polyline points="0 0 1 1"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" stroke-linejoin="round" stroke-linecap="butt" text-anchor="end" font-size="12" opacity="0" fill-opacity="1" stroke-opacity=".5" stroke-width="0" data-lines="2" width="10" height="10" viewBox="0 0 1000000000 0"/>']) assert.equal(success(compareSemanticAssets(request(svg))).summary.changes, 0);
 });
 
 test('JSON and TOON preserve complete reports, exact budget boundaries and typed refusals', async () => {
@@ -146,8 +149,8 @@ test('JSON and TOON preserve complete reports, exact budget boundaries and typed
     const report = await renderSemanticAssetReport(input);
     assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), report.result);
     assert.equal(report.result.ok, true);
-    const big = { ...input, before: `<svg>${Array.from({ length: 100 }, (_, i) => `<rect id="r${i}" fill="#fff"/>`).join('')}</svg>`,
-      after: `<svg>${Array.from({ length: 100 }, (_, i) => `<rect id="r${i}" fill="#f00"/>`).join('')}</svg>` };
+    const big = { ...input, before: `<svg xmlns="http://www.w3.org/2000/svg">${Array.from({ length: 100 }, (_, i) => `<rect id="r${i}" fill="#fff"/>`).join('')}</svg>`,
+      after: `<svg xmlns="http://www.w3.org/2000/svg">${Array.from({ length: 100 }, (_, i) => `<rect id="r${i}" fill="#f00"/>`).join('')}</svg>` };
     const small = await renderSemanticAssetReport(big, sdk);
     assert.ok(!small.result.ok); if (!small.result.ok) {
       assert.equal(small.result.code, 'budget_exceeded'); assert.equal(small.result.summary?.changes, 100);
@@ -176,7 +179,10 @@ test('emitted numbers remain finite and in range under extreme IEEE-754 fuzz', a
     assert.equal(compareSemanticAssets({ ...request(), budget: n }).ok, Number.isSafeInteger(n) && n >= 512 && n <= 1000000);
     for (const [field, valid] of [['x', Number.isFinite(n) && Math.abs(n) <= 1e9],
       ['width', Number.isFinite(n) && n >= 0 && n <= 1e9], ['opacity', Number.isFinite(n) && n >= 0 && n <= 1]] as const) {
-      assert.equal(compareSemanticAssets(request(`<svg ${field}="${n}"/>`)).ok, valid);
+      const source = `<svg xmlns="http://www.w3.org/2000/svg" ${field}="${n}"/>`;
+      let rendered = true;
+      try { new Resvg(source, { font: { loadSystemFonts: false } }); } catch { rendered = false; }
+      assert.equal(compareSemanticAssets(request(source)).ok, valid && rendered);
     }
   }
   for (const n of [NaN, Infinity, -Infinity, -1, .5, 1e20]) {
@@ -189,7 +195,7 @@ test('emitted numbers remain finite and in range under extreme IEEE-754 fuzz', a
   }
 });
 
-test('CLI compares assets in a non-git tracker with no git executable or renderer import', async t => {
+test('CLI compares assets in a non-git tracker with no git executable or raster generation', async t => {
   const root = mkdtempSync(join(tmpdir(), 'brand-semantic-cli-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const client = new sdk.PmClient({ pmRoot: join(root, '.agents/pm'), noExtensions: true });
@@ -207,7 +213,7 @@ test('CLI compares assets in a non-git tracker with no git executable or rendere
         (await renderSemanticAssetReport(input === null ? null : { ...input, format })).result);
     }
   }
-  const parsed = parseStaticSvg('<svg/>'); assert.ok(Array.isArray(parsed)); assert.equal(parsed.length, 1);
+  const parsed = parseStaticSvg('<svg xmlns="http://www.w3.org/2000/svg"/>'); assert.ok(Array.isArray(parsed)); assert.equal(parsed.length, 1);
 });
 
 test('500 seeded model sequences replay older assets and read all native state back through the real SDK', async t => {
