@@ -20,12 +20,12 @@ try {
     execFileSync('node', ['-e', 'require("fs").mkdirSync(process.argv[1],{recursive:true})', root]);
     writeFileSync(join(root, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
     const args = installer === 'npm' ? ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', tarball, '@resvg/resvg-js@2.6.2', '@toon-format/toon@4.4.0'] : ['add', '--ignore-scripts', tarball, '@resvg/resvg-js@2.6.2', '@toon-format/toon@4.4.0'];
-    execFileSync(installer, args, { cwd: root, stdio: 'pipe', env: packageManagerEnv() });
+    execFileSync(installer, args, { cwd: root, stdio: 'pipe', env: packageManagerEnv(), timeout: 180000 });
     writeFileSync(join(root, 'smoke.ts'), readFileSync('test/consumer-smoke.ts', 'utf8'));
     writeFileSync(join(root, 'semantic-review-cases.json'), JSON.stringify({ semantic: packedSemanticReviewCases(), color: renderedColorReviewRequest() }));
     for (const runtime of [process.execPath, 'bun']) execFileSync(runtime, ['smoke.ts'], { cwd: root, stdio: 'inherit' });
     await assertBrowserEntryPoints(root);
-    console.log(`Packed ${installer} consumer: passed; browser 8/8 bundles and 5/5 Node-only refusals; Node comparison subpath passed`);
+    console.log(`Packed ${installer} consumer: passed; main API and browser graph compatible; 5/5 pure bundles and 3/3 additive Node-only refusals; Node comparison subpath passed`);
   }
   if (!browserOnly) acceptAccessibilityInstalls(tarball, scratch);
 } finally {

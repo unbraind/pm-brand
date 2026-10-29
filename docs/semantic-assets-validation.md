@@ -203,28 +203,45 @@ under the repository's script-free Git consumer contract. No raster or binary
 artifact is added. Full release-gate results belong to the exact PR-head CI run.
 
 
-## Browser and Node package boundaries
+## Main API and browser compatibility
 
-The package root re-exports only browser-safe code. Comparison and its report now
-live at the typed Node-only `pm-brand/svg-compare` export; `semantic-assets` remains
-a Node-only compatibility alias. Pure font preflight stays on the root and
-`font-coverage`; its SDK-backed report moves to `font-coverage-report`. The existing
-`og` and `accessibility-report` entries also use explicit `node` conditions. CLI,
-SDK examples, npm/Bun consumers and Git consumers use these public Node entries.
-The accepted SVG parser and comparison behavior is unchanged.
+Main's existing exports and export-map conditions are preserved, including
+`renderFontCoverageReport` on both `pm-brand` and `pm-brand/font-coverage`.
+`font-coverage-report` is only an additive alias to that exact function. The new
+comparison API stays at the Node-only `svg-compare` entry and `semantic-assets`
+alias. Existing `og` and `accessibility-report` export conditions remain as main
+published them. CLI, old SDK examples and old imports retain their behavior.
 
-`node --test --test-concurrency=2 test/browser.test.ts` passed 3/3 tests. It bundles
-root-token imports, the complete root, banner, contrast, accessibility and font
-preflight plus both CSS entries with esbuild `platform: "browser"`, no externals,
-aliases or shims. JavaScript bundles execute without Node globals; import metadata
-must contain no Node built-ins, pm SDK or native renderer. Five Node-only subpaths
-must refuse browser resolution. The same browser checks run against the captured
-tarball after npm and Bun installs, with the comparison subpath exercised under
-both Node and Bun. Git consumers run the same browser corpus.
+`test/fixtures/public-api-main.json` is generated with
+`node scripts/main-api-baseline.ts` from committed main
+`26d209031410c40dee1ce2c4609db7fa1fedeacd`. Source tests regenerate it from main
+rather than trusting a branch-authored allowlist. It covers 14 export-map entries,
+69 exported declaration names, 73 declaration records and 55 assets. TypeScript's
+pinned compiler API resolves re-exports and tokenizes emitted `.d.ts` declarations;
+existing declaration signatures and runtime value kinds must remain unchanged.
+New exports may be added. Main's declaration dependencies are also checked, so a
+changed private type cannot silently alter an existing public signature.
 
-The behavioral proof reintroduces only a root comparison export, a root SDK-backed
-font-report export, or a renderer export on a pure subpath in disposable copies.
-All 3/3 reverts fail browser bundling; restoring the source passes all eight browser
-bundles and five Node-only refusals. Original SVG, wire, no-git and native-state
-regressions remain in the full npm/Bun gates. No prior data validation is repeated
-for this packaging-only change.
+Main's root already reaches Node dependencies through SDK-backed font reporting.
+The browser test inventories those existing limitations instead of requiring an
+absolute browser-safe root. It bundles recorded main JavaScript and the current
+root against the same consumer dependency graph, then refuses any additional Node
+edge, Node-only dependency or Node-reaching module. Existing peer SDK versions
+cannot create false regressions attributed to this PR. Recorded main source is
+verified by regeneration; large immutable leaf data is checked by its digest.
+
+`node --test --test-concurrency=2 test/browser.test.ts` passed 4/4 focused tests.
+The revert proof catches root-report removal, font-subpath report removal,
+changed emitted signatures and a new root comparison re-export (4/4), then proves
+the restored API and browser graph pass. Disposable copies and finally cleanup
+preserve the checkout. Truly pure banner, contrast, accessibility and CSS entries
+still pass five real browser bundles without Node shims. Three new Node-only
+entries refuse browser resolution. The same API and browser checks validate
+packed npm/Bun and non-git Git consumers. Existing report imports are exercised
+under Node and Bun, including both original entry points and the additive alias.
+
+The full local coverage suite runs through `node scripts/local-ci-tests.ts` with a
+fresh home, no global/system Git configuration, no credential environment, CI mode
+and at most two test workers. Existing SVG, wire, no-git and native-state tests
+remain in that suite and in both full CI release gates. The previously measured
+public tracker evidence is retained for this packaging correction.

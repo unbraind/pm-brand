@@ -1,7 +1,8 @@
 /** Public-export smoke scenario copied into isolated packed consumers. */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { tokens, cssVar, preflightFontCoverage } from 'pm-brand';
+import { tokens, cssVar, preflightFontCoverage, renderFontCoverageReport as rootFontReport } from 'pm-brand';
+import { renderFontCoverageReport as originalFontReport } from 'pm-brand/font-coverage';
 import { banner } from 'pm-brand/banner';
 import { ogImage, renderPng } from 'pm-brand/og';
 import { contrast } from 'pm-brand/contrast';
@@ -19,7 +20,9 @@ assert.deepEqual(diagnoseAccessibility({ version: 1, pairs: [] }), { ok: true, s
 assert.equal((await renderAccessibilityReport({ version: 1, pairs: [], format: 'json', budget: 512 })).result.ok, true);
 const fontRequest = { version: 1, labels: [{ locator: '#title', role: 'display', text: 'Ship 🚀' }] };
 assert.equal(preflightFontCoverage(fontRequest).summary?.failed, 1);
-assert.equal((await renderFontCoverageReport(fontRequest)).result.summary?.unsupported, 1);
+assert.equal(rootFontReport, originalFontReport);
+assert.equal(renderFontCoverageReport, originalFontReport);
+assert.equal((await rootFontReport(fontRequest)).result.summary?.unsupported, 1);
 const semanticRequest = { version: 1, before: '<svg xmlns="http://www.w3.org/2000/svg"><text>Ready</text></svg>', after: '<svg xmlns="http://www.w3.org/2000/svg"><text>Re…</text></svg>' };
 assert.equal(compareSemanticAssets(semanticRequest).summary?.changes, 1);
 assert.equal((await renderSemanticAssetReport(semanticRequest)).result.summary?.changes, 1);

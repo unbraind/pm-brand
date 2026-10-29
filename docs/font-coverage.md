@@ -2,13 +2,11 @@
 
 `preflightFontCoverage` checks proposed UI or banner labels against the exact
 shipped outline repertoire used by `textPaths`. `renderFontCoverageReport` adds
-budgeted TOON or JSON using the pm SDK's public token accounting. Pure preflight is available from the browser-safe `pm-brand` and
-`pm-brand/font-coverage` entries. The SDK-backed report is Node-only and available
-from `pm-brand/font-coverage-report`.
+budgeted TOON or JSON using the pm SDK's public token accounting. Both functions
+are available from `pm-brand` and `pm-brand/font-coverage`.
 
 ```ts
-import { preflightFontCoverage } from 'pm-brand';
-import { renderFontCoverageReport } from 'pm-brand/font-coverage-report';
+import { preflightFontCoverage, renderFontCoverageReport } from 'pm-brand';
 
 const request = {
   version: 1,

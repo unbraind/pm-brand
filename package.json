@@ -28,7 +28,8 @@
     },
     "./og": {
       "types": "./dist/og.d.ts",
-      "node": "./dist/og.js"
+      "import": "./dist/og.js",
+      "default": "./dist/og.js"
     },
     "./contrast": {
       "types": "./dist/contrast.d.ts",
@@ -47,7 +48,8 @@
     },
     "./accessibility-report": {
       "types": "./dist/accessibility-report.d.ts",
-      "node": "./dist/accessibility-report.js"
+      "import": "./dist/accessibility-report.js",
+      "default": "./dist/accessibility-report.js"
     },
     "./semantic-assets": {
       "types": "./dist/semantic-assets.d.ts",

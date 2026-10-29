@@ -122,9 +122,9 @@ accepts 100 labels and returns only failures by default.
 pm-brand font-coverage examples/font-coverage.json --format toon --budget 1600
 ```
 
-Use browser-safe `preflightFontCoverage` from `pm-brand` or
-`pm-brand/font-coverage`; Node callers import `renderFontCoverageReport` from
-`pm-brand/font-coverage-report`. See [the schema and SDK example](docs/font-coverage.md)
+Use `preflightFontCoverage` and `renderFontCoverageReport` from `pm-brand` or
+`pm-brand/font-coverage`, as on main. `pm-brand/font-coverage-report` is an
+additional alias for the same report function. See [the schema and SDK example](docs/font-coverage.md)
 for code point accounting, fallback routes and typed refusal remedies. This
 checks shipped outline coverage; browser fallback and shaping require separate
 validation.
@@ -210,8 +210,9 @@ in linear time and adds an ellipsis only at a complete grapheme boundary.
 
 `pm-brand/banner` works without native dependencies. `pm-brand/og` and its
 `renderPng` use the pinned runtime dependency `@resvg/resvg-js`.
-The root token export never imports the native renderer and is suitable for web
-bundlers. Rendering helpers are intended for build tools and server environments.
+The root token export adds no native renderer dependency. SDK-backed root reports
+retain main’s existing browser limitations. Rendering helpers are intended for
+build tools and server environments.
 
 ## Committed package banner set
 
@@ -258,13 +259,13 @@ the same public catalog, so the intended appearance remains identical.
 
 | Export | Contents |
 |---|---|
-| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName`, `diagnoseAccessibility`, `preflightFontCoverage` and diagnostic types |
+| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName`, `diagnoseAccessibility`, `preflightFontCoverage`, `renderFontCoverageReport` and diagnostic types |
 | `pm-brand/banner` | `banner`, `BannerOptions` |
 | `pm-brand/og` | `ogImage`, `renderPng`, `OgOptions` |
 | `pm-brand/contrast` | WCAG colour parsing, luminance, contrast and complete audit |
 | `pm-brand/accessibility` | Strict consumer request schema, typed diagnostics and complete fault locations |
 | `pm-brand/accessibility-report` | Budgeted TOON/JSON reports, lazy public SDK acquisition and host injection |
-| `pm-brand/font-coverage` | Browser-safe font coverage schema and exact glyph diagnostics |
+| `pm-brand/font-coverage` | Font coverage schema, exact glyph diagnostics and budgeted reports |
 | `pm-brand/font-coverage-report` | Node-only budgeted font reports |
 | `pm-brand/svg-compare` | Node-only typed SVG comparison and budgeted JSON/TOON reports |
 | `pm-brand/tokens.css` | All custom properties and theme/motion selectors |
@@ -329,13 +330,14 @@ refused; qualified SVG elements remain supported. Namespace-free or empty-namesp
 roots return `unsupported_svg` with Resvg’s reason. Native rejection diagnostics
 are bounded to 512 characters and included in both JSON and TOON.
 
-The package root, `banner`, `contrast`, `accessibility` and `font-coverage` are
-browser-safe. Node-only exports (`svg-compare`, the `semantic-assets` alias,
-`font-coverage-report`, `accessibility-report` and `og`) use the `node` export
-condition and are unavailable to browser bundles. Pure token imports never pull in
-the renderer or pm SDK. Source and packed npm/Bun acceptance bundle every browser
-entry with esbuild `platform: "browser"`, no externals or shims, and execute the
-result without Node globals.
+All exports and export conditions from main remain supported, including
+`renderFontCoverageReport` on the root and `pm-brand/font-coverage`. Main's root
+already reaches the pm SDK through that report; this PR adds no Node import edge,
+Node dependency or Node-reaching module to its browser graph. A main-derived
+compatibility gate compares emitted declarations, runtime names and browser
+inventories for source, packed npm/Bun and Git consumers. The new SVG comparison
+API is available only at the Node-only `pm-brand/svg-compare` entry (with the
+Node-only `semantic-assets` alias). Existing callers need no import migration.
 
 ### Without git
 
