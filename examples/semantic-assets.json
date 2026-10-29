@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "before": "<svg xmlns=\"http://www.w3.org/2000/svg\"><rect id=\"status\" fill=\"#ffffff\"/><text id=\"label\">Ready</text></svg>",
+  "after": "<svg xmlns=\"http://www.w3.org/2000/svg\"><rect id=\"status\" fill=\"#ff0000\"/><text id=\"label\">Re…</text></svg>",
+  "budget": 512
+}

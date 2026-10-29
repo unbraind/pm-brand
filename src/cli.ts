@@ -4,6 +4,7 @@ import { open } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { renderAccessibilityReport } from './accessibility-report.js';
 import { renderFontCoverageReport } from './font-coverage.js';
+import { renderSemanticAssetReport } from './semantic-assets.js';
 import type { AccessibilityRefusal } from './accessibility.js';
 
 /** Emit a small, sanitized JSON refusal for command/file boundary errors. */
@@ -16,10 +17,10 @@ function fail(code: AccessibilityRefusal['code'], remedy: string): void {
 async function run(): Promise<void> {
   const [command, file, ...rest] = process.argv.slice(2);
   if (command === '--help' && file === undefined) {
-    console.log('Usage: pm-brand diagnose <components.json> | font-coverage <labels.json> [--format json|toon] [--budget 512..1000000]');
+    console.log('Usage: pm-brand diagnose <components.json> | font-coverage <labels.json> | semantic-diff <assets.json> [--format json|toon] [--budget 512..1000000]');
     return;
   }
-  if ((command !== 'diagnose' && command !== 'font-coverage') || !file) { fail('usage', 'Run pm-brand diagnose <components.json> or pm-brand font-coverage <labels.json> [--format json|toon] [--budget 512..1000000].'); return; }
+  if ((command !== 'diagnose' && command !== 'font-coverage' && command !== 'semantic-diff') || !file) { fail('usage', 'Run pm-brand diagnose <components.json>, font-coverage <labels.json> or semantic-diff <assets.json> [--format json|toon] [--budget 512..1000000].'); return; }
   const overrides: Record<string, unknown> = {};
   for (let index = 0; index < rest.length; index += 2) {
     const flag = rest[index];
@@ -48,6 +49,12 @@ async function run(): Promise<void> {
   } catch { fail('input_unreadable', 'Supply a readable UTF-8 file containing valid request JSON for the chosen command.'); return; }
   // Non-object JSON still reaches the one schema instead of being spread into an accidental object.
   if (input !== null && typeof input === 'object' && !Array.isArray(input)) input = { ...input, ...overrides };
+  if (command === 'semantic-diff') {
+    const report = await renderSemanticAssetReport(input);
+    process.stdout.write(report.text);
+    process.exitCode = report.result.ok ? (report.result.summary.changes === 0 ? 0 : 1) : 2;
+    return;
+  }
   const report = command === 'font-coverage' ? await renderFontCoverageReport(input) : await renderAccessibilityReport(input);
   process.stdout.write(report.text);
   process.exitCode = report.result.ok ? (report.result.summary.failed === 0 ? 0 : 1) : 2;

@@ -8,6 +8,7 @@ import { contrast } from 'pm-brand/contrast';
 import { diagnoseAccessibility } from 'pm-brand/accessibility';
 import { renderAccessibilityReport } from 'pm-brand/accessibility-report';
 import { renderFontCoverageReport } from 'pm-brand/font-coverage';
+import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand/semantic-assets';
 assert.equal(tokens.light.paper, '#F3F5F8');
 assert.equal(cssVar('--pm-paper'), 'var(--pm-paper)');
 assert.equal(contrast('#000000', '#FFFFFF'), 21);
@@ -16,6 +17,9 @@ assert.equal((await renderAccessibilityReport({ version: 1, pairs: [], format: '
 const fontRequest = { version: 1, labels: [{ locator: '#title', role: 'display', text: 'Ship 🚀' }] };
 assert.equal(preflightFontCoverage(fontRequest).summary?.failed, 1);
 assert.equal((await renderFontCoverageReport(fontRequest)).result.summary?.unsupported, 1);
+const semanticRequest = { version: 1, before: '<svg><text>Ready</text></svg>', after: '<svg><text>Re…</text></svg>' };
+assert.equal(compareSemanticAssets(semanticRequest).summary?.changes, 1);
+assert.equal((await renderSemanticAssetReport(semanticRequest)).result.summary?.changes, 1);
 assert.match(banner({ name: 'pm-web', tagline: 'One identity' }), /width="1280"/);
 const png = Buffer.from(renderPng(ogImage({ title: 'One identity', eyebrow: 'Triplicate', product: 'pm-web', theme: 'dark' })));
 assert.equal(png.readUInt32BE(16), 1200);

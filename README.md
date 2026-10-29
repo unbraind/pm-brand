@@ -296,6 +296,23 @@ mark inherits `color` directly and works on either theme.
 | SEARCH | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-search-dark.svg"><img src="logo/lockup-search-light.svg" alt="lockup-search" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-search-dark.svg"><img src="logo/lockup-mark-search-light.svg" alt="lockup-mark-search" height="56"></picture> |
 | SWARM | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-swarm-dark.svg"><img src="logo/lockup-swarm-light.svg" alt="lockup-swarm" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-swarm-dark.svg"><img src="logo/lockup-mark-swarm-light.svg" alt="lockup-mark-swarm" height="56"></picture> |
 
+## Semantic asset change reports
+
+Compare generated SVGs with `compareSemanticAssets` or
+`pm-brand semantic-diff examples/semantic-assets.json --format toon`. Findings
+locate changed visible text, token roles, geometry and accessible labels while
+ignoring attribute order and XML spelling noise. The example produces two changes:
+one status color and one truncated label. JSON and TOON use the pm SDK's output
+budget accounting and retain complete counts on refusal. No raster generation,
+network or tracker writes are needed. See [the SDK example and supported static SVG
+grammar](docs/semantic-assets.md).
+
+### Without git
+
+Semantic comparisons, font coverage, accessibility diagnostics, tokens and SVG
+generators work in plain directories and non-git trackers. None needs git.
+Repository development/release provenance checks require a git checkout.
+
 ## Development
 
 ```sh

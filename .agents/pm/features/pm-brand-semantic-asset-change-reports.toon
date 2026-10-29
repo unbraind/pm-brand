@@ -1,0 +1,32 @@
+id: pm-brand-semantic-asset-change-reports
+title: Explain semantic changes between generated SVG assets
+description: "Read-only, bounded SVG review evidence for visible text, token roles, geometry and accessible labels."
+type: Feature
+status: in_progress
+priority: 1
+tags[3]: assets,cli,sdk
+created_at: "2026-10-29T00:47:34.875Z"
+updated_at: "2026-10-29T01:01:59.107Z"
+assignee: codex-agent
+claim_principal: codex-agent
+author: codex-agent
+acceptance_criteria: Attribute reordering yields zero semantic changes; a changed status color and truncated label yield two localized findings; no raster generation or network is needed; typed SDK and CLI expose bounded JSON and TOON with typed refusals and remedies; validate public tracker assets on a read-only non-git copy.
+comments[2]{created_at,author,text}:
+  "2026-10-29T00:47:58.698Z",codex-agent,"Overlap rechecked against installed pm SDK declarations, pm-brand generators and diagnostics, pm-vcs vcs diff, pm-gantt-chart rendering, and pm-graph snapshot impact. No SVG semantic comparator exists. pm-vcs owns versioned bytes and generic diffs; this feature supplies bounded static asset review evidence. Reuse the existing lazy public SDK loader, attachOutputTokenAccounting and TOON encoder. Pure read-only input/output: no tracker writes, journal, imports, sync, status interpretation or shared mutable state in the product path; transaction isolation is not claimed. Unsupported SVG constructs will refuse with a remedy rather than silently omit rendering effects."
+  "2026-10-29T01:01:59.105Z",codex-agent,"Implemented typed compareSemanticAssets/renderSemanticAssetReport plus semantic-diff CLI, strict bounded static SVG grammar, grouped visible outline metadata and geometry digests, localized text/token/geometry/accessibility evidence, JSON/TOON output via SDK accounting, typed refusals and remedies. Focused 15/15 tests, typecheck, lint and docstrings passed. New modules measured 100/100/100/100 coverage. The 500-sequence model completed 6000 transitions, 997 older-input replays and 500 complete native SDK read-backs with relationships, fields and ambient focus preserved. Behavioral reverts caught 4/4 independent faults; restored implementation passed the unchanged regressions. Public read-only non-git tracker: 16 items, 48 generated source assets, 48 comparisons (16 identity/0 changes, 16 serialization/0 changes, 16 edits/32 findings), 96 reports, max 94 SDK estimated tokens/375 bytes, zero budget refusals; SDK state and byte hashes unchanged. See docs/semantic-assets-validation.md. Runtime is read-only and creates no import/export/sync journal, idempotency key, claim, lease or shared product state. No transaction-isolation or atomic snapshot claim; each supplied SVG string is caller-owned input. Full npm/Bun release gates are delegated to exact-head CI per the host resource constraint."
+files[8]{path,scope}:
+  scripts/semantic-assets-real-data.ts,project
+  scripts/semantic-assets-revert-proof.ts,project
+  src/banner.ts,project
+  src/cli.ts,project
+  src/og.ts,project
+  src/semantic-assets.ts,project
+  src/static-svg.ts,project
+  test/semantic-assets.test.ts,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test --test-concurrency=2 test/semantic-assets.test.ts test/package-banners.test.ts,project,codex-agent,"2026-10-29T01:00:43.207Z",local_mutation,feat/semantic-asset-change-reports
+docs[3]{path,scope}:
+  docs/semantic-assets-validation.md,project
+  docs/semantic-assets.md,project
+  README.md,project
+body: ""

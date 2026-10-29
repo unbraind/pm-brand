@@ -3,6 +3,7 @@ import { test, expect } from 'bun:test';
 import { tokens, cssVar, preflightFontCoverage, renderFontCoverageReport } from '../dist/index.js';
 import { banner } from '../dist/banner.js';
 import { ogImage, renderPng } from '../dist/og.js';
+import { compareSemanticAssets, renderSemanticAssetReport } from '../dist/semantic-assets.js';
 
 test('Bun consumes typed tokens and portable banners', () => {
   expect(tokens.dark.paper).toBe('#0F1528');
@@ -20,4 +21,10 @@ test('Bun diagnoses every missing font point and loads the public report SDK', a
   const request = { version: 1, labels: [{ locator: '#title', role: 'display', text: 'e\u0301 🚀' }] };
   expect(preflightFontCoverage(request).summary?.unsupported).toBe(2);
   expect((await renderFontCoverageReport(request)).result.summary?.failed).toBe(1);
+});
+
+test('Bun compares semantic asset changes and loads the public report SDK', async () => {
+  const request = { version: 1, before: '<svg><text>Ready</text></svg>', after: '<svg><text>Re…</text></svg>' };
+  expect(compareSemanticAssets(request).summary?.changes).toBe(1);
+  expect((await renderSemanticAssetReport(request)).result.summary?.changes).toBe(1);
 });
