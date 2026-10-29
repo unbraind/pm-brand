@@ -1,9 +1,6 @@
 /** Read-only coverage of the shipped outline renderer, with complete failure accounting. */
-import { encode } from '@toon-format/toon';
 import { escapeXml, MAX_TEXT_CODE_POINTS, supportsGlyph } from './text.js';
 import type { FontRole } from './text.js';
-import { loadAccessibilityOutputSdk } from './accessibility-report.js';
-import type { AccessibilityOutputSdk } from './accessibility-report.js';
 
 /** Proposed text is preserved verbatim: normalization and replacements are caller decisions. */
 export interface FontCoverageLabel {
@@ -113,7 +110,7 @@ export interface FontCoverageReport {
 }
 
 /** Construct a small refusal without echoing user input. */
-function refusal(code: FontCoverageRefusal['code'], path: string, remedy: string): FontCoverageRefusal {
+export function createFontCoverageRefusal(code: FontCoverageRefusal['code'], path: string, remedy: string): FontCoverageRefusal {
   return { ok: false, code, path, remedy };
 }
 
@@ -168,7 +165,7 @@ export function parseFontCoverageRequest(input: unknown): FontCoverageRequest | 
       ...(data.format === undefined ? {} : { format: data.format as 'json' | 'toon' }),
       ...(data.budget === undefined ? {} : { budget: data.budget as number }) };
   } catch (error) {
-    return refusal('invalid_input', error instanceof BoundaryError ? error.path : '$',
+    return createFontCoverageRefusal('invalid_input', error instanceof BoundaryError ? error.path : '$',
       'Use FontCoverageRequest version 1: at most 100 dense labels, each with locator, text (up to 512 code points) and role; remove unknown fields/accessors. Use json|toon, a boolean include_all and an integer budget from 512 to 1000000.');
   }
 }
@@ -185,13 +182,13 @@ export function validateFontCoverageNumbers(value: FontCoverageDiagnosis): FontC
     || value.labels.some(row => !count(row.index, s.labels - 1) || !count(row.code_points, 512)
       || !count(row.supported, row.code_points) || row.supported + row.issues.length !== row.code_points
       || row.issues.some(issue => !count(issue.index, row.code_points - 1) || !count(issue.utf16_offset, row.code_points * 2 - 1)))) {
-    return refusal('numeric_result', '$', 'Report a producer defect: all counts and positions must be finite integers in their documented domains.');
+    return createFontCoverageRefusal('numeric_result', '$', 'Report a producer defect: all counts and positions must be finite integers in their documented domains.');
   }
   return value;
 }
 
 /** Evaluate validated data using the renderer's own XML validator and exact glyph lookup. */
-function evaluate(request: FontCoverageRequest): FontCoverageResult {
+export function evaluateFontCoverageRequest(request: FontCoverageRequest): FontCoverageResult {
   const rows: FontCoverageRow[] = [];
   let codePoints = 0, supported = 0, unsupported = 0, invalidXml = 0, failed = 0;
   for (const [index, label] of request.labels.entries()) {
@@ -219,36 +216,5 @@ function evaluate(request: FontCoverageRequest): FontCoverageResult {
 /** Diagnose a batch without loading the host, touching a tracker or replacing input text. */
 export function preflightFontCoverage(input: unknown): FontCoverageResult {
   const parsed = parseFontCoverageRequest(input);
-  return 'ok' in parsed ? parsed : evaluate(parsed);
-}
-
-/** Encode using the same serializer for core accounting and emitted bytes. */
-function serialize(result: unknown, format: FontCoverageReport['format']): string {
-  return `${format === 'json' ? JSON.stringify(result) : encode(result)}\n`;
-}
-
-/** Render complete failures or a typed budget refusal; reuse the supported lazy host loader. */
-export async function renderFontCoverageReport(input: unknown, sdk?: AccessibilityOutputSdk): Promise<FontCoverageReport> {
-  const parsed = parseFontCoverageRequest(input);
-  if ('ok' in parsed) return { result: parsed, text: serialize(parsed, 'json'), format: 'json' };
-  const format = parsed.format ?? 'toon';
-  const diagnosis = evaluate(parsed);
-  let host: AccessibilityOutputSdk;
-  try {
-    host = sdk ?? await loadAccessibilityOutputSdk();
-    if (typeof host.attachOutputTokenAccounting !== 'function') throw new TypeError('Unsupported SDK');
-  } catch {
-    const result = { ...refusal('sdk_unavailable', '$', 'Install @unbrained/pm-cli >=2026.10.23 beside pm-brand, or inject its public output SDK.'), summary: diagnosis.summary };
-    return { result, text: serialize(result, format), format };
-  }
-  const text = serialize(diagnosis, format);
-  const required = host.attachOutputTokenAccounting(diagnosis, value => serialize(value, format)).token_accounting.total_estimated_tokens;
-  if (!Number.isSafeInteger(required) || required < 0 || required > 1_000_000_000) {
-    const result = refusal('numeric_result', '$.required_budget', 'Use a host SDK that returns a finite non-negative integer token estimate.');
-    return { result, text: serialize(result, format), format };
-  }
-  if (required <= (parsed.budget ?? 1600)) return { result: diagnosis, text, format };
-  const result = { ...refusal('budget_exceeded', '$.budget', 'Increase budget to required_budget or split labels into smaller batches; no failures were truncated.'),
-    summary: diagnosis.summary, required_budget: required };
-  return { result, text: serialize(result, format), format };
+  return 'ok' in parsed ? parsed : evaluateFontCoverageRequest(parsed);
 }

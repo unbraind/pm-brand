@@ -28,8 +28,7 @@
     },
     "./og": {
       "types": "./dist/og.d.ts",
-      "import": "./dist/og.js",
-      "default": "./dist/og.js"
+      "node": "./dist/og.js"
     },
     "./contrast": {
       "types": "./dist/contrast.d.ts",
@@ -48,13 +47,19 @@
     },
     "./accessibility-report": {
       "types": "./dist/accessibility-report.d.ts",
-      "import": "./dist/accessibility-report.js",
-      "default": "./dist/accessibility-report.js"
+      "node": "./dist/accessibility-report.js"
     },
     "./semantic-assets": {
       "types": "./dist/semantic-assets.d.ts",
-      "import": "./dist/semantic-assets.js",
-      "default": "./dist/semantic-assets.js"
+      "node": "./dist/semantic-assets.js"
+    },
+    "./svg-compare": {
+      "types": "./dist/svg-compare.d.ts",
+      "node": "./dist/svg-compare.js"
+    },
+    "./font-coverage-report": {
+      "types": "./dist/font-coverage-report.d.ts",
+      "node": "./dist/font-coverage-report.js"
     }
   },
   "files": [
@@ -84,6 +89,7 @@
     "@types/node": "26.6.5",
     "@unbrained/pm-cli": "2026.10.25",
     "c8": "12.0.0",
+    "esbuild": "0.28.2",
     "eslint": "10.13.0",
     "pm-changelog": "2026.10.25",
     "pm-ops": "2026.10.25",

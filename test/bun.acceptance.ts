@@ -1,9 +1,10 @@
 /** Direct Bun runtime acceptance complements the Node coverage suite. */
 import { test, expect } from 'bun:test';
-import { tokens, cssVar, preflightFontCoverage, renderFontCoverageReport } from '../dist/index.js';
+import { tokens, cssVar, preflightFontCoverage } from '../dist/index.js';
+import { renderFontCoverageReport } from 'pm-brand/font-coverage-report';
 import { banner } from '../dist/banner.js';
 import { ogImage, renderPng } from '../dist/og.js';
-import { compareSemanticAssets, renderSemanticAssetReport } from '../dist/semantic-assets.js';
+import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand/svg-compare';
 import { packedSemanticReviewCases, renderedColorReviewRequest } from '../scripts/semantic-review-fixtures.ts';
 import { diagnoseAccessibility } from '../dist/accessibility.js';
 import { decode } from '@toon-format/toon';

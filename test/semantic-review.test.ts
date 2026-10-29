@@ -10,7 +10,7 @@ import { parseXml } from '@rgrove/parse-xml';
 import { Resvg } from '@resvg/resvg-js';
 import { decode } from '@toon-format/toon';
 import * as sdk from '@unbrained/pm-cli/sdk';
-import { compareSemanticAssets, renderSemanticAssetReport } from '../dist/semantic-assets.js';
+import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand/svg-compare';
 import type { SemanticAssetDiagnosis, SemanticAssetResult } from '../dist/semantic-assets.js';
 import { semanticReviewCases, packedSemanticReviewCases, renderedColorReviewRequest } from '../scripts/semantic-review-fixtures.ts';
 

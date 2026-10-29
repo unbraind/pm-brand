@@ -9,7 +9,7 @@ import { Resvg } from '@resvg/resvg-js';
 import { parseXml } from '@rgrove/parse-xml';
 import { decode, encode } from '@toon-format/toon';
 import * as sdk from '@unbrained/pm-cli/sdk';
-import { compareSemanticAssets, renderSemanticAssetReport } from '../dist/index.js';
+import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand/svg-compare';
 import { validateSemanticAssetNumbers } from '../dist/semantic-assets.js';
 import type { SemanticAssetDiagnosis, SemanticAssetResult } from '../dist/semantic-assets.js';
 import type { AccessibilityOutputSdk } from '../dist/accessibility-report.js';

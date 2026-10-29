@@ -122,8 +122,9 @@ accepts 100 labels and returns only failures by default.
 pm-brand font-coverage examples/font-coverage.json --format toon --budget 1600
 ```
 
-Use `preflightFontCoverage` or `renderFontCoverageReport` from `pm-brand` or
-`pm-brand/font-coverage`. See [the schema and SDK example](docs/font-coverage.md)
+Use browser-safe `preflightFontCoverage` from `pm-brand` or
+`pm-brand/font-coverage`; Node callers import `renderFontCoverageReport` from
+`pm-brand/font-coverage-report`. See [the schema and SDK example](docs/font-coverage.md)
 for code point accounting, fallback routes and typed refusal remedies. This
 checks shipped outline coverage; browser fallback and shaping require separate
 validation.
@@ -257,13 +258,15 @@ the same public catalog, so the intended appearance remains identical.
 
 | Export | Contents |
 |---|---|
-| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName`, `diagnoseAccessibility`, `preflightFontCoverage`, `renderFontCoverageReport` and diagnostic types |
+| `pm-brand` | `tokens`, `cssVar`, `Theme`, `TokenName`, `diagnoseAccessibility`, `preflightFontCoverage` and diagnostic types |
 | `pm-brand/banner` | `banner`, `BannerOptions` |
 | `pm-brand/og` | `ogImage`, `renderPng`, `OgOptions` |
 | `pm-brand/contrast` | WCAG colour parsing, luminance, contrast and complete audit |
 | `pm-brand/accessibility` | Strict consumer request schema, typed diagnostics and complete fault locations |
 | `pm-brand/accessibility-report` | Budgeted TOON/JSON reports, lazy public SDK acquisition and host injection |
-| `pm-brand/font-coverage` | Strict font coverage schema, exact renderer routes and budgeted reports |
+| `pm-brand/font-coverage` | Browser-safe font coverage schema and exact glyph diagnostics |
+| `pm-brand/font-coverage-report` | Node-only budgeted font reports |
+| `pm-brand/svg-compare` | Node-only typed SVG comparison and budgeted JSON/TOON reports |
 | `pm-brand/tokens.css` | All custom properties and theme/motion selectors |
 | `pm-brand/fonts.css` | Brand faces and measured fallback faces |
 | `pm-brand/fonts/*` | Three WOFF2 subsets, OFL licences, source receipts |
@@ -298,7 +301,15 @@ mark inherits `color` directly and works on either theme.
 
 ## Semantic asset change reports
 
-Compare generated SVGs with `compareSemanticAssets` or
+Node callers import `compareSemanticAssets` and `renderSemanticAssetReport` from
+`pm-brand/svg-compare`:
+
+```ts
+import { compareSemanticAssets } from 'pm-brand/svg-compare';
+const result = compareSemanticAssets({ version: 1, before: beforeSvg, after: afterSvg });
+```
+
+Compare generated SVGs with that API or
 `pm-brand semantic-diff examples/semantic-assets.json --format toon`. Findings
 locate changed visible text, token roles, geometry and accessible labels while
 ignoring attribute order and XML spelling noise. The example produces two changes:
@@ -317,6 +328,14 @@ Empty namespace resets and missing defaults after an SVG namespace boundary are
 refused; qualified SVG elements remain supported. Namespace-free or empty-namespace
 roots return `unsupported_svg` with Resvg’s reason. Native rejection diagnostics
 are bounded to 512 characters and included in both JSON and TOON.
+
+The package root, `banner`, `contrast`, `accessibility` and `font-coverage` are
+browser-safe. Node-only exports (`svg-compare`, the `semantic-assets` alias,
+`font-coverage-report`, `accessibility-report` and `og`) use the `node` export
+condition and are unavailable to browser bundles. Pure token imports never pull in
+the renderer or pm SDK. Source and packed npm/Bun acceptance bundle every browser
+entry with esbuild `platform: "browser"`, no externals or shims, and execute the
+result without Node globals.
 
 ### Without git
 

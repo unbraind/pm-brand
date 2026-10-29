@@ -4,6 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { packageManagerEnv } from './environment.ts';
+import { assertBrowserEntryPoints } from './browser-acceptance.ts';
 import { packedSemanticReviewCases, renderedColorReviewRequest } from './semantic-review-fixtures.ts';
 const env = packageManagerEnv();
 // Clear inherited opt-outs; an empty scratch project must use default lifecycle policy.
@@ -24,6 +25,7 @@ try {
     writeFileSync(join(root, 'smoke.ts'), readFileSync('test/consumer-smoke.ts'));
     writeFileSync(join(root, 'semantic-review-cases.json'), JSON.stringify({ semantic: packedSemanticReviewCases(), color: renderedColorReviewRequest() }));
     execFileSync(installer === 'npm' ? process.execPath : 'bun', ['smoke.ts'], { cwd: root, stdio: 'inherit' });
+    await assertBrowserEntryPoints(root);
     console.log(`Exact-commit ${installer} Git consumer passed: ${sha}`);
   }
 } finally { rmSync(scratch, { recursive: true, force: true }); }

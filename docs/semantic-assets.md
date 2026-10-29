@@ -7,7 +7,7 @@ changes, **1** for a completed comparison with changes, and **2** for a refusal.
 
 ```ts
 import { readFileSync } from 'node:fs';
-import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand';
+import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand/svg-compare';
 
 const request = {
   version: 1,
@@ -21,7 +21,9 @@ const report = await renderSemanticAssetReport(request); // lazy supported pm SD
 process.stdout.write(report.text);
 ```
 
-The same exports are available from `pm-brand/semantic-assets`. Hosts may pass
+The typed Node-only entry is `pm-brand/svg-compare`; `pm-brand/semantic-assets`
+remains a Node-only compatibility alias. Comparison is not re-exported by the
+browser-safe package root. Hosts may pass
 their real `AccessibilityOutputSdk` as the second renderer argument. The existing
 supported SDK loader handles standalone, global, project-local and runner
 installations; it never searches argv or executable symlinks. Runtime comparison

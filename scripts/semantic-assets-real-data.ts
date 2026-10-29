@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { PmClient, attachOutputTokenAccounting } from '@unbrained/pm-cli/sdk';
-import { compareSemanticAssets, renderSemanticAssetReport } from '../dist/semantic-assets.js';
+import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand/svg-compare';
 import { banner } from '../dist/banner.js';
 import { escapeXml } from '../dist/text.js';
 

@@ -3,8 +3,8 @@
 import { open } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { renderAccessibilityReport } from './accessibility-report.js';
-import { renderFontCoverageReport } from './font-coverage.js';
-import { renderSemanticAssetReport } from './semantic-assets.js';
+import { renderFontCoverageReport } from './font-coverage-report.js';
+import { renderSemanticAssetReport } from 'pm-brand/svg-compare';
 import type { AccessibilityRefusal } from './accessibility.js';
 
 /** Emit a small, sanitized JSON refusal for command/file boundary errors. */

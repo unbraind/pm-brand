@@ -1,5 +1,4 @@
 import type { FontRole } from './text.js';
-import type { AccessibilityOutputSdk } from './accessibility-report.js';
 /** Proposed text is preserved verbatim: normalization and replacements are caller decisions. */
 export interface FontCoverageLabel {
     /** Caller-owned repair location, 1–256 UTF-16 units without controls. */
@@ -98,11 +97,13 @@ export interface FontCoverageReport {
     /** Invalid input is always refused as JSON. */
     readonly format: 'json' | 'toon';
 }
+/** Construct a small refusal without echoing user input. */
+export declare function createFontCoverageRefusal(code: FontCoverageRefusal['code'], path: string, remedy: string): FontCoverageRefusal;
 /** Parse once before evaluation, SDK loading or file output. */
 export declare function parseFontCoverageRequest(input: unknown): FontCoverageRequest | FontCoverageRefusal;
 /** Guard every emitted numeric field using integer domains; no floating-point decisions. */
 export declare function validateFontCoverageNumbers(value: FontCoverageDiagnosis): FontCoverageResult;
+/** Evaluate validated data using the renderer's own XML validator and exact glyph lookup. */
+export declare function evaluateFontCoverageRequest(request: FontCoverageRequest): FontCoverageResult;
 /** Diagnose a batch without loading the host, touching a tracker or replacing input text. */
 export declare function preflightFontCoverage(input: unknown): FontCoverageResult;
-/** Render complete failures or a typed budget refusal; reuse the supported lazy host loader. */
-export declare function renderFontCoverageReport(input: unknown, sdk?: AccessibilityOutputSdk): Promise<FontCoverageReport>;

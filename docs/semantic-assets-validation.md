@@ -201,3 +201,30 @@ snapshot hashes were refreshed for that serialization change; font outlines,
 layout and palette are unchanged. Compiled JavaScript/declarations remain tracked
 under the repository's script-free Git consumer contract. No raster or binary
 artifact is added. Full release-gate results belong to the exact PR-head CI run.
+
+
+## Browser and Node package boundaries
+
+The package root re-exports only browser-safe code. Comparison and its report now
+live at the typed Node-only `pm-brand/svg-compare` export; `semantic-assets` remains
+a Node-only compatibility alias. Pure font preflight stays on the root and
+`font-coverage`; its SDK-backed report moves to `font-coverage-report`. The existing
+`og` and `accessibility-report` entries also use explicit `node` conditions. CLI,
+SDK examples, npm/Bun consumers and Git consumers use these public Node entries.
+The accepted SVG parser and comparison behavior is unchanged.
+
+`node --test --test-concurrency=2 test/browser.test.ts` passed 3/3 tests. It bundles
+root-token imports, the complete root, banner, contrast, accessibility and font
+preflight plus both CSS entries with esbuild `platform: "browser"`, no externals,
+aliases or shims. JavaScript bundles execute without Node globals; import metadata
+must contain no Node built-ins, pm SDK or native renderer. Five Node-only subpaths
+must refuse browser resolution. The same browser checks run against the captured
+tarball after npm and Bun installs, with the comparison subpath exercised under
+both Node and Bun. Git consumers run the same browser corpus.
+
+The behavioral proof reintroduces only a root comparison export, a root SDK-backed
+font-report export, or a renderer export on a pure subpath in disposable copies.
+All 3/3 reverts fail browser bundling; restoring the source passes all eight browser
+bundles and five Node-only refusals. Original SVG, wire, no-git and native-state
+regressions remain in the full npm/Bun gates. No prior data validation is repeated
+for this packaging-only change.
