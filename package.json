@@ -50,6 +50,18 @@
       "types": "./dist/accessibility-report.d.ts",
       "import": "./dist/accessibility-report.js",
       "default": "./dist/accessibility-report.js"
+    },
+    "./semantic-assets": {
+      "types": "./dist/semantic-assets.d.ts",
+      "node": "./dist/semantic-assets.js"
+    },
+    "./svg-compare": {
+      "types": "./dist/svg-compare.d.ts",
+      "node": "./dist/svg-compare.js"
+    },
+    "./font-coverage-report": {
+      "types": "./dist/font-coverage-report.d.ts",
+      "node": "./dist/font-coverage-report.js"
     }
   },
   "files": [
@@ -68,16 +80,18 @@
     "docs/accessibility.md",
     "examples/accessibility.json",
     "docs/font-coverage.md",
-    "examples/font-coverage.json"
+    "examples/font-coverage.json",
+    "docs/semantic-assets.md",
+    "examples/semantic-assets.json"
   ],
   "devDependencies": {
     "@babel/eslint-parser": "8.0.7",
     "@babel/plugin-syntax-typescript": "8.0.3",
-    "@resvg/resvg-js": "2.6.2",
     "@types/bun": "1.4.4",
     "@types/node": "26.6.5",
     "@unbrained/pm-cli": "2026.10.25",
     "c8": "12.0.0",
+    "esbuild": "0.28.2",
     "eslint": "10.13.0",
     "pm-changelog": "2026.10.25",
     "pm-ops": "2026.10.25",
@@ -137,13 +151,7 @@
     "ignore": []
   },
   "peerDependencies": {
-    "@resvg/resvg-js": "^2.6.2",
     "@unbrained/pm-cli": ">=2026.10.23"
-  },
-  "peerDependenciesMeta": {
-    "@resvg/resvg-js": {
-      "optional": true
-    }
   },
   "publishConfig": {
     "access": "public",
@@ -158,6 +166,8 @@
     "url": "https://github.com/unbraind/pm-brand/issues"
   },
   "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "@rgrove/parse-xml": "5.0.0",
     "@toon-format/toon": "4.4.0"
   },
   "bin": {

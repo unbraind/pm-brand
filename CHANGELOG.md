@@ -4,6 +4,7 @@
 
 ### Added
 
+- Explain semantic changes between generated SVG assets ([pm-brand-semantic-asset-change-reports](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-semantic-asset-change-reports.toon))
 - Preflight text for unsupported brand font glyphs ([pm-brand-font-coverage-preflight](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-font-coverage-preflight.toon))
 - Locate failing accessibility pairs in consumer components ([pm-brand-rendered-accessibility](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-rendered-accessibility.toon))
 - Self-hosted fonts and measured fallbacks ([pm-brand-fonts](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-fonts.toon))

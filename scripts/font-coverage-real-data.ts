@@ -4,7 +4,8 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { PmClient, attachOutputTokenAccounting } from '@unbrained/pm-cli/sdk';
-import { preflightFontCoverage, renderFontCoverageReport } from '../dist/font-coverage.js';
+import { preflightFontCoverage } from '../dist/font-coverage.js';
+import { renderFontCoverageReport } from 'pm-brand/font-coverage-report';
 import type { FontCoverageLabel } from '../dist/font-coverage.js';
 
 /** Hash all copied tracker bytes, independent of SDK read-back normalization. */

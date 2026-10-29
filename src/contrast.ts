@@ -8,7 +8,7 @@ export type Rgba = readonly [number, number, number, number];
 export function parseColor(value: string): Rgba {
   if (value === 'transparent') return [0, 0, 0, 0];
   if (/^#[\da-f]{6}$/iu.test(value)) return [parseInt(value.slice(1, 3), 16) / 255, parseInt(value.slice(3, 5), 16) / 255, parseInt(value.slice(5, 7), 16) / 255, 1];
-  const match = /^rgba\((\d+),\s*(\d+),\s*(\d+),\s*(\d+(?:\.\d+)?|\.\d+)\)$/u.exec(value);
+  const match = /^rgba\((\d+),[ \t\r\n\f]*(\d+),[ \t\r\n\f]*(\d+),[ \t\r\n\f]*(\d+(?:\.\d+)?|\.\d+)\)$/u.exec(value);
   if (!match) throw new TypeError(`Unsupported colour: ${value}`);
   const color: Rgba = [Number(match[1]) / 255, Number(match[2]) / 255, Number(match[3]) / 255, Number(match[4])];
   if (color.some(channel => channel < 0 || channel > 1)) throw new TypeError('Colour channel outside sRGB');

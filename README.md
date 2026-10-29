@@ -122,8 +122,9 @@ accepts 100 labels and returns only failures by default.
 pm-brand font-coverage examples/font-coverage.json --format toon --budget 1600
 ```
 
-Use `preflightFontCoverage` or `renderFontCoverageReport` from `pm-brand` or
-`pm-brand/font-coverage`. See [the schema and SDK example](docs/font-coverage.md)
+Use `preflightFontCoverage` and `renderFontCoverageReport` from `pm-brand` or
+`pm-brand/font-coverage`, as on main. `pm-brand/font-coverage-report` is an
+additional alias for the same report function. See [the schema and SDK example](docs/font-coverage.md)
 for code point accounting, fallback routes and typed refusal remedies. This
 checks shipped outline coverage; browser fallback and shaping require separate
 validation.
@@ -208,9 +209,10 @@ capped again after conversion. Width truncation uses cumulative glyph advances
 in linear time and adds an ellipsis only at a complete grapheme boundary.
 
 `pm-brand/banner` works without native dependencies. `pm-brand/og` and its
-`renderPng` require the optional peer `@resvg/resvg-js` (`npm install @resvg/resvg-js`).
-The root token export never imports the native renderer and is suitable for web
-bundlers. Rendering helpers are intended for build tools and server environments.
+`renderPng` use the pinned runtime dependency `@resvg/resvg-js`.
+The root token export adds no native renderer dependency. SDK-backed root reports
+retain main’s existing browser limitations. Rendering helpers are intended for
+build tools and server environments.
 
 ## Committed package banner set
 
@@ -263,7 +265,9 @@ the same public catalog, so the intended appearance remains identical.
 | `pm-brand/contrast` | WCAG colour parsing, luminance, contrast and complete audit |
 | `pm-brand/accessibility` | Strict consumer request schema, typed diagnostics and complete fault locations |
 | `pm-brand/accessibility-report` | Budgeted TOON/JSON reports, lazy public SDK acquisition and host injection |
-| `pm-brand/font-coverage` | Strict font coverage schema, exact renderer routes and budgeted reports |
+| `pm-brand/font-coverage` | Font coverage schema, exact glyph diagnostics and budgeted reports |
+| `pm-brand/font-coverage-report` | Node-only budgeted font reports |
+| `pm-brand/svg-compare` | Node-only typed SVG comparison and budgeted JSON/TOON reports |
 | `pm-brand/tokens.css` | All custom properties and theme/motion selectors |
 | `pm-brand/fonts.css` | Brand faces and measured fallback faces |
 | `pm-brand/fonts/*` | Three WOFF2 subsets, OFL licences, source receipts |
@@ -295,6 +299,51 @@ mark inherits `color` directly and works on either theme.
 | MCP | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mcp-dark.svg"><img src="logo/lockup-mcp-light.svg" alt="lockup-mcp" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-mcp-dark.svg"><img src="logo/lockup-mark-mcp-light.svg" alt="lockup-mark-mcp" height="56"></picture> |
 | SEARCH | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-search-dark.svg"><img src="logo/lockup-search-light.svg" alt="lockup-search" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-search-dark.svg"><img src="logo/lockup-mark-search-light.svg" alt="lockup-mark-search" height="56"></picture> |
 | SWARM | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-swarm-dark.svg"><img src="logo/lockup-swarm-light.svg" alt="lockup-swarm" height="56"></picture> | <picture><source media="(prefers-color-scheme: dark)" srcset="logo/lockup-mark-swarm-dark.svg"><img src="logo/lockup-mark-swarm-light.svg" alt="lockup-mark-swarm" height="56"></picture> |
+
+## Semantic asset change reports
+
+Node callers import `compareSemanticAssets` and `renderSemanticAssetReport` from
+`pm-brand/svg-compare`:
+
+```ts
+import { compareSemanticAssets } from 'pm-brand/svg-compare';
+const result = compareSemanticAssets({ version: 1, before: beforeSvg, after: afterSvg });
+```
+
+Compare generated SVGs with that API or
+`pm-brand semantic-diff examples/semantic-assets.json --format toon`. Findings
+locate changed visible text, token roles, geometry and accessible labels while
+ignoring attribute order and XML spelling noise. The example produces two changes:
+one status color and one truncated label. JSON and TOON use the pm SDK's output
+budget accounting and retain complete counts on refusal. No raster generation,
+network or tracker writes are needed. See [the SDK example and supported static SVG
+grammar](docs/semantic-assets.md).
+
+XML syntax uses the maintained `@rgrove/parse-xml` parser. Equivalent escaping,
+CDATA, namespace prefixes, comments and inert processing instructions produce no
+findings. Both original documents must also pass the brand renderer (Resvg);
+its constructor validates without producing pixels or loading system fonts.
+Malformed XML, renderer rejection and limits return `unsupported_svg`; other constructs
+outside the comparison subset return `unsupported_semantics`, both with remedies.
+Empty namespace resets and missing defaults after an SVG namespace boundary are
+refused; qualified SVG elements remain supported. Namespace-free or empty-namespace
+roots return `unsupported_svg` with Resvg’s reason. Native rejection diagnostics
+are bounded to 512 characters and included in both JSON and TOON.
+
+All exports and export conditions from main remain supported, including
+`renderFontCoverageReport` on the root and `pm-brand/font-coverage`. Main's root
+already reaches the pm SDK through that report; this PR adds no Node import edge,
+Node dependency or Node-reaching module to its browser graph. A main-derived
+compatibility gate compares emitted declarations, runtime names and browser
+inventories for source, packed npm/Bun and Git consumers. The new SVG comparison
+API is available only at the Node-only `pm-brand/svg-compare` entry (with the
+Node-only `semantic-assets` alias). Existing callers need no import migration.
+
+### Without git
+
+Semantic comparisons, font coverage, accessibility diagnostics, tokens and SVG
+generators work in plain directories and non-git trackers. None needs git.
+Repository development/release provenance checks require a git checkout.
 
 ## Development
 
