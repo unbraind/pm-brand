@@ -39,6 +39,7 @@ const client = new PmClient({ pmRoot: root, noExtensions: true });
 const before = await client.listAllComplete({ includeBody: true });
 const totals = { items: before.items.length, generated_assets: 0, identity_comparisons: 0, noise_comparisons: 0, changed_comparisons: 0,
   identity_changes: 0, noise_changes: 0, localized_changes: 0, wire_reports: 0, budget_refusals: 0, max_estimated_tokens: 0, max_report_bytes: 0 };
+const review = { parent_comparisons: 0, parent_findings: 0, arc_refusals: 0, wire_reports: 0, max_estimated_tokens: 0, max_report_bytes: 0 };
 for (const item of before.items) {
   const svg = banner({ name: item.title, tagline: item.id });
   const beforeSvg = `<svg><rect id="status" fill="#fff"/><text id="label">${escapeXml(item.title)}</text></svg>`;
@@ -59,8 +60,29 @@ for (const item of before.items) {
       totals.max_report_bytes = Math.max(totals.max_report_bytes, Buffer.byteLength(report.text));
     }
   }
+  const rect = '<rect id="status" width="10" height="10"/>';
+  const label = `aria-label="${escapeXml(item.title)}"`;
+  const moveBefore = `<svg ${label}><g id="plain">${rect}</g><g id="shift" transform="translate(100 20)"/></svg>`;
+  const moveAfter = `<svg ${label}><g id="plain"/><g id="shift" transform="translate(100 20)">${rect}</g></svg>`;
+  const arcBefore = `<svg ${label}><path d="M0 0A20 20 0 0 1 40 40"/></svg>`;
+  const arcAfter = arcBefore.replace('A20 20 0 0 1', 'A20 20 0 0.0 1');
+  for (const [scenario, left, right] of [['parent', moveBefore, moveAfter], ['arc', arcBefore, arcAfter]] as const) {
+    const result = compareSemanticAssets({ version: 1, before: left, after: right });
+    if (scenario === 'parent') {
+      assert.ok(result.ok); assert.equal(result.summary.changes, 1); assert.equal(result.findings[0].field, 'parent');
+      review.parent_comparisons++; review.parent_findings += result.summary.changes;
+    } else { assert.ok(!result.ok); assert.equal(result.code, 'unsupported_svg'); review.arc_refusals++; }
+    for (const format of ['json', 'toon'] as const) {
+      const report = await renderSemanticAssetReport({ version: 1, before: left, after: right, format, budget: 512 });
+      assert.deepEqual(report.result, result); assert.equal(report.format, format);
+      const estimated = attachOutputTokenAccounting(report.result, () => report.text).token_accounting.total_estimated_tokens;
+      assert.ok(estimated <= 512); review.wire_reports++;
+      review.max_estimated_tokens = Math.max(review.max_estimated_tokens, estimated);
+      review.max_report_bytes = Math.max(review.max_report_bytes, Buffer.byteLength(report.text));
+    }
+  }
 }
 assert.deepEqual((await client.listAllComplete({ includeBody: true })).items, before.items);
 assert.equal(digest(root), beforeDigest);
-console.log(JSON.stringify({ source: process.argv[3] ?? 'public fleet tracker', totals, tracker_bytes_sha256: beforeDigest,
+console.log(JSON.stringify({ source: process.argv[3] ?? 'public fleet tracker', totals, review, tracker_bytes_sha256: beforeDigest,
   sdk_read_back_unchanged: true, tracker_bytes_unchanged: true, raster_calls: 0, network_calls: 0 }, null, 2));

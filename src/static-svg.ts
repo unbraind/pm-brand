@@ -8,6 +8,8 @@ export interface StaticSvgNode {
   readonly locator: string;
   /** Supported SVG element. */
   readonly tag: string;
+  /** Parent identity remains semantic even when an XML id anchors this node. */
+  readonly parent: string | null;
   /** Canonical attribute and text values. */
   readonly fields: Record<string, string>;
   /** Direct element children in paint order, excluding descriptive metadata. */
@@ -51,31 +53,36 @@ function decode(text: string, attribute = false): string {
   return text;
 }
 
-/** Parse finite bounded numeric tokens, preserving commands but erasing numeric spelling noise. */
+/** Numeric lists require XML whitespace or a comma between complete number lexemes. */
+const NUMBER_LIST = /^[ \t\r\n]*[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?(?:(?:[ \t\r\n]*,[ \t\r\n]*|[ \t\r\n]+)[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)*[ \t\r\n]*$/u;
+
+/** Validate each contextual grammar before erasing numeric spelling or flag identity. */
 function geometry(value: string, field: string): string {
+  if (/[^\x09\x0a\x0d\x20-\x7e]/u.test(value) || (field !== 'd' && field !== 'transform' && !NUMBER_LIST.test(value))) invalid();
   if (/,\s*,|^\s*,|,\s*$|\(\s*,|,\s*\)/u.test(value) || (field !== 'transform' && /[()]/u.test(value))
     || (field === 'd' && /[a-zA-Z]\s*,|,\s*[a-zA-Z]/u.test(value))) invalid();
-  const parts = value.match(field === 'd' ? /[a-zA-Z]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/gu : /[a-zA-Z]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/gu) ?? [];
-  if (value.replace(/[a-zA-Z]+|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?|[\s,()]/gu, '') || parts.length > 32768) invalid();
-  const values = parts.map(part => /^[a-zA-Z]+$/u.test(part) ? part : Number(part));
-  if (values.some(part => typeof part === 'number' && (!Number.isFinite(part) || Math.abs(part) > 1e9))) invalid();
+  const parts = value.match(field === 'd' ? /[a-zA-Z]|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?/gu : /[a-zA-Z]+|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?/gu) ?? [];
+  if (value.replace(/[a-zA-Z]+|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?|[\s,()]/gu, '') || parts.length > 32768) invalid();
   if (field === 'd') {
     const arities = new Map([['m', 2], ['l', 2], ['h', 1], ['v', 1], ['c', 6], ['s', 4], ['q', 4], ['t', 2], ['a', 7], ['z', 0]]);
-    if (values.length > 0 && !['M', 'm'].includes(String(values[0]))) invalid();
+    if (parts.length > 0 && !['M', 'm'].includes(parts[0]!)) invalid();
     let index = 0;
-    while (index < values.length) {
-      const command = values[index++];
-      if (typeof command !== 'string' || !arities.has(command.toLowerCase())) invalid();
+    while (index < parts.length) {
+      const command = parts[index++];
+      if (!arities.has(command.toLowerCase())) invalid();
       const arity = arities.get(command.toLowerCase())!;
       const start = index;
-      while (typeof values[index] === 'number') index++;
+      while (index < parts.length && !/^[a-zA-Z]$/u.test(parts[index])) index++;
       const count = index - start;
       if (arity === 0 ? count !== 0 : count === 0 || count % arity !== 0) invalid();
       if (command.toLowerCase() === 'a') for (let n = start; n < index; n += 7) {
-        if (Number(values[n]) < 0 || Number(values[n + 1]) < 0 || ![0, 1].includes(Number(values[n + 3])) || ![0, 1].includes(Number(values[n + 4]))) invalid();
+        if (!['0', '1'].includes(parts[n + 3]) || !['0', '1'].includes(parts[n + 4]) || /^[+-]/u.test(parts[n]) || /^[+-]/u.test(parts[n + 1])) invalid();
       }
     }
-  } else if (field === 'transform') {
+  }
+  const values = parts.map(part => /^[a-zA-Z]+$/u.test(part) ? part : Number(part));
+  if (values.some(part => typeof part === 'number' && (!Number.isFinite(part) || Math.abs(part) > 1e9))) invalid();
+  if (field === 'transform') {
     const calls = [...value.matchAll(/(matrix|translate|scale|rotate|skewX|skewY)\s*\(([^()]*)\)/gu)];
     if (value.replace(/(matrix|translate|scale|rotate|skewX|skewY)\s*\([^()]*\)|[\s,]/gu, '') || calls.length === 0) invalid();
     const allowed = new Map([['matrix', [6]], ['translate', [1, 2]], ['scale', [1, 2]], ['rotate', [1, 3]], ['skewX', [1]], ['skewY', [1]]]);
@@ -83,9 +90,8 @@ function geometry(value: string, field: string): string {
       const numbers = geometry(call[2], 'numbers').split(' ');
       if (!allowed.get(call[1])!.includes(numbers.length)) invalid();
     }
-  } else {
-    if (values.some(part => typeof part !== 'number')) invalid();
-    if (field === 'numbers' && values.length === 0) invalid();
+  } else if (field !== 'd') {
+    // NUMBER_LIST already guarantees a nonempty stream of numeric lexemes.
     if (field !== 'numbers' && field !== 'points' && values.length !== (field === 'viewBox' ? 4 : 1)) invalid();
     if (field === 'points' && (values.length < 4 || values.length % 2 !== 0)) invalid();
     if (['width', 'height', 'r', 'rx', 'ry', 'stroke-width', 'font-size', 'data-lines'].includes(field) && Number(values[0]) < 0) invalid();
@@ -98,9 +104,10 @@ function geometry(value: string, field: string): string {
 /** Validate and normalize supported presentation attributes using one grammar. */
 function attribute(field: string, value: string): string {
   if (field === 'xmlns') { if (value !== 'http://www.w3.org/2000/svg') invalid(); return value; }
-  if (['id', 'data-role', 'data-token', 'aria-labelledby', 'aria-describedby'].includes(field)) {
+  if (field === 'id') { if (!/^[a-zA-Z_][a-zA-Z0-9_.:-]{0,255}$/u.test(value)) invalid(); return value; }
+  if (['data-role', 'data-token', 'aria-labelledby', 'aria-describedby'].includes(field)) {
     if (value.length === 0 || value.length > 256 || /[\p{Cc}]/u.test(value)) invalid();
-    return value.trim().replace(/\s+/gu, ' ');
+    return value.replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
   }
   if (['aria-label', 'data-text'].includes(field)) return value;
   const enums = new Map([
@@ -111,6 +118,7 @@ function attribute(field: string, value: string): string {
   ]);
   if (enums.has(field)) { if (!enums.get(field)!.includes(value)) invalid(); return value; }
   if (['fill', 'stroke', 'color'].includes(field)) {
+    value = value.replace(/^[ \t\r\n]+|[ \t\r\n]+$/gu, '');
     if (/^#[0-9a-f]{3}$/iu.test(value)) return `#${[...value.slice(1).toLowerCase()].map(c => c + c).join('')}`;
     if (/^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/iu.test(value)) return value.toLowerCase();
     const named = new Map([['black', '#000000'], ['white', '#ffffff'], ['red', '#ff0000'], ['green', '#008000'], ['blue', '#0000ff']]);
@@ -134,7 +142,7 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
     let offset = 0, rootClosed = false;
     /** Finish text according to SVG default whitespace processing. */
     const finish = (frame: Frame): void => {
-      if (['text', 'title', 'desc'].includes(frame.node.tag)) frame.node.fields.text = frame.text.replace(/[\t\n]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
+      if (['text', 'title', 'desc'].includes(frame.node.tag)) frame.node.fields.text = frame.text.replace(/[\t\n\r]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
       else if (/[^\t\n\r ]/u.test(frame.text)) invalid();
     };
     while (offset < source.length) {
@@ -144,7 +152,7 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
         offset = end + 3; continue;
       }
       if (source.startsWith('<?xml ', offset) && offset === 0) {
-        const declaration = /^<\?xml version=(?:"1\.0"|'1\.0')(?: encoding=(?:"UTF-8"|'UTF-8'))?\s*\?>/u.exec(source);
+        const declaration = /^<\?xml version=(?:"1\.0"|'1\.0')(?: encoding=(?:"UTF-8"|'UTF-8'))?[ \t\r\n]*\?>/u.exec(source);
         if (!declaration) invalid();
         offset = declaration[0].length; continue;
       }
@@ -155,14 +163,14 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
         if (stack.length) stack.at(-1)!.text += text; else if (/[^\t\n\r ]/u.test(text)) invalid();
         offset = end; continue;
       }
-      const close = /^<\/([a-zA-Z]+)\s*>/u.exec(source.slice(offset));
+      const close = /^<\/([a-zA-Z]+)[ \t\r\n]*>/u.exec(source.slice(offset));
       if (close) {
         const frame = stack.pop();
         if (!frame || frame.node.tag !== close[1]) invalid();
         finish(frame); if (stack.length === 0) rootClosed = true;
         offset += close[0].length; continue;
       }
-      const start = /^<([a-zA-Z]+)(?=[\s/>])/u.exec(source.slice(offset));
+      const start = /^<([a-zA-Z]+)(?=[ \t\r\n/>])/u.exec(source.slice(offset));
       if (!start || !['svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'title', 'desc'].includes(start[1])) invalid();
       const tag = start[1], parent = stack.at(-1);
       if ((!parent && (tag !== 'svg' || nodes.length > 0 || rootClosed)) || (parent && tag === 'svg') || stack.length >= 32 || nodes.length >= 4096) invalid();
@@ -170,19 +178,19 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
       if (parent && !['svg', 'g'].includes(parent.node.tag)) invalid();
       offset += start[0].length;
       const fields: Record<string, string> = Object.create(null);
-      while (!/^\s*\/?>/u.test(source.slice(offset))) {
-        const attr = /^\s+([a-zA-Z][a-zA-Z0-9:-]*)\s*=\s*(?:"([^"<]*)"|'([^'<]*)')/u.exec(source.slice(offset));
+      while (!/^[ \t\r\n]*\/?>/u.test(source.slice(offset))) {
+        const attr = /^[ \t\r\n]+([a-zA-Z][a-zA-Z0-9:-]*)[ \t\r\n]*=[ \t\r\n]*(?:"([^"<]*)"|'([^'<]*)')/u.exec(source.slice(offset));
         if (!attr || Object.hasOwn(fields, attr[1]) || Object.keys(fields).length >= 32) invalid();
         fields[attr[1]] = attribute(attr[1], decode(attr[2] ?? attr[3], true));
         offset += attr[0].length;
       }
-      const end = /^\s*(\/?)>/u.exec(source.slice(offset))!;
+      const end = /^[ \t\r\n]*(\/?)>/u.exec(source.slice(offset))!;
       offset += end[0].length;
-      if (fields.id) { if (!/^[a-zA-Z_][a-zA-Z0-9_.:-]*$/u.test(fields.id) || ids.has(fields.id)) invalid(); ids.add(fields.id); }
+      if (fields.id) { if (ids.has(fields.id)) invalid(); ids.add(fields.id); }
       const ordinal = (parent?.counts.get(tag) ?? 0) + 1;
       parent?.counts.set(tag, ordinal);
       const locator = fields.id ? `#${fields.id}` : `${parent ? `${parent.node.locator}/` : ''}${tag}[${ordinal}]`;
-      const node: StaticSvgNode = { locator, tag, fields, children: [] };
+      const node: StaticSvgNode = { locator, tag, parent: parent ? parent.node.locator : null, fields, children: [] };
       // XML ids and namespace serialization do not themselves affect pixels; references remain explicit fields.
       delete fields.id; delete fields.xmlns;
       nodes.push(node);

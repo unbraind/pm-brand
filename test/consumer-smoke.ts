@@ -9,6 +9,9 @@ import { diagnoseAccessibility } from 'pm-brand/accessibility';
 import { renderAccessibilityReport } from 'pm-brand/accessibility-report';
 import { renderFontCoverageReport } from 'pm-brand/font-coverage';
 import { compareSemanticAssets, renderSemanticAssetReport } from 'pm-brand/semantic-assets';
+import type { SemanticAssetRequest } from 'pm-brand/semantic-assets';
+import { decode } from '@toon-format/toon';
+import type { AccessibilityRequest } from 'pm-brand/accessibility';
 assert.equal(tokens.light.paper, '#F3F5F8');
 assert.equal(cssVar('--pm-paper'), 'var(--pm-paper)');
 assert.equal(contrast('#000000', '#FFFFFF'), 21);
@@ -20,6 +23,22 @@ assert.equal((await renderFontCoverageReport(fontRequest)).result.summary?.unsup
 const semanticRequest = { version: 1, before: '<svg><text>Ready</text></svg>', after: '<svg><text>Re…</text></svg>' };
 assert.equal(compareSemanticAssets(semanticRequest).summary?.changes, 1);
 assert.equal((await renderSemanticAssetReport(semanticRequest)).result.summary?.changes, 1);
+const reviewCases = JSON.parse(readFileSync('semantic-review-cases.json', 'utf8')) as { semantic: { request: SemanticAssetRequest; expected: string }[]; color: AccessibilityRequest };
+for (const row of reviewCases.semantic) {
+  const result = compareSemanticAssets(row.request);
+  if (row.expected === 'unsupported_svg') { assert.ok(!result.ok); assert.equal(result.code, 'unsupported_svg'); }
+  else { assert.ok(result.ok); if (row.expected === 'unchanged') assert.equal(result.findings.length, 0); else assert.ok(result.findings.some(finding => finding.field === row.expected)); }
+  for (const format of ['json', 'toon'] as const) {
+    const report = await renderSemanticAssetReport({ ...row.request, format, budget: 1000000 });
+    assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+  }
+}
+const invalidColor = diagnoseAccessibility(reviewCases.color);
+assert.ok(!invalidColor.ok); assert.equal(invalidColor.code, 'invalid_color');
+for (const format of ['json', 'toon'] as const) {
+  const report = await renderAccessibilityReport({ ...reviewCases.color, format });
+  assert.deepEqual(report.format === 'json' ? JSON.parse(report.text) : decode(report.text), invalidColor);
+}
 assert.match(banner({ name: 'pm-web', tagline: 'One identity' }), /width="1280"/);
 const png = Buffer.from(renderPng(ogImage({ title: 'One identity', eyebrow: 'Triplicate', product: 'pm-web', theme: 'dark' })));
 assert.equal(png.readUInt32BE(16), 1200);

@@ -25,7 +25,7 @@ export interface SemanticAssetFinding {
   readonly kind: 'text' | 'token_role' | 'geometry' | 'accessibility';
   /** Stable XML id when supplied, otherwise element-index path. */
   readonly locator: string;
-  /** Attribute, text, paint_order or element. */
+  /** Attribute, text, parent, retained-child paint_order or element. */
   readonly field: string;
   /** Previous value as a JSON literal; null means absent. */
   readonly before_json: string;
@@ -78,7 +78,7 @@ export interface SemanticAssetReport {
   readonly result: SemanticAssetResult;
   /** Includes final newline. */
   readonly text: string;
-  /** Invalid requests use JSON. */
+  /** Schema-invalid requests use JSON; SVG refusals retain validated format options. */
   readonly format: 'json' | 'toon';
 }
 
@@ -123,8 +123,9 @@ function compare(before: readonly StaticSvgNode[], after: readonly StaticSvgNode
   };
   for (const locator of new Set([...left.keys(), ...right.keys()])) {
     const a = left.get(locator), b = right.get(locator);
-    if (!a || !b) { add(locator, 'element', a ? { tag: a.tag, fields: a.fields } : null, b ? { tag: b.tag, fields: b.fields } : null); continue; }
+    if (!a || !b) { add(locator, 'element', a ? { tag: a.tag, parent: a.parent, fields: a.fields } : null, b ? { tag: b.tag, parent: b.parent, fields: b.fields } : null); continue; }
     add(locator, 'element', a.tag, b.tag);
+    add(locator, 'parent', a.parent, b.parent);
     const changedText = a.fields['data-text'] !== b.fields['data-text'];
     if (changedText && (a.fields.outline || b.fields.outline)) add(locator, 'data-text',
       { text: a.fields['data-text'] ?? null, outline: a.fields.outline ?? null }, { text: b.fields['data-text'] ?? null, outline: b.fields.outline ?? null });
@@ -132,7 +133,9 @@ function compare(before: readonly StaticSvgNode[], after: readonly StaticSvgNode
       if (changedText && (a.fields.outline || b.fields.outline) && ['data-text', 'outline'].includes(field)) continue;
       add(locator, field === 'text' && ['title', 'desc'].includes(a.tag) ? `aria-${a.tag}` : field, a.fields[field] ?? null, b.fields[field] ?? null);
     }
-    if ([...a.children].sort().join('\0') === [...b.children].sort().join('\0')) add(locator, 'paint_order', a.children, b.children);
+    const nextChildren = new Set(b.children);
+    const common = new Set(a.children.filter(child => nextChildren.has(child)));
+    add(locator, 'paint_order', a.children.filter(child => common.has(child)), b.children.filter(child => common.has(child)));
   }
   return { ok: true, summary: { before_nodes: before.length, after_nodes: after.length, changes: findings.length }, findings };
 }
@@ -152,8 +155,8 @@ function evaluate(input: unknown): { request: SemanticAssetRequest; result: Sema
   const request = parseRequest(input);
   if ('ok' in request) return request;
   const before = parseStaticSvg(request.before), after = parseStaticSvg(request.after);
-  if (!Array.isArray(before) || !Array.isArray(after)) return refuse('unsupported_svg', !Array.isArray(before) ? '$.before' : '$.after',
-    'Supply a well-formed static SVG using svg/g/path/rect/circle/ellipse/line/polyline/polygon/text/title/desc, supported attributes and finite coordinates within ±1e9; remove CSS, references, scripts and external resources. See docs/semantic-assets.md.');
+  if (!Array.isArray(before) || !Array.isArray(after)) return { request, result: refuse('unsupported_svg', !Array.isArray(before) ? '$.before' : '$.after',
+    'Supply a well-formed static SVG using svg/g/path/rect/circle/ellipse/line/polyline/polygon/text/title/desc, supported attributes and finite coordinates within ±1e9; use exact arc flags 0/1 and XML whitespace; remove CSS, references, scripts and external resources. See docs/semantic-assets.md.') };
   return { request, result: validateSemanticAssetNumbers(compare(before, after)) };
 }
 

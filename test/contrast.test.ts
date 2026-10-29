@@ -3,6 +3,24 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { parseColor, luminance, composite, contrast, contrastAudit, tokenColor } from '../dist/contrast.js';
+import { diagnoseAccessibility } from '../dist/accessibility.js';
+import { renderAccessibilityReport } from '../dist/accessibility-report.js';
+import { decode } from '@toon-format/toon';
+import { renderedColorReviewRequest } from '../scripts/semantic-review-fixtures.ts';
+
+test('color lexical validation rejects Unicode separators before computing consumer accessibility', async () => {
+  for (const gap of [' ', '\t', '\r', '\n', '\f']) assert.deepEqual(parseColor(`rgba(0,${gap}0,${gap}0,${gap}1)`), [0, 0, 0, 1]);
+  for (const gap of ['\u00a0', '\u2003', '\u202f', '\ufeff']) {
+    const color = `rgba(0,${gap}0,0,1)`;
+    assert.throws(() => parseColor(color), TypeError);
+    const input = renderedColorReviewRequest(color);
+    const result = diagnoseAccessibility(input); assert.ok(!result.ok); assert.equal(result.code, 'invalid_color');
+    for (const format of ['json', 'toon'] as const) {
+      const report = await renderAccessibilityReport({ ...input, format });
+      assert.deepEqual(report.format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+    }
+  }
+});
 
 test('rgba accepts integer and decimal alpha in range; percentages remain unsupported', () => {
   for (const [alpha, expected] of [['0', 0], ['.5', .5], ['0.5', .5], ['1', 1], ['1.0', 1]] as const) {

@@ -50,10 +50,11 @@ function compare(before, after) {
     for (const locator of new Set([...left.keys(), ...right.keys()])) {
         const a = left.get(locator), b = right.get(locator);
         if (!a || !b) {
-            add(locator, 'element', a ? { tag: a.tag, fields: a.fields } : null, b ? { tag: b.tag, fields: b.fields } : null);
+            add(locator, 'element', a ? { tag: a.tag, parent: a.parent, fields: a.fields } : null, b ? { tag: b.tag, parent: b.parent, fields: b.fields } : null);
             continue;
         }
         add(locator, 'element', a.tag, b.tag);
+        add(locator, 'parent', a.parent, b.parent);
         const changedText = a.fields['data-text'] !== b.fields['data-text'];
         if (changedText && (a.fields.outline || b.fields.outline))
             add(locator, 'data-text', { text: a.fields['data-text'] ?? null, outline: a.fields.outline ?? null }, { text: b.fields['data-text'] ?? null, outline: b.fields.outline ?? null });
@@ -62,8 +63,9 @@ function compare(before, after) {
                 continue;
             add(locator, field === 'text' && ['title', 'desc'].includes(a.tag) ? `aria-${a.tag}` : field, a.fields[field] ?? null, b.fields[field] ?? null);
         }
-        if ([...a.children].sort().join('\0') === [...b.children].sort().join('\0'))
-            add(locator, 'paint_order', a.children, b.children);
+        const nextChildren = new Set(b.children);
+        const common = new Set(a.children.filter(child => nextChildren.has(child)));
+        add(locator, 'paint_order', a.children.filter(child => common.has(child)), b.children.filter(child => common.has(child)));
     }
     return { ok: true, summary: { before_nodes: before.length, after_nodes: after.length, changes: findings.length }, findings };
 }
@@ -83,7 +85,7 @@ function evaluate(input) {
         return request;
     const before = parseStaticSvg(request.before), after = parseStaticSvg(request.after);
     if (!Array.isArray(before) || !Array.isArray(after))
-        return refuse('unsupported_svg', !Array.isArray(before) ? '$.before' : '$.after', 'Supply a well-formed static SVG using svg/g/path/rect/circle/ellipse/line/polyline/polygon/text/title/desc, supported attributes and finite coordinates within ±1e9; remove CSS, references, scripts and external resources. See docs/semantic-assets.md.');
+        return { request, result: refuse('unsupported_svg', !Array.isArray(before) ? '$.before' : '$.after', 'Supply a well-formed static SVG using svg/g/path/rect/circle/ellipse/line/polyline/polygon/text/title/desc, supported attributes and finite coordinates within ±1e9; use exact arc flags 0/1 and XML whitespace; remove CSS, references, scripts and external resources. See docs/semantic-assets.md.') };
     return { request, result: validateSemanticAssetNumbers(compare(before, after)) };
 }
 /** Compare two bounded generated SVG assets without loading the pm runtime. */

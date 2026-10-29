@@ -42,7 +42,7 @@ persisted, imported, exported into a tracker, synchronized or applied.
 | --- | --- |
 | `text` | Native text content; annotated visible outline runs |
 | `token_role` | `fill`, `stroke`, `color`, `data-role`, `data-token` |
-| `geometry` | Coordinates, transforms, paths, shape attributes, structure, paint order |
+| `geometry` | Coordinates, transforms, paths, shape attributes, parent context, retained-child paint order |
 | `accessibility` | `role`, `aria-label`, references, hidden state, title and description text |
 
 Locators use a unique XML id (`#status`) when available, otherwise a deterministic
@@ -111,6 +111,28 @@ structural edits. Added/removed nodes are localized as element findings. Existin
 accessibility diagnostics remain responsible for contrast; pm-vcs owns versioned
 bytes and generic diffs. Tracker roles are not interpreted by this feature.
 
+An id anchors identity, not ancestry: retained nodes report a `parent` finding
+when moved between groups, including groups with different transforms, inherited
+paint or accessibility context. This also applies to labeled outline groups and
+descriptive metadata. Retained siblings report relative paint-order changes even
+when other children are inserted, removed or reparented in the same comparison.
+Added/removed element snapshots include their parent; insertion alone remains one
+element finding. The comparator reports the changed context without computing
+world-space geometry or inherited CSS values.
+
+The [SVG path grammar](https://www.w3.org/TR/SVG11/paths.html#PathDataBNF)
+defines flags as exact `0`/`1` characters. Decimal, signed, exponent and padded
+aliases are refused in both flag positions of every explicit or implicit arc
+segment, before number normalization. Arc radii use unsigned number lexemes.
+This bounded grammar requires arc flags to be separated into distinct numeric
+tokens; compact flag/coordinate concatenations may require explicit separators.
+Transform/view-box/point lists require actual XML whitespace or commas, and XML
+markup accepts only XML whitespace. Unicode spaces remain content, never syntax.
+Once the request schema validates, typed SVG refusals retain the requested JSON or
+TOON format; schema-invalid requests are JSON. The shared contrast parser likewise
+uses [CSS whitespace](https://www.w3.org/TR/css-syntax-3/#whitespace), so malformed
+color syntax cannot be normalized into a valid consumer accessibility result.
+
 ## Validation
 
 `node --test --test-concurrency=2 test/semantic-assets.test.ts` covers exact
@@ -122,6 +144,13 @@ field model and reads the native tracker document back through the real SDK afte
 every sequence, including preserved relationships, linked evidence, annotations,
 body and ambient focus. The product itself has no import/export/sync or mutable
 state paths, so there are no target revisions, retry journals or leases to apply.
+
+`test/semantic-review.test.ts` adds 500 topology sequences / 4,000 transitions
+against an independent ordered-membership model, 500 contextual arc-flag probes,
+the complete shared topology/lexical corpus in both encodings, and actual CLI
+execution on a non-git tracker. Representative cases are also run through all six
+packed installation modes and packed/Git SDK consumers, using the same fixture
+producer. Existing acceptance and replay regressions remain unchanged.
 
 `node scripts/semantic-assets-real-data.ts <read-only-tracker-root>` reads a public
 fleet tracker copy in a non-git scratch directory, renders title-derived SVGs and

@@ -18,7 +18,7 @@ export interface SemanticAssetFinding {
     readonly kind: 'text' | 'token_role' | 'geometry' | 'accessibility';
     /** Stable XML id when supplied, otherwise element-index path. */
     readonly locator: string;
-    /** Attribute, text, paint_order or element. */
+    /** Attribute, text, parent, retained-child paint_order or element. */
     readonly field: string;
     /** Previous value as a JSON literal; null means absent. */
     readonly before_json: string;
@@ -66,7 +66,7 @@ export interface SemanticAssetReport {
     readonly result: SemanticAssetResult;
     /** Includes final newline. */
     readonly text: string;
-    /** Invalid requests use JSON. */
+    /** Schema-invalid requests use JSON; SVG refusals retain validated format options. */
     readonly format: 'json' | 'toon';
 }
 /** Guard all emitted counts before declaring success. */

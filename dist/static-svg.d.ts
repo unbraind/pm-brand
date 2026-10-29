@@ -4,6 +4,8 @@ export interface StaticSvgNode {
     readonly locator: string;
     /** Supported SVG element. */
     readonly tag: string;
+    /** Parent identity remains semantic even when an XML id anchors this node. */
+    readonly parent: string | null;
     /** Canonical attribute and text values. */
     readonly fields: Record<string, string>;
     /** Direct element children in paint order, excluding descriptive metadata. */

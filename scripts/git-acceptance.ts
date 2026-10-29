@@ -4,6 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { packageManagerEnv } from './environment.ts';
+import { packedSemanticReviewCases, renderedColorReviewRequest } from './semantic-review-fixtures.ts';
 const env = packageManagerEnv();
 // Clear inherited opt-outs; an empty scratch project must use default lifecycle policy.
 for (const key of Object.keys(env)) if (key.toLowerCase() === 'npm_config_ignore_scripts') delete env[key];
@@ -18,9 +19,10 @@ try {
     const root = join(scratch, installer);
     mkdirSync(root);
     const spec = installer === 'npm' ? `git+https://github.com/unbraind/pm-brand.git#${sha}` : `github:unbraind/pm-brand#${sha}`;
-    writeFileSync(join(root, 'package.json'), JSON.stringify({ private: true, type: 'module', dependencies: { 'pm-brand': spec, '@resvg/resvg-js': '2.6.2' } }));
+    writeFileSync(join(root, 'package.json'), JSON.stringify({ private: true, type: 'module', dependencies: { 'pm-brand': spec, '@resvg/resvg-js': '2.6.2', '@toon-format/toon': '4.4.0' } }));
     execFileSync(installer, ['install'], { cwd: root, env, stdio: 'pipe', timeout: 180_000 });
     writeFileSync(join(root, 'smoke.ts'), readFileSync('test/consumer-smoke.ts'));
+    writeFileSync(join(root, 'semantic-review-cases.json'), JSON.stringify({ semantic: packedSemanticReviewCases(), color: renderedColorReviewRequest() }));
     execFileSync(installer === 'npm' ? process.execPath : 'bun', ['smoke.ts'], { cwd: root, stdio: 'inherit' });
     console.log(`Exact-commit ${installer} Git consumer passed: ${sha}`);
   }
