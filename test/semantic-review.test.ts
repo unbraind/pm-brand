@@ -32,6 +32,60 @@ test('review topology and lexical corpus agrees across SDK and both complete wir
   }
 });
 
+test('namespace identity never promotes an empty reset or missing default into SVG', () => {
+  for (const row of semanticReviewCases().filter(entry => entry.name.startsWith('namespace-'))) check(compareSemanticAssets(row.request), row.expected);
+  const before = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="10" height="10"/></svg>';
+  const after = before.replace('<rect ', '<rect xmlns="" ');
+  const options = { font: { loadSystemFonts: false } };
+  assert.equal(new Resvg(before, options).innerBBox()!.width, 10);
+  assert.equal(new Resvg(after, options).innerBBox(), undefined);
+});
+
+test('namespace model agrees with independent SVG geometry across 500 replay sequences', async () => {
+  type Model = { root: number; prefix: string; qualified: boolean[]; declarations: number[] };
+  const options = { font: { loadSystemFonts: false } };
+  /** Serialize declarations and qualified names without using the production namespace resolver. */
+  const render = (model: Model): string => {
+    const root = model.root ? `${model.prefix}:svg` : 'svg';
+    /** A model declaration is absent, explicitly empty, or explicitly SVG. */
+    const declaration = (kind: number): string => kind === 0 ? '' : ` xmlns="${kind === 1 ? '' : 'http://www.w3.org/2000/svg'}"`;
+    let body = '';
+    for (let i = 0; i < 4; i++) {
+      const name = `${model.qualified[i] ? `${model.prefix}:` : ''}${i === 3 ? 'rect' : 'g'}`;
+      body += `<${name} id="n${i}"${declaration(model.declarations[i])}${i === 3 ? ' width="10" height="10"/>' : '>'}`;
+    }
+    for (let i = 2; i >= 0; i--) body += `</${model.qualified[i] ? `${model.prefix}:` : ''}g>`;
+    return `<${root} xmlns:${model.prefix}="http://www.w3.org/2000/svg"${declaration(model.root === 0 ? 2 : model.root === 1 ? 0 : 1)} width="20" height="20">${body}</${root}>`;
+  };
+  const canonical = render({ root: 0, prefix: 's', qualified: [false, false, false, false], declarations: [0, 0, 0, 0] });
+  let seed = 0x4e534d, replays = 0, refused = 0, accepted = 0;
+  const domains = new Set<string>();
+  /** Reproducible transitions through namespace declarations, QName identity and older inputs. */
+  const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
+  for (let sequence = 0; sequence < 500; sequence++) {
+    let model: Model = { root: next() % 3, prefix: ['s', 'constructor', '__proto__'][next() % 3], qualified: [true, true, true, true], declarations: [0, 0, 0, 0] };
+    const history = [structuredClone(model)];
+    for (let step = 0; step < 8; step++) {
+      const slot = next() % 4;
+      if (next() % 5 === 0) { model = structuredClone(history[next() % history.length]); replays++; }
+      else { model.qualified[slot] = next() % 2 === 0; model.declarations[slot] = next() % 3; model.root = next() % 3; }
+      history.push(structuredClone(model));
+      const source = render(model), geometry = new Resvg(source, options).innerBBox();
+      const request = { version: 1, before: canonical, after: source };
+      const result = compareSemanticAssets(request);
+      if (geometry) { assert.equal(geometry.width, 10); check(result, 'unchanged'); accepted++; }
+      else { check(result, 'unsupported_semantics'); refused++; }
+      domains.add(String(model.root));
+      for (const format of ['json', 'toon'] as const) {
+        const report = await renderSemanticAssetReport({ ...request, format, budget: 1000000 }, sdk);
+        assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+      }
+    }
+  }
+  assert.ok(replays > 500); assert.ok(refused > 500); assert.ok(accepted > 500); assert.equal(domains.size, 3);
+  console.log(`Namespace model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${accepted} accepted, ${refused} refusals, zero rasters`);
+});
+
 test('XML parser limits and semantic policy refuse independently with exact typed remedies', () => {
   for (const source of ['<svg><text>]]></text></svg>', '<svg aria-label="&#0;"/>', '<svg aria-label="&bogus;"/>',
     '<svg><text><![CDATA[unterminated</text></svg>', '<svg><!--x---></svg>', '<svg><?agent?></svg>tail',

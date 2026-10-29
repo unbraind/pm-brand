@@ -35,6 +35,9 @@ try {
     { file: 'static-svg.ts', name: 'discard parsed CDATA text', from: 'text += child.text;', to: "text += child.text.includes('<') ? '' : child.text;", pattern: 'XML conformance', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'discard namespace alias support', from: "const tag = parts.at(-1)!;", to: 'const tag = element.name;', pattern: 'XML conformance', test: 'test/semantic-review.test.ts' },
     { file: 'static-svg.ts', name: 'permit unknown entities', from: 'ignoreUndefinedEntities: false', to: 'ignoreUndefinedEntities: true', pattern: 'unsupported and malformed' },
+    { file: 'static-svg.ts', name: 'promote absent namespaces after entering SVG', from: 'const bare = legacy && parts.length === 1 && !uri;', to: 'const bare = parts.length === 1 && !uri;', pattern: 'namespace identity', test: 'test/semantic-review.test.ts' },
+    { file: 'static-svg.ts', name: 'restart legacy mode for each child', from: 'visit(child, node, childCounts, namespaces, depth + 1, bare);', to: 'visit(child, node, childCounts, namespaces, depth + 1, true);', pattern: 'namespace model', test: 'test/semantic-review.test.ts' },
+    { file: 'static-svg.ts', name: 'infer a default namespace from qualified parents', from: "const uri = namespaces.get(parts.length === 2 ? parts[0] : '');", to: "const uri = namespaces.get(parts.length === 2 ? parts[0] : '') || (parent ? 'http://www.w3.org/2000/svg' : undefined);", pattern: 'namespace identity', test: 'test/semantic-review.test.ts' },
   ];
   for (const probe of probes) {
     const path = join(scratch, 'src', probe.file), original = readFileSync(path, 'utf8');
@@ -60,6 +63,6 @@ try {
     console.log('Caught behavioral replacement: previous hand-written XML parser');
   } finally { writeFileSync(parserPath, fixedParser); }
   execFileSync(process.execPath, [resolve('node_modules/typescript/bin/tsc')], { cwd: scratch, stdio: 'pipe' });
-  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color|Unicode whitespace|review topology|arc flag lexical|color lexical|metadata order changes|document boundary|XML conformance', 'test/semantic-assets.test.ts', 'test/semantic-review.test.ts', 'test/contrast.test.ts'], { cwd: scratch, stdio: 'pipe' });
-  console.log(`${probes.length + 1}/${probes.length + 1} behavioral reverts caught; restored implementation passes 10/10 unchanged regressions`);
+  execFileSync(process.execPath, ['--test', '--test-concurrency=2', '--test-name-pattern=attribute reordering|changed status color|Unicode whitespace|review topology|arc flag lexical|color lexical|metadata order changes|document boundary|XML conformance|namespace identity', 'test/semantic-assets.test.ts', 'test/semantic-review.test.ts', 'test/contrast.test.ts'], { cwd: scratch, stdio: 'pipe' });
+  console.log(`${probes.length + 1}/${probes.length + 1} behavioral reverts caught; restored implementation passes 11/11 unchanged regressions`);
 } finally { rmSync(scratch, { recursive: true, force: true }); }

@@ -6,10 +6,10 @@ status: in_progress
 priority: 1
 tags[3]: assets,cli,sdk
 created_at: "2026-10-29T00:47:34.875Z"
-updated_at: "2026-10-29T04:47:02.961Z"
+updated_at: "2026-10-29T06:47:10.910Z"
 author: codex-agent
 acceptance_criteria: Attribute reordering yields zero semantic changes; a changed status color and truncated label yield two localized findings; no raster generation or network is needed; typed SDK and CLI expose bounded JSON and TOON with typed refusals and remedies; validate public tracker assets on a read-only non-git copy.
-comments[21]{created_at,author,text}:
+comments[26]{created_at,author,text}:
   "2026-10-29T00:47:58.698Z",codex-agent,"Overlap rechecked against installed pm SDK declarations, pm-brand generators and diagnostics, pm-vcs vcs diff, pm-gantt-chart rendering, and pm-graph snapshot impact. No SVG semantic comparator exists. pm-vcs owns versioned bytes and generic diffs; this feature supplies bounded static asset review evidence. Reuse the existing lazy public SDK loader, attachOutputTokenAccounting and TOON encoder. Pure read-only input/output: no tracker writes, journal, imports, sync, status interpretation or shared mutable state in the product path; transaction isolation is not claimed. Unsupported SVG constructs will refuse with a remedy rather than silently omit rendering effects."
   "2026-10-29T01:01:59.105Z",codex-agent,"Implemented typed compareSemanticAssets/renderSemanticAssetReport plus semantic-diff CLI, strict bounded static SVG grammar, grouped visible outline metadata and geometry digests, localized text/token/geometry/accessibility evidence, JSON/TOON output via SDK accounting, typed refusals and remedies. Focused 15/15 tests, typecheck, lint and docstrings passed. New modules measured 100/100/100/100 coverage. The 500-sequence model completed 6000 transitions, 997 older-input replays and 500 complete native SDK read-backs with relationships, fields and ambient focus preserved. Behavioral reverts caught 4/4 independent faults; restored implementation passed the unchanged regressions. Public read-only non-git tracker: 16 items, 48 generated source assets, 48 comparisons (16 identity/0 changes, 16 serialization/0 changes, 16 edits/32 findings), 96 reports, max 94 SDK estimated tokens/375 bytes, zero budget refusals; SDK state and byte hashes unchanged. See docs/semantic-assets-validation.md. Runtime is read-only and creates no import/export/sync journal, idempotency key, claim, lease or shared product state. No transaction-isolation or atomic snapshot claim; each supplied SVG string is caller-owned input. Full npm/Bun release gates are delegated to exact-head CI per the host resource constraint."
   "2026-10-29T01:04:57.911Z",codex-agent,"Ready-for-review PR: https://github.com/unbraind/pm-brand/pull/27 . Linked tests ran through pinned pm: 1/1 command passed, 15/15 tests, zero skips/failures. Test-result tracking is disabled by the existing project policy, so this comment records the successful run without changing that policy. Isolated-home strict tracker health passed; the ordinary home exposed an ambient pm-github host-version mismatch (pinned host versus newer global extension), not tracker corruption. Four behavioral reverts passed again after final implementation changes; two image regressions passed. All 52 generated banners match main byte-for-byte after removing only the new data-text metadata. Extended numeric fuzz checks geometry coordinate, size and opacity domains as well as input budgets and emitted counts. Claim is released for orchestrator review; item remains in progress. Final exact-head npm/Bun release-gate results and run links are reported on the PR checks/description: https://github.com/unbraind/pm-brand/pull/27/checks . No merge or release is authorized."
@@ -31,30 +31,60 @@ comments[21]{created_at,author,text}:
   "2026-10-29T04:45:55.780Z",codex-agent,"Round 4 revert proof passed: node scripts/semantic-assets-revert-proof.ts caught 26/26 behavioral reverts/replacements in disposable copies and restored code passed 10/10 selected regressions. The full previous parser from commit 7e7690f was rebuilt with only a refusal-shape adapter, and the new conformance/value-preservation tests failed; fixed parser restored in finally. Adapted prior mutation anchors to the maintained parser/projection without removing the original regression cases. Focused C8 run selected 15 deterministic boundary/conformance tests: 15/15 passed, both semantic modules 100/100/100/100. Typecheck, lint, docstrings and build:check passed (30 compiled files match a clean build). No-I/O claims refer specifically to XML external-resource resolution; the CLI still reads its explicitly requested input file and the output layer uses the supported lazy SDK loader."
   "2026-10-29T04:45:58.190Z",codex-agent,"Round 4 public validation repeated on the read-only, non-git main tracker copy: 16 native items, 48 generated assets, 48 original comparisons, 32 color/text findings, 96 reports, zero noise findings and budget refusals; max 94 tokens/375 bytes. Existing parent/arc probes: 64 reports, max 63 tokens/251 bytes; metadata: 64 reports, max 58/230; boundary: 32 typed refusals, 64 reports, max 53/211. New XML-equivalent title-derived probes: 16 comparisons, zero findings, 32 reports, max 21 tokens/83 bytes. Complete SDK read-back and tracker-byte hash unchanged, runtime raster/network calls 0. Full npm/Bun release gates remain delegated to exact-head CI with two-worker coverage; the PR will hold the final run URL, counts and artifact digest after the final push."
   "2026-10-29T04:47:00.639Z",codex-agent,"Pinned pm linked tests: 2/2 commands passed with zero skipped, failed or timed out. node --test --test-concurrency=2 test/semantic-assets.test.ts test/package-banners.test.ts: 16/16. node --test --test-concurrency=2 test/semantic-review.test.ts test/contrast.test.ts: 18/18, including all seeded models and non-git CLI. Automatic result tracking is disabled by existing project policy; results recorded explicitly here. All changed source, compiled modules, dependency lock, shared consumer fixtures, docs and tests are linked. No known pm SDK defect found. No further review findings supplied. Claim released for orchestrator verification; item stays in progress. Final exact-head CI evidence will be recorded on PR 27."
-files[23]{path,scope}:
-  dist/semantic-assets.d.ts,project
-  dist/semantic-assets.js,project
-  dist/static-svg.d.ts,project
-  dist/static-svg.js,project
-  package-lock.json,project
-  package.json,project
-  scripts/acceptance.ts,project
-  scripts/accessibility-acceptance.ts,project
-  scripts/git-acceptance.ts,project
-  scripts/semantic-assets-real-data.ts,project
-  scripts/semantic-assets-revert-proof.ts,project
-  scripts/semantic-review-fixtures.ts,project
-  src/banner.ts,project
-  src/cli.ts,project
-  src/contrast.ts,project
-  src/og.ts,project
-  src/semantic-assets.ts,project
-  src/static-svg.ts,project
-  test/bun.acceptance.ts,project
-  test/consumer-smoke.ts,project
-  test/contrast.test.ts,project
-  test/semantic-assets.test.ts,project
-  test/semantic-review.test.ts,project
+  "2026-10-29T06:30:11.405Z",codex-agent,"Review round 5: clean resume at 59ab17b, current with origin/main (no merge needed), existing item reclaimed. General rule: element identity includes its resolved namespace URI; legacy bare-SVG compatibility must not reactivate after entering the SVG namespace. Package audit found one canonical projection, shared by SDK root/subpath, CLI, JSON/TOON, packed npm/Bun, Git and non-git consumers. Audit covers empty resets, missing default namespaces beneath prefixed SVG elements, namespace-qualified controls, every supported element and annotated outlines. Maintain the prior bare/root-empty fixtures; carry independent namespace inheritance/replay tests and revert proofs through all consumers. No additional non-blocking findings supplied or present in review threads."
+  "2026-10-29T06:43:15.952Z",codex-agent,"Round 5 class fix: namespace resolution retains an ancestry-scoped legacy flag; actual SVG namespace entry disables bare-name promotion for descendants. Empty resets and missing defaults under qualified SVG parents refuse unsupported_semantics, including grouped outline paths. Qualified SVG names under empty defaults, explicit default restoration, legacy root-empty fixtures and independent sibling scopes remain valid. Shared corpus now 336 cases (102 namespace cases); 22 packed representatives imply 312 command-format scenarios per full gate. Independent Resvg geometry model: 500 sequences, 4000 transitions, 796 older-input replays, 2362 accepted and 1638 refusals, with no rasters/fonts. Focused C8: 16/16 passed, both semantic modules 100/100/100/100. Typecheck, lint, docstrings and build:check passed; 30 compiled files match a clean build."
+  "2026-10-29T06:43:26.252Z",codex-agent,"Round 5 revert proof: namespace identity regression failed on the previous head with a successful zero-change report. node scripts/semantic-assets-revert-proof.ts caught 29/29 behavioral reverts/replacements; fixed code restored in finally, 11/11 selected regressions passed afterward. New mutations reinstate unconditional absent-URI promotion, reset legacy mode per child, or infer a default namespace from a qualified parent. Existing regressions and all earlier mutation probes retained. Pinned linked test 1 passed 16/16; linked test 2 reached the local runner default 120-second timeout under shared-host load, with no assertion failure recorded. Re-running only test 2 with a 300-second harness budget; assertion, numeric-performance and coverage thresholds are unchanged. Recording this timeout rather than hiding it."
+  "2026-10-29T06:46:13.925Z",codex-agent,"Round 5 read-only public main tracker validation passed: 16 items, 48 original source assets, 48 original comparisons, zero serialization-noise findings, 32 localized color/text findings and 96 reports, max 94 estimated tokens/375 bytes. New namespace probes: 48 comparisons, 32 unsupported_semantics refusals for empty resets/missing defaults, 16 unchanged qualified controls, 96 JSON/TOON reports, max 71 estimated tokens/284 bytes. Namespace-binding remedies also bring the existing parent/arc maximum to 71/284; other prior metrics unchanged. Complete SDK read-back and tracker byte SHA256 unchanged; runtime raster/network calls 0. Reproduction and provenance in docs/semantic-assets-validation.md. No new mutable/import/sync, lease or transaction path introduced."
+  "2026-10-29T06:47:06.845Z",codex-agent,"Both linked commands now have passing receipts: node --test --test-concurrency=2 test/semantic-assets.test.ts test/package-banners.test.ts (16/16); node --test --test-concurrency=2 test/semantic-review.test.ts test/contrast.test.ts (20/20). Retried only the second via pm test --run --only-index 2 --timeout 300 --progress; it passed after 150 seconds. The earlier default-budget timeout remains documented; no tests, assertion thresholds or numeric-performance limits changed. Automatic result tracking remains disabled by existing policy, so receipts are explicit comments. Changed files and docs linked. No pm SDK defect found. Claim released for orchestrator verification; item remains in progress. Exact-head full npm/Bun release CI URL, counts and captured artifact digest will be on PR 27 after final push; existing two-worker coverage limit retained."
+files[23]:
+  - path: dist/semantic-assets.d.ts
+    scope: project
+  - path: dist/semantic-assets.js
+    scope: project
+  - path: dist/static-svg.d.ts
+    scope: project
+  - path: dist/static-svg.js
+    scope: project
+  - path: package-lock.json
+    scope: project
+  - path: package.json
+    scope: project
+  - path: scripts/acceptance.ts
+    scope: project
+  - path: scripts/accessibility-acceptance.ts
+    scope: project
+  - path: scripts/git-acceptance.ts
+    scope: project
+  - path: scripts/semantic-assets-real-data.ts
+    scope: project
+  - path: scripts/semantic-assets-revert-proof.ts
+    scope: project
+  - path: scripts/semantic-review-fixtures.ts
+    scope: project
+  - path: src/banner.ts
+    scope: project
+  - path: src/cli.ts
+    scope: project
+  - path: src/contrast.ts
+    scope: project
+  - path: src/og.ts
+    scope: project
+  - path: src/semantic-assets.ts
+    scope: project
+  - path: src/static-svg.ts
+    scope: project
+    note: Preserve namespace identity across legacy boundaries
+  - path: test/bun.acceptance.ts
+    scope: project
+  - path: test/consumer-smoke.ts
+    scope: project
+  - path: test/contrast.test.ts
+    scope: project
+  - path: test/semantic-assets.test.ts
+    scope: project
+  - path: test/semantic-review.test.ts
+    scope: project
+    note: Namespace inheritance corpus and independent geometry replay model
 tests[2]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   node --test --test-concurrency=2 test/semantic-assets.test.ts test/package-banners.test.ts,project,codex-agent,"2026-10-29T01:00:43.207Z",local_mutation,feat/semantic-asset-change-reports
   node --test --test-concurrency=2 test/semantic-review.test.ts test/contrast.test.ts,project,codex-agent,"2026-10-29T02:31:06.913Z",local_mutation,feat/semantic-asset-change-reports

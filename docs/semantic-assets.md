@@ -90,6 +90,14 @@ sections. CDATA and ordinary text project to the same content, and comments/iner
 processing instructions preserve surrounding text. Default and prefixed SVG
 namespace bindings canonicalize by local element name and resolved SVG URI;
 foreign namespaces and namespaced presentation attributes are outside the subset.
+Legacy unprefixed SVG fragments, including a root with `xmlns=""`, retain their
+existing compatibility behavior. This mode follows ancestry: once an element
+resolves to the SVG namespace, its descendants must also resolve to that namespace.
+An empty reset or absent default beneath a prefixed SVG parent returns
+`unsupported_semantics`; it never becomes an SVG element by local-name matching.
+A prefixed SVG element remains valid when its default namespace is empty, and a
+descendant may explicitly restore the SVG default. Sibling branches keep their
+own bindings and compatibility context.
 Outside the root element, literal XML whitespace, comments and inert processing
 instructions are accepted. Character/entity references in the prolog or epilog
 refuse before decoding, even when they would expand to whitespace.
@@ -205,6 +213,13 @@ escaping, decimal/hex references, CDATA, comments, processing instructions,
 namespaces, BOM and CRLF. A further 500-sequence / 4,000-transition serialization
 model replays random source values in equivalent namespace/escaping/CDATA forms;
 every comparison must have zero findings in both complete wire encodings.
+
+A namespace model adds 500 sequences / 4,000 transitions with older-input replays,
+default resets, qualified names and inherited bindings. An independent Resvg
+geometry oracle distinguishes retained rectangles from missing content without
+raster generation or font loading. A shared 102-case namespace corpus covers every
+supported element family and annotated glyph paths, both input sides, legacy
+controls and valid qualified elements under empty defaults.
 
 `node scripts/semantic-assets-real-data.ts <read-only-tracker-root>` reads a public
 fleet tracker copy in a non-git scratch directory, renders title-derived SVGs and

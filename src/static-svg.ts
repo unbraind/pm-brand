@@ -120,7 +120,7 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | StaticSvgRefus
       || (child.type === 'xmldecl' && 'version' in child && child.version !== '1.0')
       || (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet'))) invalid();
     /** Project parsed names, text and attributes; XML tokenization/decoding stays in the dependency. */
-    const visit = (element: XmlElement, parent: StaticSvgNode | null, counts: Map<string, number>, inherited: ReadonlyMap<string, string>, depth: number): void => {
+    const visit = (element: XmlElement, parent: StaticSvgNode | null, counts: Map<string, number>, inherited: ReadonlyMap<string, string>, depth: number, legacy: boolean): void => {
       if (depth > 32 || nodes.length >= 4096 || Object.keys(element.attributes).length > 32) limit();
       const namespaces = new Map(inherited);
       for (const [name, value] of Object.entries(element.attributes)) {
@@ -136,7 +136,10 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | StaticSvgRefus
       if (parts.length > 2) invalid();
       const tag = parts.at(-1)!;
       const uri = namespaces.get(parts.length === 2 ? parts[0] : '');
-      if ((uri !== undefined && uri !== '' && uri !== 'http://www.w3.org/2000/svg') || (parts.length === 2 && !uri)) invalid();
+      // Bare legacy SVG is a lineage-scoped compatibility mode, never a fallback
+      // for missing namespaces after a real SVG element has been encountered.
+      const bare = legacy && parts.length === 1 && !uri;
+      if (uri !== 'http://www.w3.org/2000/svg' && !bare) invalid();
       if (!['svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'title', 'desc'].includes(tag)
         || (!parent && tag !== 'svg') || (parent && (tag === 'svg' || !['svg', 'g'].includes(parent.tag)))) invalid();
       const fields: Record<string, string> = Object.create(null);
@@ -155,14 +158,14 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | StaticSvgRefus
       const childCounts = new Map<string, number>();
       let text = '';
       for (const child of element.children) {
-        if (child instanceof XmlElement) visit(child, node, childCounts, namespaces, depth + 1);
+        if (child instanceof XmlElement) visit(child, node, childCounts, namespaces, depth + 1, bare);
         else if (child instanceof XmlText) text += child.text;
         else if (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet') invalid();
       }
       if (['text', 'title', 'desc'].includes(tag)) fields.text = text.replace(/[\t\n\r]/gu, ' ').replace(/ +/gu, ' ').replace(/^ +| +$/gu, '');
       else if (/[^\t\n\r ]/u.test(text)) invalid();
     };
-    visit(document.root!, null, new Map(), new Map(), 1);
+    visit(document.root!, null, new Map(), new Map(), 1, true);
     // Annotated outline runs are localized as one unit. Their canonical geometry
     // remains in a digest so edited outlines cannot disappear behind metadata.
     const byLocator = new Map(nodes.map(node => [node.locator, node]));

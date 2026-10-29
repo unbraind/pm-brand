@@ -131,7 +131,7 @@ export function parseStaticSvg(source) {
             || (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet')))
             invalid();
         /** Project parsed names, text and attributes; XML tokenization/decoding stays in the dependency. */
-        const visit = (element, parent, counts, inherited, depth) => {
+        const visit = (element, parent, counts, inherited, depth, legacy) => {
             if (depth > 32 || nodes.length >= 4096 || Object.keys(element.attributes).length > 32)
                 limit();
             const namespaces = new Map(inherited);
@@ -150,7 +150,10 @@ export function parseStaticSvg(source) {
                 invalid();
             const tag = parts.at(-1);
             const uri = namespaces.get(parts.length === 2 ? parts[0] : '');
-            if ((uri !== undefined && uri !== '' && uri !== 'http://www.w3.org/2000/svg') || (parts.length === 2 && !uri))
+            // Bare legacy SVG is a lineage-scoped compatibility mode, never a fallback
+            // for missing namespaces after a real SVG element has been encountered.
+            const bare = legacy && parts.length === 1 && !uri;
+            if (uri !== 'http://www.w3.org/2000/svg' && !bare)
                 invalid();
             if (!['svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'title', 'desc'].includes(tag)
                 || (!parent && tag !== 'svg') || (parent && (tag === 'svg' || !['svg', 'g'].includes(parent.tag))))
@@ -178,7 +181,7 @@ export function parseStaticSvg(source) {
             let text = '';
             for (const child of element.children) {
                 if (child instanceof XmlElement)
-                    visit(child, node, childCounts, namespaces, depth + 1);
+                    visit(child, node, childCounts, namespaces, depth + 1, bare);
                 else if (child instanceof XmlText)
                     text += child.text;
                 else if (child.type === 'pi' && 'name' in child && child.name === 'xml-stylesheet')
@@ -189,7 +192,7 @@ export function parseStaticSvg(source) {
             else if (/[^\t\n\r ]/u.test(text))
                 invalid();
         };
-        visit(document.root, null, new Map(), new Map(), 1);
+        visit(document.root, null, new Map(), new Map(), 1, true);
         // Annotated outline runs are localized as one unit. Their canonical geometry
         // remains in a digest so edited outlines cannot disappear behind metadata.
         const byLocator = new Map(nodes.map(node => [node.locator, node]));

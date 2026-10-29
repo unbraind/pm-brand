@@ -311,6 +311,8 @@ XML syntax uses the maintained `@rgrove/parse-xml` parser. Equivalent escaping,
 CDATA, namespace prefixes, comments and inert processing instructions produce no
 findings. Malformed XML/limits return `unsupported_svg`; well-formed constructs
 outside the comparison subset return `unsupported_semantics`, both with remedies.
+Empty namespace resets and missing defaults after an SVG namespace boundary are
+refused; qualified SVG elements and documented bare-root compatibility remain supported.
 
 ### Without git
 

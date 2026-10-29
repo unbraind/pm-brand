@@ -76,7 +76,7 @@ export function semanticReviewCases(): SemanticReviewCase[] {
     ['text-reference', '<svg xmlns="http://www.w3.org/2000/svg"><text>A B</text></svg>', '<svg xmlns="http://www.w3.org/2000/svg"><text>A&#32;B</text></svg>'],
     ['comment-reference', document, `<!--&#32; &amp;-->${document}<!--&#x20;-->`],
   ]) cases.push({ name: `document-control-${name}`, expected: 'unchanged', request: { version: 1, before, after } });
-  return [...cases, ...xmlConformanceCases()];
+  return [...cases, ...xmlConformanceCases(), ...namespaceReviewCases()];
 }
 
 /** Equivalent serializations share one independent source-value oracle across every consumer. */
@@ -113,12 +113,44 @@ export function xmlConformanceCases(): SemanticReviewCase[] {
   return cases;
 }
 
+/** Namespace identity cases separate inherited bindings from the legacy bare-root contract. */
+export function namespaceReviewCases(): SemanticReviewCase[] {
+  const cases: SemanticReviewCase[] = [];
+  const units = [
+    '<rect id="target" width="10" height="10"/>', '<circle id="target" r="5"/>', '<ellipse id="target" rx="4" ry="5"/>',
+    '<line id="target" x2="10" y2="10"/>', '<polyline id="target" points="0 0 10 10"/>', '<polygon id="target" points="0 0 10 0 0 10"/>',
+    '<path id="target" d="M0 0L10 10"/>', '<text id="target">Ready</text>', '<title id="target">Label</title>', '<desc id="target">Description</desc>',
+    '<g id="target"><rect width="10" height="10"/></g>', '<g id="target" data-text="A"><path d="M0 0L10 10"/></g>',
+  ];
+  for (const [index, unit] of units.entries()) for (const placement of ['direct', 'ancestor', 'prefix-missing-default', 'legacy-transition']) {
+    const before = `<svg xmlns="http://www.w3.org/2000/svg">${unit}</svg>`;
+    const after = placement === 'direct' ? `<svg xmlns="http://www.w3.org/2000/svg">${unit.replace(' id=', ' xmlns="" id=')}</svg>`
+      : placement === 'ancestor' ? `<svg xmlns="http://www.w3.org/2000/svg"><g xmlns="">${unit}</g></svg>`
+      : placement === 'prefix-missing-default' ? `<s:svg xmlns:s="http://www.w3.org/2000/svg">${unit}</s:svg>`
+      : `<svg><g xmlns="http://www.w3.org/2000/svg"><g xmlns="">${unit}</g></g></svg>`;
+    for (const side of ['before', 'after'] as const) cases.push({ name: `namespace-loss-${index}-${placement}-${side}`, expected: 'unsupported_semantics',
+      request: { version: 1, before, after: before, [side]: after } });
+  }
+  for (const [name, before, after] of [
+    ['qualified-empty-default', '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg"><s:rect xmlns="" width="10" height="10"/></svg>'],
+    ['qualified-container', '<svg xmlns="http://www.w3.org/2000/svg"><g><rect width="10" height="10"/></g></svg>', '<s:svg xmlns:s="http://www.w3.org/2000/svg"><s:g xmlns=""><s:rect width="10" height="10"/></s:g></s:svg>'],
+    ['restored-default', '<svg xmlns="http://www.w3.org/2000/svg"><g><rect width="10" height="10"/></g></svg>', '<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg"><s:g xmlns=""><rect xmlns="http://www.w3.org/2000/svg" width="10" height="10"/></s:g></svg>'],
+    ['legacy-root-empty', '<svg><g><rect/></g></svg>', '<svg xmlns=""><g><rect/></g></svg>'],
+    ['legacy-sibling', '<svg><g/><rect/></svg>', '<svg><g xmlns="http://www.w3.org/2000/svg"/><rect/></svg>'],
+  ]) cases.push({ name: `namespace-control-${name}`, expected: 'unchanged', request: { version: 1, before, after } });
+  cases.push({ name: 'namespace-loss-outline-path', expected: 'unsupported_semantics', request: { version: 1,
+    before: '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"><path d="M0 0L1 1"/></g></svg>',
+    after: '<svg xmlns="http://www.w3.org/2000/svg"><g data-text="A"><path xmlns="" d="M0 0L1 1"/></g></svg>' } });
+  return cases;
+}
+
 /** Keep packed acceptance bounded while carrying both classes through every install mode. */
 export function packedSemanticReviewCases(): SemanticReviewCase[] {
   const names = new Set(['reparent-0', 'reparent-11', 'order-and-insert', 'arc-A-3-0.0', 'missing-transform-separator', 'valid-arc-aliases',
     'metadata-title-svg-swap', 'metadata-desc-outline-insert', 'metadata-cross-kind-control',
     'document-reference-&#32;-prefix-false-after', 'document-reference-&#x20;-suffix-true-before', 'document-control-inner-reference', 'document-control-declaration',
-    'xml-attribute-delimiter-label', 'xml-split-cdata-title', 'xml-namespace-rebound', 'xml-document-pi']);
+    'xml-attribute-delimiter-label', 'xml-split-cdata-title', 'xml-namespace-rebound', 'xml-document-pi',
+    'namespace-loss-0-direct-after', 'namespace-loss-0-prefix-missing-default-before', 'namespace-loss-outline-path', 'namespace-control-qualified-container', 'namespace-control-legacy-root-empty']);
   const rows = semanticReviewCases().filter(row => names.has(row.name));
   if (rows.length !== names.size) throw new Error('Missing or duplicate packed review case');
   return rows;
