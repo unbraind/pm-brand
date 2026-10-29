@@ -65,7 +65,11 @@ function compare(before, after) {
         }
         const nextChildren = new Set(b.children);
         const common = new Set(a.children.filter(child => nextChildren.has(child)));
-        add(locator, 'paint_order', a.children.filter(child => common.has(child)), b.children.filter(child => common.has(child)));
+        /** Derive each semantic order from the same retained source sequence. */
+        const ordered = (node, map, tag) => node.children.filter(child => common.has(child) && (tag === 'paint' ? !['title', 'desc'].includes(map.get(child).tag) : map.get(child).tag === tag));
+        for (const [field, tag] of [['paint_order', 'paint'], ['aria-title-order', 'title'], ['aria-desc-order', 'desc']]) {
+            add(locator, field, ordered(a, left, tag), ordered(b, right, tag));
+        }
     }
     return { ok: true, summary: { before_nodes: before.length, after_nodes: after.length, changes: findings.length }, findings };
 }

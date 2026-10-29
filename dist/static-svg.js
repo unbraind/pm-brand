@@ -232,7 +232,7 @@ export function parseStaticSvg(source) {
             delete fields.id;
             delete fields.xmlns;
             nodes.push(node);
-            if (parent && !['title', 'desc'].includes(tag))
+            if (parent)
                 parent.node.children.push(locator);
             const frame = { node, counts: new Map(), text: '' };
             if (end[1]) {
@@ -251,9 +251,9 @@ export function parseStaticSvg(source) {
         const grouped = new Set();
         for (const node of nodes)
             if (Object.hasOwn(node.fields, 'data-text')) {
-                if (node.tag !== 'g' || node.children.some(child => byLocator.get(child).tag !== 'path'))
+                if (node.tag !== 'g' || node.children.some(child => !['path', 'title', 'desc'].includes(byLocator.get(child).tag)))
                     invalid();
-                const outlines = node.children.map(child => {
+                const outlines = node.children.filter(child => byLocator.get(child).tag === 'path').map(child => {
                     const path = byLocator.get(child);
                     if (Object.keys(path.fields).some(key => !['d', 'transform'].includes(key)))
                         invalid();
@@ -261,7 +261,7 @@ export function parseStaticSvg(source) {
                     return Object.entries(path.fields).sort(([a], [b]) => a.localeCompare(b));
                 });
                 node.fields.outline = createHash('sha256').update(JSON.stringify(outlines)).digest('hex');
-                node.children.length = 0;
+                node.children.splice(0, node.children.length, ...node.children.filter(child => byLocator.get(child).tag !== 'path'));
             }
         return nodes.filter(node => !grouped.has(node.locator));
     }

@@ -9,7 +9,7 @@ export interface SemanticReviewCase {
   /** The same request reaches every public entry point. */
   readonly request: SemanticAssetRequest;
   /** Required finding or typed refusal; unchanged is the positive control. */
-  readonly expected: 'parent' | 'paint_order' | 'unsupported_svg' | 'unchanged';
+  readonly expected: 'parent' | 'paint_order' | 'aria-title-order' | 'aria-desc-order' | 'aria-labelledby' | 'aria-describedby' | 'unsupported_svg' | 'unchanged';
 }
 
 /** Generate both topology and lexical-domain cases without depending on the parser. */
@@ -44,12 +44,28 @@ export function semanticReviewCases(): SemanticReviewCase[] {
   ]) cases.push({ name, expected: 'unsupported_svg', request: { version: 1, before: valid, after } });
   cases.push({ name: 'valid-arc-aliases', expected: 'unchanged', request: { version: 1, before: valid,
     after: '<svg><path d="M0.0 0e0 A20.0 2e1 +0 0 1 4e1 40.0"/></svg>' } });
+  for (const tag of ['title', 'desc'] as const) for (const container of ['svg', 'group', 'outline']) {
+    /** Place identical metadata in each supported container projection. */
+    const wrap = (body: string): string => container === 'svg' ? `<svg id="container" role="img">${body}<rect/></svg>`
+      : container === 'group' ? `<svg><g id="container" role="img">${body}<rect/></g></svg>`
+      : `<svg><g id="container" role="img" data-text="A">${body}<path d="M0 0L1 1"/></g></svg>`;
+    const a = `<${tag} id="alpha">Alpha</${tag}>`, b = `<${tag} id="beta">Beta</${tag}>`, c = `<${tag} id="gamma">Gamma</${tag}>`;
+    for (const change of ['swap', 'insert', 'remove']) cases.push({ name: `metadata-${tag}-${container}-${change}`, expected: `aria-${tag}-order`,
+      request: { version: 1, before: wrap(a + (change === 'remove' ? c : '') + b), after: wrap(b + (change === 'insert' ? c : '') + a) } });
+  }
+  cases.push({ name: 'metadata-cross-kind-control', expected: 'unchanged', request: { version: 1,
+    before: '<svg><title id="t">Name</title><desc id="d">Details</desc><rect/></svg>',
+    after: '<svg><desc id="d">Details</desc><title id="t">Name</title><rect/></svg>' } });
+  for (const field of ['aria-labelledby', 'aria-describedby'] as const) cases.push({ name: `reference-order-${field}`, expected: field,
+    request: { version: 1, before: `<svg ${field}="alpha beta"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>`,
+      after: `<svg ${field}="beta alpha"><title id="alpha">Alpha</title><desc id="beta">Beta</desc></svg>` } });
   return cases;
 }
 
 /** Keep packed acceptance bounded while carrying both classes through every install mode. */
 export function packedSemanticReviewCases(): SemanticReviewCase[] {
-  const names = new Set(['reparent-0', 'reparent-11', 'order-and-insert', 'arc-A-3-0.0', 'missing-transform-separator', 'valid-arc-aliases']);
+  const names = new Set(['reparent-0', 'reparent-11', 'order-and-insert', 'arc-A-3-0.0', 'missing-transform-separator', 'valid-arc-aliases',
+    'metadata-title-svg-swap', 'metadata-desc-outline-insert', 'metadata-cross-kind-control']);
   const rows = semanticReviewCases().filter(row => names.has(row.name));
   if (rows.length !== names.size) throw new Error('Missing or duplicate packed review case');
   return rows;

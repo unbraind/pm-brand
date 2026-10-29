@@ -121,5 +121,5 @@ export function acceptAccessibilityInstalls(tarball: string, scratch: string): v
   checkCommand('bun', ['x', '--package', artifact, 'pm-brand'], runnerRoot, runnerEnv, fixture, fontFixture, semanticFixture, reviewFixtures, colorFixture);
   console.log('Packed CLI bunx: 2/2 formats passed');
   assert.equal(createHash('sha256').update(readFileSync(artifact)).digest('hex'), digest, 'Every mode consumed the captured artifact');
-  console.log(`Packed CLI 6 install modes, 120/120 command-format scenarios (84 semantic comparisons, including 72 review regressions; 12 color refusals); sha256 ${digest}`);
+  console.log(`Packed CLI 6 install modes, 156/156 command-format scenarios (120 semantic comparisons, including 108 review regressions; 12 color refusals); sha256 ${digest}`);
 }

@@ -8,7 +8,7 @@ export interface StaticSvgNode {
     readonly parent: string | null;
     /** Canonical attribute and text values. */
     readonly fields: Record<string, string>;
-    /** Direct element children in paint order, excluding descriptive metadata. */
+    /** Retained direct children in source order; grouped glyphs are represented by their outline digest. */
     readonly children: string[];
 }
 /** Read strict XML into at most 4096 nodes and 32 levels; no forgiving HTML parsing. */

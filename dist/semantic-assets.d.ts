@@ -18,7 +18,7 @@ export interface SemanticAssetFinding {
     readonly kind: 'text' | 'token_role' | 'geometry' | 'accessibility';
     /** Stable XML id when supplied, otherwise element-index path. */
     readonly locator: string;
-    /** Attribute, text, parent, retained-child paint_order or element. */
+    /** Attribute, text, parent, paint_order, aria-title-order, aria-desc-order or element. */
     readonly field: string;
     /** Previous value as a JSON literal; null means absent. */
     readonly before_json: string;

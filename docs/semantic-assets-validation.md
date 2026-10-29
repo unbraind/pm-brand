@@ -37,22 +37,31 @@ body and ambient focus remain intact. The feature touches no native field.
 Focused source coverage measured 100% statements, branches, functions and lines
 for both new modules, with unchanged repository coverage thresholds.
 
-`node scripts/semantic-assets-revert-proof.ts` caught 15/15 independent behavioral
+`node scripts/semantic-assets-revert-proof.ts` caught 20/20 independent behavioral
 reverts in disposable copies. These cover the original paint/text/number/Unicode
 regressions plus lost parent context, order hidden by changed membership, coerced
 arc flags, signed radii, list separators, Unicode geometry/XML/CSS separators,
-normalized invalid ids, and discarded refusal encoding. The restored implementation
-passed all six selected acceptance regressions afterward.
+normalized invalid ids, and discarded refusal encoding. Metadata probes additionally
+catch discarded non-painting order, sorted-away title/description precedence,
+metadata lost during outline grouping, and paint-order misclassification. The
+restored implementation passed all seven selected acceptance regressions afterward.
 
 Review round 1 added a second independent reference model: 500 topology sequences,
 4,000 transitions and 802 older-input replays, with parent membership and retained
 sibling order checked independently of the parser. A separate 500-probe lexical
 property spans both arc commands, both flags and explicit/implicit segments. The
-shared adversarial corpus has 73 cases across shapes, metadata, annotated outlines
+shared adversarial corpus now has 94 cases across shapes, metadata, annotated outlines
 and contextual lexical boundaries. SDK, CLI, JSON/TOON, packed npm/Bun and Git
 consumers share its representative fixtures. Packed CLI acceptance now executes
-120 command-format scenarios across six installation modes, including 72 semantic
+156 command-format scenarios across six installation modes, including 108 semantic
 review regressions and 12 consumer color refusals.
+
+Review round 2 adds an independent metadata model: 500 sequences, 4,000 transitions,
+822 older-input replays and 756 order findings. It checks all six title/description
+and root/group/outline domains, mixed membership/order changes and serialization
+controls. Canonical children retain source order; paint, title and description
+streams are derived independently. Annotated outlines remove only grouped paths
+from the retained sequence. ARIA reference-list order also has explicit controls.
 
 The public read-only validation was repeated after these changes. Its original
 16 items, 48 source assets, 48 comparisons, 32 localized findings and 96 reports
@@ -65,9 +74,20 @@ remain unchanged. Additional title-derived review probes produced:
 | Additional JSON/TOON reports | 64 |
 | Largest review report, estimated tokens / bytes | 91 / 361 |
 
+Additional round-2 probes on the same immutable copy yielded:
+
+| Metadata measurement | Result |
+| --- | ---: |
+| Title-order comparisons | 16 |
+| Description-order comparisons | 16 |
+| Localized accessibility findings | 32 |
+| Additional JSON/TOON reports | 64 |
+| Largest metadata report, estimated tokens / bytes | 58 / 230 |
+
 Both complete SDK read-back and the tracker byte hash above stayed unchanged.
 Runtime raster and network calls remained zero. Original tests were retained;
-the resumed focused coverage of all three changed runtime modules measured
+the round-1 coverage of three runtime modules and round-2 coverage of both changed
+runtime modules measured
 100% statements, branches, functions and lines at unchanged thresholds.
 
 The 52 rebuilt committed SVG banners change only `data-text` metadata. SVG

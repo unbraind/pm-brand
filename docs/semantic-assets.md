@@ -55,7 +55,8 @@ are normalized by the parser. Non-breaking and other Unicode spaces are retained
 otherwise preserved. Numeric spelling is canonicalized without rounding.
 
 New banners and OG cards annotate each visible outlined run with `data-text`.
-Such a group may contain only direct path children with `d` and `transform`.
+Such a group's geometry children must be direct paths with `d` and `transform`;
+direct `title`/`desc` children retain their separate metadata order.
 The parser hashes the complete, canonical, ordered outline geometry. Text changes
 produce one localized finding containing **both the visible text and outline
 digest**; independent outline edits with unchanged text produce a geometry
@@ -120,6 +121,17 @@ Added/removed element snapshots include their parent; insertion alone remains on
 element finding. The comparator reports the changed context without computing
 world-space geometry or inherited CSS values.
 
+Direct child order is retained even for non-painting metadata. Separate
+`aria-title-order` and `aria-desc-order` accessibility findings report reordered
+retained titles and descriptions, including alongside insertions/removals and
+inside annotated outline groups. Outline grouping removes only grouped glyph
+paths from that sequence and keeps the metadata. Moving a title across a
+description without changing either type's own order produces no paint or
+metadata-order noise. ARIA label/description reference-list order remains part of
+the attribute value. These are source-order facts relevant to
+[SVG name and description computation](https://www.w3.org/TR/svg-aam-1.0/), not a
+claim to resolve the final accessible name, language selection or ARIA precedence.
+
 The [SVG path grammar](https://www.w3.org/TR/SVG11/paths.html#PathDataBNF)
 defines flags as exact `0`/`1` characters. Decimal, signed, exponent and padded
 aliases are refused in both flag positions of every explicit or implicit arc
@@ -151,6 +163,11 @@ the complete shared topology/lexical corpus in both encodings, and actual CLI
 execution on a non-git tracker. Representative cases are also run through all six
 packed installation modes and packed/Git SDK consumers, using the same fixture
 producer. Existing acceptance and replay regressions remain unchanged.
+
+A further 500-sequence / 4,000-transition metadata model independently tracks title
+and description ordering across root SVGs, groups and outline groups, including
+older-input replays, reparenting and membership changes. Positive controls keep
+paint order separate and retain harmless serialization changes.
 
 `node scripts/semantic-assets-real-data.ts <read-only-tracker-root>` reads a public
 fleet tracker copy in a non-git scratch directory, renders title-derived SVGs and

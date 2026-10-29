@@ -30,6 +30,77 @@ test('review topology and lexical corpus agrees across SDK and both complete wir
   }
 });
 
+test('metadata order changes are localized accessibility findings without paint noise', () => {
+  for (const row of semanticReviewCases().filter(entry => entry.name.startsWith('metadata-'))) {
+    const result = compareSemanticAssets(row.request); check(result, row.expected);
+    assert.ok(result.ok);
+    if (row.expected === 'unchanged') continue;
+    const order = result.findings.filter(finding => finding.field === row.expected);
+    assert.equal(order.length, 1, row.name); assert.equal(order[0].kind, 'accessibility'); assert.equal(order[0].locator, '#container');
+    assert.deepEqual(JSON.parse(order[0].before_json), ['#alpha', '#beta']);
+    assert.deepEqual(JSON.parse(order[0].after_json), ['#beta', '#alpha']);
+    assert.equal(result.findings.filter(finding => finding.field === 'paint_order').length, 0);
+  }
+});
+
+test('metadata model preserves ordered title and description membership across 500 replay sequences', async () => {
+  const parents = ['root', 'group', 'outline'] as const;
+  const tags = new Map(Array.from({ length: 5 }, (_, i) => [[`t${i}`, 'title'], [`d${i}`, 'desc']]).flat() as [string, string][]);
+  type Model = Record<typeof parents[number], string[]>;
+  /** Render explicit model order; outline metadata must survive glyph grouping. */
+  const render = (model: Model): string => {
+    /** Each metadata identity keeps its own literal content throughout the model. */
+    const content = (parent: typeof parents[number]): string => model[parent].map(id => `<${tags.get(id)} id="${id}">${id} label</${tags.get(id)}>`).join('');
+    return `<svg id="root" role="img">${content('root')}<g id="group" role="img">${content('group')}<rect/></g><g id="outline" data-text="A" role="img">${content('outline')}<path d="M0 0L1 1"/></g></svg>`;
+  };
+  let seed = 0xa11c, replays = 0, changes = 0;
+  const covered = new Set<string>();
+  /** Reproducible operation choice independent of the implementation. */
+  const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
+  for (let sequence = 0; sequence < 500; sequence++) {
+    let model: Model = { root: ['t0', 'd0', 't1', 'd1'], group: ['t2', 'd2'], outline: ['t3', 'd3'] };
+    const history = [structuredClone(model)];
+    for (let step = 0; step < 8; step++) {
+      const before = structuredClone(model), parent = parents[next() % parents.length], action = next() % 5;
+      const active = parents.flatMap(key => model[key]);
+      if (action === 0) model[parent].reverse();
+      else if (action === 1 && active.length) {
+        const id = active[next() % active.length];
+        for (const key of parents) model[key] = model[key].filter(entry => entry !== id);
+        model[parent].splice(next() % (model[parent].length + 1), 0, id);
+      } else if (action === 2) {
+        const absent = [...tags.keys()].filter(id => !active.includes(id));
+        if (absent.length) model[parent].splice(next() % (model[parent].length + 1), 0, absent[next() % absent.length]);
+      } else if (action === 3) { model = structuredClone(history[next() % history.length]); replays++; }
+      else if (active.length) {
+        const id = active[next() % active.length];
+        for (const key of parents) model[key] = model[key].filter(entry => entry !== id);
+      }
+      history.push(structuredClone(model));
+      const expected = parents.flatMap(key => ['title', 'desc'].flatMap(tag => {
+        const a = before[key].filter(id => tags.get(id) === tag), b = model[key].filter(id => tags.get(id) === tag);
+        const common = new Set(a.filter(id => b.includes(id)));
+        const left = a.filter(id => common.has(id)).map(id => `#${id}`), right = b.filter(id => common.has(id)).map(id => `#${id}`);
+        return JSON.stringify(left) === JSON.stringify(right) ? [] : [{ locator: `#${key}`, field: `aria-${tag}-order`, kind: 'accessibility', before_json: JSON.stringify(left), after_json: JSON.stringify(right) }];
+      }));
+      const result = compareSemanticAssets({ version: 1, before: render(before), after: render(model).replaceAll('><', '>\r\n<!--noise--><') });
+      assert.ok(result.ok);
+      /** Stable coordinates make expected order independent of traversal implementation. */
+      const sorted = (rows: readonly { locator: string; field: string }[]): object[] => [...rows].sort((a, b) => `${a.locator}/${a.field}`.localeCompare(`${b.locator}/${b.field}`));
+      assert.deepEqual(sorted(result.findings.filter(row => row.field === 'aria-title-order' || row.field === 'aria-desc-order')), sorted(expected));
+      assert.equal(result.findings.filter(row => row.field === 'paint_order').length, 0);
+      changes += expected.length;
+      for (const row of expected) covered.add(`${row.locator}/${row.field}`);
+      for (const format of ['json', 'toon'] as const) {
+        const report = await renderSemanticAssetReport({ version: 1, before: render(before), after: render(model), format, budget: 1000000 }, sdk);
+        assert.deepEqual(format === 'json' ? JSON.parse(report.text) : decode(report.text), result);
+      }
+    }
+  }
+  assert.ok(replays > 500); assert.equal(covered.size, 6); assert.ok(changes > 0);
+  console.log(`Metadata model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${changes} order findings`);
+});
+
 test('topology model detects retained parent and order changes amid membership changes and replays', async () => {
   const units = new Map([['rect', '<rect id="rect" width="10" height="10"/>'], ['circle', '<circle id="circle" r="5"/>'],
     ['path', '<path id="path" d="M0 0L1 1"/>'], ['text', '<text id="text">Ready</text>'], ['title', '<title id="title">Label</title>'],

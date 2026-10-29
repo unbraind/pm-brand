@@ -12,7 +12,7 @@ export interface StaticSvgNode {
   readonly parent: string | null;
   /** Canonical attribute and text values. */
   readonly fields: Record<string, string>;
-  /** Direct element children in paint order, excluding descriptive metadata. */
+  /** Retained direct children in source order; grouped glyphs are represented by their outline digest. */
   readonly children: string[];
 }
 
@@ -194,7 +194,7 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
       // XML ids and namespace serialization do not themselves affect pixels; references remain explicit fields.
       delete fields.id; delete fields.xmlns;
       nodes.push(node);
-      if (parent && !['title', 'desc'].includes(tag)) parent.node.children.push(locator);
+      if (parent) parent.node.children.push(locator);
       const frame: Frame = { node, counts: new Map(), text: '' };
       if (end[1]) { finish(frame); if (!parent) rootClosed = true; } else stack.push(frame);
     }
@@ -204,15 +204,15 @@ export function parseStaticSvg(source: string): StaticSvgNode[] | null {
     const byLocator = new Map(nodes.map(node => [node.locator, node]));
     const grouped = new Set<string>();
     for (const node of nodes) if (Object.hasOwn(node.fields, 'data-text')) {
-      if (node.tag !== 'g' || node.children.some(child => byLocator.get(child)!.tag !== 'path')) invalid();
-      const outlines = node.children.map(child => {
+      if (node.tag !== 'g' || node.children.some(child => !['path', 'title', 'desc'].includes(byLocator.get(child)!.tag))) invalid();
+      const outlines = node.children.filter(child => byLocator.get(child)!.tag === 'path').map(child => {
         const path = byLocator.get(child)!;
         if (Object.keys(path.fields).some(key => !['d', 'transform'].includes(key))) invalid();
         grouped.add(child);
         return Object.entries(path.fields).sort(([a], [b]) => a.localeCompare(b));
       });
       node.fields.outline = createHash('sha256').update(JSON.stringify(outlines)).digest('hex');
-      node.children.length = 0;
+      node.children.splice(0, node.children.length, ...node.children.filter(child => byLocator.get(child)!.tag !== 'path'));
     }
     return nodes.filter(node => !grouped.has(node.locator));
   } catch { return null; }
