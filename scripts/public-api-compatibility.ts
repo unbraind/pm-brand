@@ -38,7 +38,7 @@ function manifest(root: string): { name: string; exports: Record<string, ExportT
   return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 }
 /** Conditions Node activates for an ESM import, matched in manifest order like Node's own resolver. */
-const NODE_IMPORT_CONDITIONS = new Set(['node', 'import', 'module-sync', 'default']);
+const NODE_IMPORT_CONDITIONS = new Set(['node-addons', 'node', 'import', 'module-sync', 'default']);
 /**
  * Resolve one target like Node: a path, a matched `null` that stops resolution, the first resolvable fallback-array
  * element, or the first matching condition in manifest order; `undefined` means nothing matched.

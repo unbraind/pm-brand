@@ -33,6 +33,7 @@ test('runtime targets follow Node condition order, nesting, fallbacks and termin
   assert.equal(runtimeTarget('./dist/plain.js', '.'), './dist/plain.js');
   assert.equal(runtimeTarget({ types: './x.d.ts', node: './dist/node.js', import: './dist/import.js' }, '.'), './dist/node.js');
   assert.equal(runtimeTarget({ import: './dist/import.js', node: './dist/node.js' }, '.'), './dist/import.js');
+  assert.equal(runtimeTarget({ 'node-addons': './dist/addon.js', node: './dist/node.js' }, '.'), './dist/addon.js');
   assert.equal(runtimeTarget({ import: { browser: './dist/b.js', node: './dist/n.js', default: './dist/d.js' } }, '.'), './dist/n.js');
   assert.equal(runtimeTarget({ browser: './dist/b.js', default: ['./dist/first.js', './dist/second.js'] }, '.'), './dist/first.js');
   assert.throws(() => runtimeTarget({ node: null, default: './dist/entry.js' }, './gone'), /\.\/gone resolves to null/);
