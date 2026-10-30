@@ -11,16 +11,20 @@ import { compareSemanticAssets } from 'pm-brand/svg-compare';
 import { renderFontCoverageReport as aliasReport } from 'pm-brand/font-coverage-report';
 import * as sdk from '@unbrained/pm-cli/sdk';
 import { assertBrowserEntryPoints, mainBaseline } from '../scripts/browser-acceptance.ts';
-import { mainApiBaseline } from '../scripts/main-api-baseline.ts';
+import { mainApiBaseline, recordedApiBaseline } from '../scripts/main-api-baseline.ts';
 import { assertBrowserCompatibility, assertPublicApiCompatibility } from '../scripts/public-api-compatibility.ts';
 
 test('main baseline regenerates from its recorded main commit and every existing API signature is preserved', async () => {
   // The fixture records an ancestor of main, so a later merge cannot turn main red before the fixture is refreshed.
   execFileSync('git', ['merge-base', '--is-ancestor', mainBaseline.source_ref, 'origin/main']);
-  assert.deepEqual(JSON.parse(JSON.stringify(await mainApiBaseline(mainBaseline.source_ref))), mainBaseline);
+  assert.deepEqual(JSON.parse(JSON.stringify(await recordedApiBaseline(mainBaseline.source_ref))), mainBaseline);
   assertPublicApiCompatibility(process.cwd(), mainBaseline);
   // Current main is the live contract, so APIs merged after the recorded commit are preserved too.
   assertPublicApiCompatibility(process.cwd(), await mainApiBaseline());
+});
+
+test('an unloadable recorded baseline names the commit and the fixture refresh', async () => {
+  await assert.rejects(recordedApiBaseline('0'.repeat(40)), /Recorded API baseline 0{40} cannot be regenerated .*node scripts\/main-api-baseline\.ts/s);
 });
 
 test('root browser graph gains no Node edge or dependency relative to main', async () => {
