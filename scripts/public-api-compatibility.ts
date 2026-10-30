@@ -36,6 +36,12 @@ function packageRoot(root: string): string {
 function manifest(root: string): { name: string; exports: Record<string, ExportTarget> } {
   return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 }
+/** Runtime file behind an entry; Node-only entries publish a `node` condition instead of `import` or `default`. */
+function runtimeTarget(target: ExportTarget, entry: string): string {
+  const conditions = target as Record<string, string>, file = conditions.import ?? conditions.node ?? conditions.default;
+  assert.ok(typeof file === 'string', `Entry point ${entry} has no import, node or default condition`);
+  return file;
+}
 /** Keep compiler-normalized declarations compact, including large literal font types. */
 function digest(value: string): string { return createHash('sha256').update(value).digest('hex'); }
 /** Canonicalize graph identities across source archives and npm/Bun installed packages. */
@@ -144,8 +150,7 @@ export async function inventoryPublicApi(root: string, sourceRef: string): Promi
   const declaration = declarationInventory(root), values: Record<string, Record<string, string>> = Object.create(null);
   const require = createRequire(join(root, 'package.json'));
   for (const entry of Object.keys(declaration.names)) {
-    const target = manifest(root).exports[entry] as Record<string, string>;
-    const runtime = require(resolve(root, target.import ?? target.default));
+    const runtime = require(resolve(root, runtimeTarget(manifest(root).exports[entry], entry)));
     values[entry] = Object.fromEntries(Object.keys(runtime).sort().map(name => [name, typeof runtime[name]]));
   }
   const browser_sources: Record<string, string> = Object.create(null), browser_large_sources: Record<string, string> = Object.create(null);
@@ -171,8 +176,7 @@ export function assertPublicApiCompatibility(root: string, baseline: PublicApiBa
   // Node's module loader independently verifies value exports at their original entry points.
   const require = createRequire(join(root, 'package.json'));
   for (const [entry, exports] of Object.entries(baseline.names)) {
-    const target = current[entry] as Record<string, string>;
-    const runtime = require(resolve(root, target.import ?? target.default));
+    const runtime = require(resolve(root, runtimeTarget(current[entry], entry)));
     // Type-only names have no runtime value; compiler signatures above cover those.
     assert.ok(runtime && typeof runtime === 'object', `Invalid runtime entry ${entry}`);
     for (const [name, kind] of Object.entries(baseline.values[entry])) {

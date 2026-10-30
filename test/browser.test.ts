@@ -14,9 +14,13 @@ import { assertBrowserEntryPoints, mainBaseline } from '../scripts/browser-accep
 import { mainApiBaseline } from '../scripts/main-api-baseline.ts';
 import { assertBrowserCompatibility, assertPublicApiCompatibility } from '../scripts/public-api-compatibility.ts';
 
-test('main baseline regenerates from committed main and every existing API signature is preserved', async () => {
-  assert.deepEqual(JSON.parse(JSON.stringify(await mainApiBaseline())), mainBaseline);
+test('main baseline regenerates from its recorded main commit and every existing API signature is preserved', async () => {
+  // The fixture records an ancestor of main, so a later merge cannot turn main red before the fixture is refreshed.
+  execFileSync('git', ['merge-base', '--is-ancestor', mainBaseline.source_ref, 'origin/main']);
+  assert.deepEqual(JSON.parse(JSON.stringify(await mainApiBaseline(mainBaseline.source_ref))), mainBaseline);
   assertPublicApiCompatibility(process.cwd(), mainBaseline);
+  // Current main is the live contract, so APIs merged after the recorded commit are preserved too.
+  assertPublicApiCompatibility(process.cwd(), await mainApiBaseline());
 });
 
 test('root browser graph gains no Node edge or dependency relative to main', async () => {

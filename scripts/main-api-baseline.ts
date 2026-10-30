@@ -5,12 +5,12 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { inventoryPublicApi } from './public-api-compatibility.ts';
 
-/** Read main in a disposable archive, never executing package lifecycle scripts or modifying its checkout. */
-export async function mainApiBaseline() {
+/** Read a main commit (current main by default) in a disposable archive, never executing package lifecycle scripts or modifying its checkout. */
+export async function mainApiBaseline(ref = 'origin/main') {
   const scratch = mkdtempSync(join(tmpdir(), 'brand-api-main-'));
   try {
     const root = join(scratch, 'main'); mkdirSync(root);
-    const source = execFileSync('git', ['rev-parse', 'origin/main'], { encoding: 'utf8' }).trim();
+    const source = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`], { encoding: 'utf8' }).trim();
     const archive = join(scratch, 'main.tar');
     execFileSync('git', ['archive', '--output', archive, source, 'package.json', 'dist', 'fonts', 'logo', 'icons', 'tokens.css', 'fonts.css', 'CONTRACT.md']);
     execFileSync('tar', ['-xf', archive, '-C', root]);
