@@ -36,10 +36,23 @@ function packageRoot(root: string): string {
 function manifest(root: string): { name: string; exports: Record<string, ExportTarget> } {
   return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 }
-/** Runtime file behind an entry; Node-only entries publish a `node` condition instead of `import` or `default`. */
+/** Conditions Node activates for an ESM import, matched in manifest order like Node's own resolver. */
+const NODE_IMPORT_CONDITIONS = new Set(['node', 'import', 'module-sync', 'default']);
+/** Resolve one condition value: a path, or a nested condition object in manifest order. */
+function conditionTarget(value: unknown): string | undefined {
+  if (typeof value === 'string') return value;
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  for (const [condition, nested] of Object.entries(value)) {
+    if (!NODE_IMPORT_CONDITIONS.has(condition)) continue;
+    const file = conditionTarget(nested);
+    if (file !== undefined) return file;
+  }
+  return undefined;
+}
+/** Runtime file Node selects for an entry, so Node-only (`node`) entries and condition order are respected. */
 function runtimeTarget(target: ExportTarget, entry: string): string {
-  const conditions = target as Record<string, string>, file = conditions.import ?? conditions.node ?? conditions.default;
-  assert.ok(typeof file === 'string', `Entry point ${entry} has no import, node or default condition`);
+  const file = conditionTarget(target);
+  assert.ok(file !== undefined, `Entry point ${entry} has no node, import or default runtime condition`);
   return file;
 }
 /** Keep compiler-normalized declarations compact, including large literal font types. */

@@ -12,7 +12,11 @@ import { renderFontCoverageReport as aliasReport } from 'pm-brand/font-coverage-
 import * as sdk from '@unbrained/pm-cli/sdk';
 import { assertBrowserEntryPoints, mainBaseline } from '../scripts/browser-acceptance.ts';
 import { mainApiBaseline, recordedApiBaseline } from '../scripts/main-api-baseline.ts';
-import { assertBrowserCompatibility, assertPublicApiCompatibility } from '../scripts/public-api-compatibility.ts';
+import { assertBrowserCompatibility, assertPublicApiCompatibility, inventoryPublicApi } from '../scripts/public-api-compatibility.ts';
+
+let liveMain: ReturnType<typeof mainApiBaseline> | undefined;
+/** Current main, regenerated once per test file. */
+const liveMainBaseline = () => liveMain ??= mainApiBaseline();
 
 test('main baseline regenerates from its recorded main commit and every existing API signature is preserved', async () => {
   // The fixture records an ancestor of main, so a later merge cannot turn main red before the fixture is refreshed.
@@ -20,7 +24,9 @@ test('main baseline regenerates from its recorded main commit and every existing
   assert.deepEqual(JSON.parse(JSON.stringify(await recordedApiBaseline(mainBaseline.source_ref))), mainBaseline);
   assertPublicApiCompatibility(process.cwd(), mainBaseline);
   // Current main is the live contract, so APIs merged after the recorded commit are preserved too.
-  assertPublicApiCompatibility(process.cwd(), await mainApiBaseline());
+  assertPublicApiCompatibility(process.cwd(), await liveMainBaseline());
+  // The branch inventories like main will after merge, so an entry without a runtime condition fails here.
+  assert.equal((await inventoryPublicApi(process.cwd(), 'branch')).source_ref, 'branch');
 });
 
 test('an unloadable recorded baseline names the commit and the fixture refresh', async () => {
@@ -28,13 +34,13 @@ test('an unloadable recorded baseline names the commit and the fixture refresh',
 });
 
 test('root browser graph gains no Node edge or dependency relative to main', async () => {
-  await assertBrowserEntryPoints(process.cwd());
+  await assertBrowserEntryPoints(process.cwd(), await liveMainBaseline());
   const consumer = mkdtempSync(join(tmpdir(), 'brand-api-consumer-'));
   try {
     writeFileSync(join(consumer, 'package.json'), '{\"private\":true,\"type\":\"module\"}');
     mkdirSync(join(consumer, 'node_modules'));
     symlinkSync(process.cwd(), join(consumer, 'node_modules/pm-brand'), 'dir');
-    await assertBrowserEntryPoints(consumer);
+    await assertBrowserEntryPoints(consumer, await liveMainBaseline());
   } finally { rmSync(consumer, { recursive: true, force: true }); }
 });
 
