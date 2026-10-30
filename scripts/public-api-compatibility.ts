@@ -12,7 +12,8 @@ import { build } from 'esbuild';
 import type { Plugin } from 'esbuild';
 
 /** Existing export target, including conditional and asset targets. */
-export type ExportTarget = string | Record<string, string>;
+/** A package.json export target: a path, `null` (not exported), a fallback array, or a condition object. */
+export type ExportTarget = string | null | readonly ExportTarget[] | { readonly [condition: string]: ExportTarget };
 /** Canonical browser graph evidence; existing main dependencies are allowed. */
 export interface BrowserInventory { readonly node_edges: string[]; readonly server_modules: string[]; readonly node_dependencies: string[] }
 /** Reproducible public contract generated from committed main files, never guessed from the feature branch. */
@@ -38,21 +39,25 @@ function manifest(root: string): { name: string; exports: Record<string, ExportT
 }
 /** Conditions Node activates for an ESM import, matched in manifest order like Node's own resolver. */
 const NODE_IMPORT_CONDITIONS = new Set(['node', 'import', 'module-sync', 'default']);
-/** Resolve one condition value: a path, or a nested condition object in manifest order. */
-function conditionTarget(value: unknown): string | undefined {
-  if (typeof value === 'string') return value;
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
-  for (const [condition, nested] of Object.entries(value)) {
-    if (!NODE_IMPORT_CONDITIONS.has(condition)) continue;
-    const file = conditionTarget(nested);
+/**
+ * Resolve one target like Node: a path, a matched `null` that stops resolution, the first resolvable fallback-array
+ * element, or the first matching condition in manifest order; `undefined` means nothing matched.
+ */
+function conditionTarget(value: ExportTarget | undefined): string | null | undefined {
+  if (value === undefined || value === null || typeof value === 'string') return value;
+  const candidates: ReadonlyArray<ExportTarget> = Array.isArray(value) ? value
+    : Object.entries(value as { readonly [condition: string]: ExportTarget }).filter(([condition]) => NODE_IMPORT_CONDITIONS.has(condition)).map(([, nested]) => nested);
+  for (const candidate of candidates) {
+    const file = conditionTarget(candidate);
     if (file !== undefined) return file;
   }
   return undefined;
 }
-/** Runtime file Node selects for an entry, so Node-only (`node`) entries and condition order are respected. */
-function runtimeTarget(target: ExportTarget, entry: string): string {
+/** Runtime file Node selects for an entry; a matched `null` or no runtime condition means Node does not export it. */
+export function runtimeTarget(target: ExportTarget, entry: string): string {
   const file = conditionTarget(target);
   assert.ok(file !== undefined, `Entry point ${entry} has no node, import or default runtime condition`);
+  assert.ok(file !== null, `Entry point ${entry} resolves to null, so Node does not export it`);
   return file;
 }
 /** Keep compiler-normalized declarations compact, including large literal font types. */
@@ -132,8 +137,9 @@ export function declarationInventory(root: string): Pick<PublicApiBaseline, 'nam
       }
     }
     for (const [entry, target] of Object.entries(manifest(root).exports)) {
-      if (typeof target === 'string' || !target.types) continue;
-      const source = program.getSourceFile(resolve(root, target.types))!;
+      const types = target !== null && typeof target === 'object' && !Array.isArray(target) ? (target as { readonly [condition: string]: ExportTarget }).types : undefined;
+      if (typeof types !== 'string') continue;
+      const source = program.getSourceFile(resolve(root, types))!;
       assert.ok(source, `Missing declarations: ${entry}`);
       const symbol = checker.getSymbolAtLocation(source)!;
       names[entry] = Object.create(null);
