@@ -1,0 +1,24 @@
+id: pm-brand-h0rb
+title: Main CI stays green when a merge changes the public API baseline
+description: "Main CI has failed since #27 (4ffda25). The browser test required the committed fixture test/fixtures/public-api-main.json to equal a baseline regenerated from the moving origin/main, so every merge that changes the public API turned main red until someone refreshed the fixture. Regenerating also crashed on Node-only entry points (semantic-assets, svg-compare, font-coverage-report), which publish a node condition without import or default. This blocks pm-brand#30 and the daily release."
+type: Issue
+status: in_progress
+priority: 1
+tags[3]: bug,ci,compatibility
+created_at: "2026-10-30T18:27:53.211Z"
+updated_at: "2026-10-30T20:49:31.202Z"
+author: claude-orchestrator
+acceptance_criteria: "The fixture regenerates from its recorded source_ref, which must be an ancestor of origin/main; Branch APIs are also checked against a live baseline of current origin/main; Node-only entry points resolve through their node condition; Each fix fails its regression when reverted"
+expected_result: "Main CI passes after merges that add entry points; the fixture is verified against its own recorded main commit, and the branch is also checked against current main."
+actual_result: "verify (22) and verify (26) fail on main at 4ffda25: The \"paths[1]\" argument must be of type string. Received undefined (inventoryPublicApi)."
+comments[2]{created_at,author,text}:
+  "2026-10-30T18:28:07.239Z",claude-orchestrator,"Revert proofs: (1) restoring import ?? default fails the recorded-commit test at ./semantic-assets (no import, node or default condition); (2) main's stale but ancestral fixture (26d2090) passes the new test and fails the old one, which is how main turned red after #27. Gates: lint, typecheck, build:check, docstring, changelog:check pass; coverage 148/148 tests at 100/100/100/100."
+  "2026-10-30T20:49:31.201Z",claude-orchestrator,"CodeRabbit round on 3702687: the browser test now inventories the branch's own package (an entry without a runtime condition fails before merge; revert proof: a types-only ./types-only entry fails with the check and passes without it); runtime targets resolve in Node's condition order (node/import/module-sync/default, nested objects, manifest order); source tests pass the live main baseline to assertBrowserEntryPoints, packed consumers keep the fixture. 5/5 browser tests; lint, typecheck, docstring pass."
+files[4]{path,scope}:
+  scripts/main-api-baseline.ts,project
+  scripts/public-api-compatibility.ts,project
+  test/browser.test.ts,project
+  test/fixtures/public-api-main.json,project
+tests[1]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test test/browser.test.ts,project,claude-orchestrator,"2026-10-30T18:28:03.799Z",local_mutation,fix/main-api-baseline-recorded-ref
+body: ""

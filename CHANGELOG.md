@@ -13,6 +13,10 @@
 - Contrast and AA quality gates ([pm-brand-contrast](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-contrast.toon))
 - README banner and OG generators ([pm-brand-images](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-images.toon))
 
+### Fixed
+
+- Main CI stays green when a merge changes the public API baseline ([pm-brand-h0rb](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/issues/pm-brand-h0rb.toon))
+
 ### Other
 
 - Stop Hound from linting generated dist/ output ([pm-brand-hound-generated-dist](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-hound-generated-dist.toon))
