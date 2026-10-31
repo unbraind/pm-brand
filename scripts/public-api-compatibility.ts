@@ -40,15 +40,25 @@ function manifest(root: string): { name: string; exports: Record<string, ExportT
 /** Conditions Node activates for an ESM import, matched in manifest order like Node's own resolver. */
 const NODE_IMPORT_CONDITIONS = new Set(['node-addons', 'node', 'import', 'module-sync', 'default']);
 /**
- * Resolve one target like Node: a path, a matched `null` that stops resolution, the first resolvable fallback-array
- * element, or the first matching condition in manifest order; `undefined` means nothing matched.
+ * Resolve one target like Node's resolver: a path; a `null` that stops a condition object; a fallback array that
+ * skips `null` and unmatched items (an empty or all-`null` array resolves to `null`); or the first matching
+ * condition in manifest order. `undefined` means nothing matched.
  */
 function conditionTarget(value: ExportTarget | undefined): string | null | undefined {
   if (value === undefined || value === null || typeof value === 'string') return value;
-  const candidates: ReadonlyArray<ExportTarget> = Array.isArray(value) ? value
-    : Object.entries(value as { readonly [condition: string]: ExportTarget }).filter(([condition]) => NODE_IMPORT_CONDITIONS.has(condition)).map(([, nested]) => nested);
-  for (const candidate of candidates) {
-    const file = conditionTarget(candidate);
+  if (Array.isArray(value)) {
+    if (value.length === 0) return null;
+    let last: null | undefined;
+    for (const candidate of value as ReadonlyArray<ExportTarget>) {
+      const file = conditionTarget(candidate);
+      if (file === null) last = null;
+      else if (file !== undefined) return file;
+    }
+    return last;
+  }
+  for (const [condition, nested] of Object.entries(value as { readonly [condition: string]: ExportTarget })) {
+    if (!NODE_IMPORT_CONDITIONS.has(condition)) continue;
+    const file = conditionTarget(nested);
     if (file !== undefined) return file;
   }
   return undefined;

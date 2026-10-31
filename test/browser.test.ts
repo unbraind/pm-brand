@@ -37,6 +37,11 @@ test('runtime targets follow Node condition order, nesting, fallbacks and termin
   assert.equal(runtimeTarget({ import: { browser: './dist/b.js', node: './dist/n.js', default: './dist/d.js' } }, '.'), './dist/n.js');
   assert.equal(runtimeTarget({ browser: './dist/b.js', default: ['./dist/first.js', './dist/second.js'] }, '.'), './dist/first.js');
   assert.throws(() => runtimeTarget({ node: null, default: './dist/entry.js' }, './gone'), /\.\/gone resolves to null/);
+  assert.equal(runtimeTarget({ types: './x.d.ts', node: [null, './dist/x.js'] }, '.'), './dist/x.js');
+  assert.equal(runtimeTarget({ node: [{ browser: './dist/b.js' }, './dist/n.js'] }, '.'), './dist/n.js');
+  assert.throws(() => runtimeTarget({ node: [], default: './dist/d.js' }, './empty'), /\.\/empty resolves to null/);
+  assert.throws(() => runtimeTarget({ node: [null], default: './dist/d.js' }, './nulls'), /\.\/nulls resolves to null/);
+  assert.equal(runtimeTarget({ node: [{ browser: './dist/b.js' }], default: './dist/d.js' }, '.'), './dist/d.js');
   assert.throws(() => runtimeTarget({ types: './x.d.ts', browser: './dist/b.js' }, './typed'), /\.\/typed has no node, import or default runtime condition/);
 });
 
