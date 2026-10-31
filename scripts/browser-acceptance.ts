@@ -9,10 +9,13 @@ import type { PublicApiBaseline } from './public-api-compatibility.ts';
 /** Recorded contract is generated and independently regenerated from origin/main by source tests. */
 export const mainBaseline: PublicApiBaseline = JSON.parse(readFileSync(new URL('../test/fixtures/public-api-main.json', import.meta.url), 'utf8'));
 
-/** Preserve main's API and browser graph for source, npm/Bun tarballs and non-git Git consumers alike. */
-export async function assertBrowserEntryPoints(root: string): Promise<void> {
-  assertPublicApiCompatibility(root, mainBaseline);
-  await assertBrowserCompatibility(root, mainBaseline);
+/**
+ * Preserve main's API and browser graph for source, npm/Bun tarballs and non-git Git consumers alike.
+ * Source tests pass a live baseline of current main; packed consumers have no git and use the recorded fixture.
+ */
+export async function assertBrowserEntryPoints(root: string, baseline: PublicApiBaseline = mainBaseline): Promise<void> {
+  assertPublicApiCompatibility(root, baseline);
+  await assertBrowserCompatibility(root, baseline);
   for (const name of ['pm-brand/banner', 'pm-brand/contrast', 'pm-brand/accessibility']) {
     const result = await build({ absWorkingDir: root, stdin: { contents: `import * as api from '${name}'; globalThis.brand = api;`, resolveDir: root }, bundle: true,
       platform: 'browser', format: 'iife', write: false, metafile: true, logLevel: 'silent', treeShaking: false });
