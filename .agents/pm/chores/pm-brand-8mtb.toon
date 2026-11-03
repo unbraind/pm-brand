@@ -6,9 +6,7 @@ status: in_progress
 priority: 2
 tags[4]: dependencies,"gh:unbraind/pm-brand#29",migration,sdk
 created_at: "2026-11-03T06:27:32.675Z"
-updated_at: "2026-11-03T06:46:03.820Z"
-assignee: pi-fleet-sdk-sentinel-1103
-claim_principal: pi-fleet-sdk-sentinel-1103
+updated_at: "2026-11-03T06:46:14.316Z"
 author: pi-fleet-sdk-sentinel-1103
 comments[3]{created_at,author,text}:
   "2026-11-03T06:27:40.137Z",pi-fleet-sdk-sentinel-1103,"Three test fixtures passed parent:'none' to the typed SDK create; the pinned toolchain keeps CLI sentinels literal, so the creates now refuse. Moved each to the explicit unset form ('parent' added to the existing unset list; the inline list gained it as well). No production code passed sentinels, so there is no production bug. Unrelated data (SVG fill/stroke 'none', permission-level 'none', mono variant 'none') left untouched."
