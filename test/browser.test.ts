@@ -12,7 +12,7 @@ import { renderFontCoverageReport as aliasReport } from 'pm-brand/font-coverage-
 import * as sdk from '@unbrained/pm-cli/sdk';
 import { assertBrowserEntryPoints, mainBaseline } from '../scripts/browser-acceptance.ts';
 import { mainApiBaseline, recordedApiBaseline } from '../scripts/main-api-baseline.ts';
-import { assertBrowserCompatibility, assertPublicApiCompatibility, inventoryPublicApi, runtimeTarget } from '../scripts/public-api-compatibility.ts';
+import { assertBrowserCompatibility, assertPublicApiCompatibility, browserInventory, inventoryPublicApi, runtimeTarget } from '../scripts/public-api-compatibility.ts';
 
 let liveMain: ReturnType<typeof mainApiBaseline> | undefined;
 /** Current main, regenerated once per test file. */
@@ -21,7 +21,11 @@ const liveMainBaseline = () => liveMain ??= mainApiBaseline();
 test('main baseline regenerates from its recorded main commit and every existing API signature is preserved', async () => {
   // The fixture records an ancestor of main, so a later merge cannot turn main red before the fixture is refreshed.
   execFileSync('git', ['merge-base', '--is-ancestor', mainBaseline.source_ref, 'origin/main']);
-  assert.deepEqual(JSON.parse(JSON.stringify(await recordedApiBaseline(mainBaseline.source_ref))), mainBaseline);
+  // Dependency bundle chunk names change with the installed CLI. Rebundle the
+  // recorded package sources with that same dependency graph, as the browser
+  // compatibility gate does. Every package-owned signature and source stays exact.
+  const expected = { ...mainBaseline, browser: await browserInventory(process.cwd(), mainBaseline) };
+  assert.deepEqual(JSON.parse(JSON.stringify(await recordedApiBaseline(mainBaseline.source_ref))), expected);
   assertPublicApiCompatibility(process.cwd(), mainBaseline);
   // Current main is the live contract, so APIs merged after the recorded commit are preserved too.
   assertPublicApiCompatibility(process.cwd(), await liveMainBaseline());

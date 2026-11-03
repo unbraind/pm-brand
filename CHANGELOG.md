@@ -19,6 +19,7 @@
 
 ### Other
 
+- Migrate test fixtures off the parent:none SDK sentinel ([pm-brand-8mtb](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-8mtb.toon))
 - Stop Hound from linting generated dist/ output ([pm-brand-hound-generated-dist](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-hound-generated-dist.toon))
 - Release readiness behind PM_RELEASE_APPROVED ([pm-brand-release-gate](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-release-gate.toon))
 - pm-brand kit ([pm-brand-kit](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/epics/pm-brand-kit.toon))
