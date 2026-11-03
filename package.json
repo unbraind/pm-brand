@@ -172,5 +172,8 @@
   },
   "bin": {
     "pm-brand": "dist/cli.js"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1"
   }
 }
