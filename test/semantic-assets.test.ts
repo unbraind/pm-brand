@@ -222,7 +222,7 @@ test('500 seeded model sequences replay older assets and read all native state b
   const pmRoot = join(root, '.agents/pm'), client = new sdk.PmClient({ pmRoot, noExtensions: true });
   await client.init('asset', { defaults: true, withPackages: false, mergeFence: false, agentGuidance: 'skip' });
   const unset = ['goal', 'objective', 'sprint', 'release', 'blocked_by', 'assignee', 'reviewer'];
-  const parent = await client.create({ title: 'Parent', type: 'Task', parent: 'none', clearDeps: true, unset });
+  const parent = await client.create({ title: 'Parent', type: 'Task', clearDeps: true, unset: ['parent', ...unset] });
   await client.focus(parent.item.id);
   const child = await client.create({ title: '  Café 🚀  ', type: 'Task', parent: parent.item.id, description: 'Text', body: 'First\r\nSecond  \r\n',
     tags: 'alpha,beta', priority: 1, risk: 'low', confidence: 'high', estimatedMinutes: '30', acceptanceCriteria: 'Visible', definitionOfReady: 'Supplied',
