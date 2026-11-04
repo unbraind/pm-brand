@@ -2,12 +2,17 @@ id: pm-brand-8mtb
 title: "Migrate test fixtures off the parent:none SDK sentinel"
 description: ""
 type: Chore
-status: in_progress
+status: closed
 priority: 2
 tags[4]: dependencies,"gh:unbraind/pm-brand#29",migration,sdk
 created_at: "2026-11-03T06:27:32.675Z"
-updated_at: "2026-11-03T09:41:29.561Z"
+updated_at: "2026-11-04T05:36:43.473Z"
+closed_at: "2026-11-04T05:36:43.464Z"
+completed_at: "2026-11-04T05:36:43.464Z"
 author: pi-fleet-sdk-sentinel-1103
+resolution: Implemented and merged in #29 (3d097eb).
+expected_result: The change described by this item is on main.
+actual_result: "Merged in #29 as 3d097eb; checks successful at head dbaff58: CodeQL, analyze, enable, trusted-identity, verify (22), verify (26)."
 comments[5]{created_at,author,text}:
   "2026-11-03T06:27:40.137Z",pi-fleet-sdk-sentinel-1103,"Three test fixtures passed parent:'none' to the typed SDK create; the pinned toolchain keeps CLI sentinels literal, so the creates now refuse. Moved each to the explicit unset form ('parent' added to the existing unset list; the inline list gained it as well). No production code passed sentinels, so there is no production bug. Unrelated data (SVG fill/stroke 'none', permission-level 'none', mono variant 'none') left untouched."
   "2026-11-03T06:33:00.923Z",pi-fleet-sdk-sentinel-1103,"npm test: 149/150 pass after the sentinel migration. The single remaining failure pre-exists on the pristine Dependabot branch: the recorded API baseline's node_edges reference pm-cli bundle chunk names that changed with the pinned toolchain version. That is a bump consequence unrelated to the sentinel change, so it is reported here rather than widened in scope."
@@ -24,4 +29,5 @@ tests[3]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
   "node --test --test-name-pattern=\"main baseline regenerates\" test/browser.test.ts",project,codex-toolchain-1103,"2026-11-03T09:39:03.470Z",local_mutation,dependabot/npm_and_yarn/pm-toolchain-83955e8a70
 docs[1]{path,scope}:
   CHANGELOG.md,project
+close_reason: "Delivered by #29 \"Bump the pm-toolchain group across 1 directory with 3 updates\" (merged as 3d097eb). Checks successful at the PR head dbaff58: CodeQL, analyze, enable, trusted-identity, verify (22), verify (26)."
 body: ""
