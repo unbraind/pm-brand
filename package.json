@@ -167,7 +167,7 @@
   },
   "dependencies": {
     "@resvg/resvg-js": "2.6.2",
-    "@rgrove/parse-xml": "5.0.0",
+    "@rgrove/parse-xml": "5.1.0",
     "@toon-format/toon": "4.4.0"
   },
   "bin": {
