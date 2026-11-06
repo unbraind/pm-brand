@@ -220,7 +220,7 @@ test('500 seeded operation sequences replay old inputs, preserve native SDK stat
   const client = new sdk.PmClient({ cwd: root, pmRoot, author: 'fixture-agent', noExtensions: true });
   await client.init('fixture', { defaults: true, withPackages: false, mergeFence: false, agentGuidance: 'skip' });
   const unset = ['goal', 'objective', 'sprint', 'release', 'blocked_by', 'assignee', 'reviewer'];
-  const parent = await client.create({ title: 'Fixture parent', type: 'Task', parent: 'none', clearDeps: true, unset });
+  const parent = await client.create({ title: 'Fixture parent', type: 'Task', clearDeps: true, unset: ['parent', ...unset] });
   const child = await client.create({ title: '  Café 🚀 e\u0301  ', type: 'Task', parent: parent.item.id,
     description: '  Description 日本語  ', body: 'First line\r\n\r\nTrailing space  \r\n', tags: 'alpha,beta',
     priority: 1, risk: 'low', confidence: 'high', estimatedMinutes: '30', acceptanceCriteria: 'Visible', definitionOfReady: 'Text supplied',

@@ -1,0 +1,33 @@
+id: pm-brand-8mtb
+title: "Migrate test fixtures off the parent:none SDK sentinel"
+description: ""
+type: Chore
+status: closed
+priority: 2
+tags[4]: dependencies,"gh:unbraind/pm-brand#29",migration,sdk
+created_at: "2026-11-03T06:27:32.675Z"
+updated_at: "2026-11-04T05:36:43.473Z"
+closed_at: "2026-11-04T05:36:43.464Z"
+completed_at: "2026-11-04T05:36:43.464Z"
+author: pi-fleet-sdk-sentinel-1103
+resolution: Implemented and merged in #29 (3d097eb).
+expected_result: The change described by this item is on main.
+actual_result: "Merged in #29 as 3d097eb; checks successful at head dbaff58: CodeQL, analyze, enable, trusted-identity, verify (22), verify (26)."
+comments[5]{created_at,author,text}:
+  "2026-11-03T06:27:40.137Z",pi-fleet-sdk-sentinel-1103,"Three test fixtures passed parent:'none' to the typed SDK create; the pinned toolchain keeps CLI sentinels literal, so the creates now refuse. Moved each to the explicit unset form ('parent' added to the existing unset list; the inline list gained it as well). No production code passed sentinels, so there is no production bug. Unrelated data (SVG fill/stroke 'none', permission-level 'none', mono variant 'none') left untouched."
+  "2026-11-03T06:33:00.923Z",pi-fleet-sdk-sentinel-1103,"npm test: 149/150 pass after the sentinel migration. The single remaining failure pre-exists on the pristine Dependabot branch: the recorded API baseline's node_edges reference pm-cli bundle chunk names that changed with the pinned toolchain version. That is a bump consequence unrelated to the sentinel change, so it is reported here rather than widened in scope."
+  "2026-11-03T06:46:03.818Z",pi-fleet-sdk-sentinel-1103,"Gate results: typecheck, lint, build:check, build, docstring, font-budget, assets:check, banners:check, audit:prod, pack:dry-run, changelog:check and test:install all pass. release:check as scripted stops at two non-sentinel causes: (1) the pm health step reports a global pm-github extension host-version skew (local global extension recorded under the newer host pm), which passes with extension loading disabled; (2) the coverage gate fails only on the pre-existing recorded API baseline test, whose node_edges reference pm-cli bundle chunk names that changed with the pinned toolchain version. Changelog regenerated with no diff."
+  "2026-11-03T09:14:12.516Z",codex-toolchain-1103,"Reproduced the recorded-main fixture failure. Exact differences are browser.node_edges and browser.server_modules containing content-hashed pm-cli bundle chunk paths, not changed pm-brand API signatures or emitted package sources. Pin 2026.10.25 to 2026.10.30 rebuilds the SDK chunks (including GH-1597/GH-1598 transaction APIs and GH-1606/GH-1614 validation changes recorded in the 2026.10.30 changelog). Classification: test/toolchain-dependent baseline. Recompute the expected browser inventory from the recorded package-owned sources against the same installed dependencies, matching the existing browser compatibility gate. Continue exact comparison of every export, declaration signature, runtime kind, asset, package source and leaf hash, plus current-main API preservation and negative controls for removed exports, changed signatures and new Node imports. Merged origin/main minimatch security override."
+  "2026-11-03T09:41:11.506Z",codex-toolchain-1103,"Validation complete for the baseline fix: npm test -- --test-concurrency=2 ran all 150 tests, 149 passed and one CLI startup hit its unchanged 15000ms subprocess deadline (null status versus expected 1). The exact failed CLI test then passed unchanged in isolation (1/1). Corrected recorded-main baseline, live-main API checks, all export/signature/Node-edge negative controls pass; focused baseline also passes through pm test. Typecheck, lint, build:check (34 tracked compiled files match), identity:check and changelog regeneration/check pass. No dist or changelog content changed. The only full-suite limitation is the recorded load-related CLI timeout; CI still owns full exact-head acceptance. No release gate or coverage run was attempted."
+files[3]{path,scope}:
+  scripts/main-api-baseline.ts,project
+  scripts/public-api-compatibility.ts,project
+  test/browser.test.ts,project
+tests[3]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  npm test,project,pi-fleet-sdk-sentinel-1103,"2026-11-03T06:27:42.866Z",local_mutation,dependabot/npm_and_yarn/pm-toolchain-83955e8a70
+  node --test test/browser.test.ts,project,codex-toolchain-1103,"2026-11-03T09:14:45.506Z",local_mutation,dependabot/npm_and_yarn/pm-toolchain-83955e8a70
+  "node --test --test-name-pattern=\"main baseline regenerates\" test/browser.test.ts",project,codex-toolchain-1103,"2026-11-03T09:39:03.470Z",local_mutation,dependabot/npm_and_yarn/pm-toolchain-83955e8a70
+docs[1]{path,scope}:
+  CHANGELOG.md,project
+close_reason: "Delivered by #29 \"Bump the pm-toolchain group across 1 directory with 3 updates\" (merged as 3d097eb). Checks successful at the PR head dbaff58: CodeQL, analyze, enable, trusted-identity, verify (22), verify (26)."
+body: ""

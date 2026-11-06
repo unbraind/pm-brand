@@ -12,7 +12,8 @@ import { build } from 'esbuild';
 import type { Plugin } from 'esbuild';
 
 /** Existing export target, including conditional and asset targets. */
-export type ExportTarget = string | Record<string, string>;
+/** A package.json export target: a path, `null` (not exported), a fallback array, or a condition object. */
+export type ExportTarget = string | null | readonly ExportTarget[] | { readonly [condition: string]: ExportTarget };
 /** Canonical browser graph evidence; existing main dependencies are allowed. */
 export interface BrowserInventory { readonly node_edges: string[]; readonly server_modules: string[]; readonly node_dependencies: string[] }
 /** Reproducible public contract generated from committed main files, never guessed from the feature branch. */
@@ -35,6 +36,39 @@ function packageRoot(root: string): string {
 /** Read the explicit package manifest, without ambient package or tracker discovery. */
 function manifest(root: string): { name: string; exports: Record<string, ExportTarget> } {
   return JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+}
+/** Conditions Node activates for an ESM import, matched in manifest order like Node's own resolver. */
+const NODE_IMPORT_CONDITIONS = new Set(['node-addons', 'node', 'import', 'module-sync', 'default']);
+/**
+ * Resolve one target like Node's resolver: a path; a `null` that stops a condition object; a fallback array that
+ * skips `null` and unmatched items (an empty or all-`null` array resolves to `null`); or the first matching
+ * condition in manifest order. `undefined` means nothing matched.
+ */
+function conditionTarget(value: ExportTarget | undefined): string | null | undefined {
+  if (value === undefined || value === null || typeof value === 'string') return value;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return null;
+    let last: null | undefined;
+    for (const candidate of value as ReadonlyArray<ExportTarget>) {
+      const file = conditionTarget(candidate);
+      if (file === null) last = null;
+      else if (file !== undefined) return file;
+    }
+    return last;
+  }
+  for (const [condition, nested] of Object.entries(value as { readonly [condition: string]: ExportTarget })) {
+    if (!NODE_IMPORT_CONDITIONS.has(condition)) continue;
+    const file = conditionTarget(nested);
+    if (file !== undefined) return file;
+  }
+  return undefined;
+}
+/** Runtime file Node selects for an entry; a matched `null` or no runtime condition means Node does not export it. */
+export function runtimeTarget(target: ExportTarget, entry: string): string {
+  const file = conditionTarget(target);
+  assert.ok(file !== undefined, `Entry point ${entry} has no node, import or default runtime condition`);
+  assert.ok(file !== null, `Entry point ${entry} resolves to null, so Node does not export it`);
+  return file;
 }
 /** Keep compiler-normalized declarations compact, including large literal font types. */
 function digest(value: string): string { return createHash('sha256').update(value).digest('hex'); }
@@ -113,8 +147,9 @@ export function declarationInventory(root: string): Pick<PublicApiBaseline, 'nam
       }
     }
     for (const [entry, target] of Object.entries(manifest(root).exports)) {
-      if (typeof target === 'string' || !target.types) continue;
-      const source = program.getSourceFile(resolve(root, target.types))!;
+      const types = target !== null && typeof target === 'object' && !Array.isArray(target) ? (target as { readonly [condition: string]: ExportTarget }).types : undefined;
+      if (typeof types !== 'string') continue;
+      const source = program.getSourceFile(resolve(root, types))!;
       assert.ok(source, `Missing declarations: ${entry}`);
       const symbol = checker.getSymbolAtLocation(source)!;
       names[entry] = Object.create(null);
@@ -144,8 +179,7 @@ export async function inventoryPublicApi(root: string, sourceRef: string): Promi
   const declaration = declarationInventory(root), values: Record<string, Record<string, string>> = Object.create(null);
   const require = createRequire(join(root, 'package.json'));
   for (const entry of Object.keys(declaration.names)) {
-    const target = manifest(root).exports[entry] as Record<string, string>;
-    const runtime = require(resolve(root, target.import ?? target.default));
+    const runtime = require(resolve(root, runtimeTarget(manifest(root).exports[entry], entry)));
     values[entry] = Object.fromEntries(Object.keys(runtime).sort().map(name => [name, typeof runtime[name]]));
   }
   const browser_sources: Record<string, string> = Object.create(null), browser_large_sources: Record<string, string> = Object.create(null);
@@ -171,8 +205,7 @@ export function assertPublicApiCompatibility(root: string, baseline: PublicApiBa
   // Node's module loader independently verifies value exports at their original entry points.
   const require = createRequire(join(root, 'package.json'));
   for (const [entry, exports] of Object.entries(baseline.names)) {
-    const target = current[entry] as Record<string, string>;
-    const runtime = require(resolve(root, target.import ?? target.default));
+    const runtime = require(resolve(root, runtimeTarget(current[entry], entry)));
     // Type-only names have no runtime value; compiler signatures above cover those.
     assert.ok(runtime && typeof runtime === 'object', `Invalid runtime entry ${entry}`);
     for (const [name, kind] of Object.entries(baseline.values[entry])) {

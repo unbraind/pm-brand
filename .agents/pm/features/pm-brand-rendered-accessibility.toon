@@ -2,13 +2,18 @@ id: pm-brand-rendered-accessibility
 title: Locate failing accessibility pairs in consumer components
 description: "Accept local components' resolved brand-token roles and diagnose consumer foreground/background/focus compositions, retaining theme and token references. Add typed SDK and CLI, typed remedies, strict bounded input, docs and packed non-git acceptance."
 type: Feature
-status: in_progress
+status: closed
 priority: 1
 tags[3]: accessibility,cli,sdk
 created_at: "2026-10-27T18:50:52.962Z"
-updated_at: "2026-10-27T19:14:01.506Z"
+updated_at: "2026-10-30T18:03:25.781Z"
+closed_at: "2026-10-30T18:03:24.963Z"
+completed_at: "2026-10-27T19:51:09.000Z"
 author: codex-agent
 acceptance_criteria: "Fixtures distinguish text, focus and decorative rules; every failing pair has a component locator and measured ratio; JSON/TOON reports fit a requested budget without hiding failure counts."
+resolution: "Delivered by PR #23 (18641fb): Locate rendered accessibility failures in consumer components"
+expected_result: "Fixtures distinguish text, focus and decorative rules; every failing pair has a component locator and measured ratio; JSON/TOON reports fit a requested budget without hiding failure counts."
+actual_result: "PR #23 merged at 2026-10-27T19:51:09Z as 18641fb; required CI passed on the merged head."
 comments[5]{created_at,author,text}:
   "2026-10-27T18:51:15.372Z",codex-agent,"Overlap recheck: src/contrast.ts contrastAudit certifies 68 fixed kit pairs (36 text, 4 focus, 28 decorative), not consumer compositions. pm-web owns application/browser accessibility; core SDK owns universal output shaping and accounting. Sibling and core source searches plus GitHub search found no equivalent consumer fault locator. Scope is a pure read-only diagnostic: no tracker import/export/sync, plans, claims, leases, status inference or mutations; tracker invariants remain applicable to validation evidence only. Registry reports pm CLI 2026.10.27; keep the repository SDK pin at 2026.10.23."
   "2026-10-27T18:51:21.176Z",codex-agent,"Design: explicit resolved colors plus brand-token references, theme and component locator; text (4.5 or explicit large-text 3), focus (3), decorative (no failure threshold). Reuse existing WCAG contrast primitives. Keep complete fault records; an insufficient budget returns a typed refusal with full failure counts rather than shortened locators. Lazily load the public SDK through standard package imports for core shaping/accounting, allow host injection, and keep pure diagnostics independent of the optional SDK peer. Validate with seeded adversarial serialization/replay sequences, non-git SDK read-back and packed npm/Bun install modes."
@@ -59,4 +64,5 @@ docs[4]{path,scope}:
   docs/accessibility.md,project
   examples/accessibility.json,project
   README.md,project
+close_reason: "Delivered by PR #23 (18641fb): Locate rendered accessibility failures in consumer components"
 body: ""

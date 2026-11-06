@@ -13,8 +13,13 @@
 - Contrast and AA quality gates ([pm-brand-contrast](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-contrast.toon))
 - README banner and OG generators ([pm-brand-images](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/features/pm-brand-images.toon))
 
+### Fixed
+
+- Main CI stays green when a merge changes the public API baseline ([pm-brand-h0rb](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/issues/pm-brand-h0rb.toon))
+
 ### Other
 
+- Migrate test fixtures off the parent:none SDK sentinel ([pm-brand-8mtb](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-8mtb.toon))
 - Stop Hound from linting generated dist/ output ([pm-brand-hound-generated-dist](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-hound-generated-dist.toon))
 - Release readiness behind PM_RELEASE_APPROVED ([pm-brand-release-gate](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-release-gate.toon))
 - pm-brand kit ([pm-brand-kit](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/epics/pm-brand-kit.toon))

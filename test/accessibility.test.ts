@@ -213,8 +213,8 @@ test('500 seeded operation sequences preserve replay, whitespace and every produ
   const pmRoot = join(root, '.agents/pm');
   const client = new sdk.PmClient({ cwd: root, pmRoot, author: 'fixture-agent', noExtensions: true });
   await client.init('fixture', { defaults: true, withPackages: false, mergeFence: false, agentGuidance: 'skip' });
-  const parent = await client.create({ title: 'Reference parent', type: 'Task', parent: 'none', clearDeps: true,
-    unset: ['goal', 'objective', 'sprint', 'release', 'blocked_by', 'assignee', 'reviewer'] });
+  const parent = await client.create({ title: 'Reference parent', type: 'Task', clearDeps: true,
+    unset: ['goal', 'objective', 'sprint', 'release', 'blocked_by', 'assignee', 'reviewer', 'parent'] });
   const child = await client.create({ title: '  Rendered child λ  ', type: 'Task', parent: parent.item.id,
     body: 'First line\r\n\r\nSecond line with trailing space  \r\n', description: '  Resolved colours  ',
     tags: 'alpha,beta', priority: 1, risk: 'low', confidence: 'high', estimatedMinutes: '30',
