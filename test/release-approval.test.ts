@@ -1,6 +1,5 @@
 /** Audit every workflow's effective permissions, publication approval and npm authentication. */
 import assert from 'node:assert/strict';
-import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -194,13 +193,15 @@ function inspectWorkflow(source: string, filename: string): string[] {
     let writable = false;
     try { writable = writes(effective); }
     catch { issues.push(`${location}: invalid permissions`); }
-    const condition = typeof job.if === 'string' ? job.if : '';
+    const canonical = typeof job.uses === 'string' && /^unbraind\/pm-ops\/\.github\/workflows\/daily-release\.yml@[a-f0-9]{40}$/u.test(job.uses);
+    const enabled = canonical ? mapping(job.with)?.['release-enabled'] : job.if;
+    const condition = typeof enabled === 'string' ? enabled : '';
     const steps = Array.isArray(job.steps) ? job.steps : [];
     const commands = steps.flatMap(step => {
       const value = mapping(step)?.run;
       return typeof value === 'string' ? publications(value) : [];
     });
-    const reusablePublisher = typeof job.uses === 'string' && /\/(?:release|publish)[^/]*\.ya?ml@/u.test(job.uses);
+    const reusablePublisher = typeof job.uses === 'string' && /\/(?:daily-release|release|publish)[^/]*\.ya?ml@/u.test(job.uses);
     const publishes = commands.length > 0 || reusablePublisher;
     if ((writable || publishes) && !requiresAtom(condition, repositoryAtom)) issues.push(`${location}: exact repository guard required`);
     if (condition.includes('github.repository_owner')) issues.push(`${location}: repository_owner is not a repository guard`);
@@ -249,25 +250,20 @@ test('daily/manual release triggers and preparation gates remain enforced', () =
   const release = document(readFileSync(new URL('release.yml', workflowRoot), 'utf8'));
   const events = mapping(release.on);
   assert.ok(events && Object.hasOwn(events, 'workflow_dispatch'));
-  assert.deepEqual(events.schedule, [{ cron: '23 3 * * *' }]);
+  assert.deepEqual(events.schedule, [{ cron: '23 3 * * *' }, { cron: '41 * * * *' }]);
   const jobs = mapping(release.jobs);
   assert.ok(jobs?.release);
-  for (const name of ['prepare', 'release', 'resume_release']) {
-    const job = mapping(jobs[name]);
-    if (!job) continue;
-    assert.ok(typeof job.if === 'string');
-    for (const atom of [repositoryAtom, approvalAtom, mainAtom]) assert.ok(requiresAtom(job.if, atom), `${name} must require ${atom}`);
-  }
+  const job = mapping(jobs.release);
+  const enabled = mapping(job?.with)?.['release-enabled'];
+  assert.equal(typeof enabled, 'string');
+  for (const atom of [repositoryAtom, approvalAtom, mainAtom]) assert.ok(requiresAtom(String(enabled), atom), `release must require ${atom}`);
 });
 
-test('publishing installs an npm version supporting trusted publishing', () => {
+test('publishing delegates npm bootstrap to the SHA-pinned canonical workflow', () => {
   const release = document(readFileSync(new URL('release.yml', workflowRoot), 'utf8'));
-  const scripts = Object.values(mapping(release.jobs) ?? {}).flatMap(job => {
-    const steps = mapping(job)?.steps;
-    return Array.isArray(steps) ? steps.map(step => mapping(step)?.run).filter(value => typeof value === 'string') : [];
-  }).join('\n');
-  const version = scripts.match(/npm install -g npm@(\d+)\.(\d+)\.(\d+)/u)?.slice(1).map(Number);
-  assert.ok(version && (version[0] > 11 || version[0] === 11 && (version[1] > 5 || version[1] === 5 && version[2] >= 1)));
+  const job = mapping(mapping(release.jobs)?.release);
+  assert.match(String(job?.uses), /^unbraind\/pm-ops\/\.github\/workflows\/daily-release\.yml@[a-f0-9]{40}$/u);
+  assert.equal(job?.steps, undefined);
 });
 
 test('automatic release activation is absent and publishing documentation matches behaviour', () => {
@@ -288,6 +284,8 @@ test('the manifest remains public and identifies its catalog and public author',
 });
 
 const negativeFixtures: { name: string; source: string; issue: RegExp }[] = [
+  { name: 'canonical caller without the approval input', source: fixture({ uses: 'unbraind/pm-ops/.github/workflows/daily-release.yml@' + 'a'.repeat(40), permissions: { contents: 'write' }, with: { 'release-enabled': `${repositoryAtom} && ${mainAtom}` } }), issue: /publishing approval/u },
+  { name: 'canonical caller with a truthy approval bypass', source: fixture({ uses: 'unbraind/pm-ops/.github/workflows/daily-release.yml@' + 'a'.repeat(40), permissions: { contents: 'write' }, with: { 'release-enabled': `${repositoryAtom} && ${mainAtom} && (${approvalAtom} || true)` } }), issue: /publishing approval/u },
   { name: 'CodeQL analyze security-events write', source: fixture({ permissions: { 'security-events': 'write' }, steps: [] }, undefined, 'analyze'), issue: /exact repository guard/u },
   { name: 'Dependabot owner-only guard', source: fixture({ if: "github.repository_owner == 'unbraind' && github.actor == 'dependabot[bot]'", permissions: { 'pull-requests': 'write' } }, undefined, 'enable-auto-merge'), issue: /repository_owner/u },
   { name: 'another repository under the same owner', source: fixture({ if: "github.repository == 'unbraind/another-package'", permissions: { contents: 'write' } }), issue: /exact repository guard/u },
@@ -348,65 +346,5 @@ test('an unlisted workflow is discovered in a plain directory without Git', () =
     mkdirSync(join(directory, 'nested'));
     writeFileSync(join(directory, 'nested', 'new-security.yaml'), fixture({ permissions: { 'security-events': 'write' } }, undefined, 'analyze'));
     assert.match(inspectDirectory(directory).join('\n'), /new-security\.yaml:analyze: exact repository guard/u);
-  } finally { rmSync(directory, { recursive: true, force: true }); }
-});
-
-
-test('same-day Git and registry collisions retain an explicit latest dist-tag', () => {
-  const source = readFileSync(new URL('release.yml', workflowRoot), 'utf8');
-  const release = document(source);
-  const jobs = mapping(release.jobs);
-  const steps = mapping(jobs?.prepare)?.steps;
-  assert.ok(Array.isArray(steps));
-  const decide = steps.map(mapping).find(step => step?.id === 'decide');
-  assert.ok(typeof decide?.run === 'string');
-  const directory = mkdtempSync(join(tmpdir(), 'brand-release-collision-'));
-  const fixtureEnv = { ...process.env, HOME: directory, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' };
-  /** Run fixture Git commands without consulting the maintainer's identity configuration. */
-  const git = (...args: string[]): void => {
-    const result = spawnSync('git', ['-c', 'user.name=Release Fixture', '-c', 'user.email=release@example.invalid', ...args], {
-      cwd: directory, env: fixtureEnv, encoding: 'utf8', timeout: 5000,
-    });
-    assert.equal(result.error, undefined);
-    assert.equal(result.status, 0, result.stderr);
-  };
-  try {
-    git('init', '--initial-branch=main');
-    writeFileSync(join(directory, 'fixture.txt'), 'first release');
-    git('add', 'fixture.txt'); git('commit', '-m', 'Initial fixture');
-    git('tag', 'v2026.10.27');
-    writeFileSync(join(directory, 'fixture.txt'), 'changed source');
-    git('add', 'fixture.txt'); git('commit', '-m', 'Change fixture');
-    mkdirSync(join(directory, 'bin'));
-    writeFileSync(join(directory, 'bin/date'), '#!/bin/bash\necho 2026.10.27\n', { mode: 0o755 });
-    writeFileSync(join(directory, 'bin/npm'), `#!/bin/bash
-[[ "$1" == view && "$3" == version ]] || exit 2
-version="\${2#pm-brand@}"
-[[ " $REGISTRY_VERSIONS " == *" $version "* ]]
-`, { mode: 0o755 });
-    for (const [existing, expected] of [['', '2026.10.27-1'], ['2026.10.27-1', '2026.10.27-2']]) {
-      const output = join(directory, 'output');
-      writeFileSync(output, '');
-      const result: SpawnSyncReturns<string> = spawnSync('bash', ['--noprofile', '--norc', '-e', '-o', 'pipefail', '-c', decide.run], {
-        cwd: directory, encoding: 'utf8', timeout: 5000,
-        env: { ...fixtureEnv, PATH: `${join(directory, 'bin')}:${process.env.PATH}`, GITHUB_OUTPUT: output, REGISTRY_VERSIONS: existing },
-      });
-      assert.equal(result.error, undefined);
-      assert.equal(result.status, 0, result.stderr);
-      const outputs = readFileSync(output, 'utf8');
-      assert.ok(outputs.includes('should_release=true\n'));
-      assert.ok(outputs.includes(`version=${expected}\n`), outputs);
-      const releaseSteps = mapping(jobs?.release)?.steps;
-      assert.ok(Array.isArray(releaseSteps));
-      const commands = releaseSteps.flatMap(step => {
-        const run = mapping(step)?.run;
-        return typeof run === 'string' ? publications(run).filter(command => command.registry) : [];
-      });
-      assert.equal(commands.length, 1);
-      const args = commands[0].args;
-      assert.equal(args[args.indexOf('--tag') + 1], 'latest', `${expected} needs an explicit latest dist-tag`);
-      assert.ok(args.includes('--provenance'));
-      assert.deepEqual(inspectWorkflow(source, 'release.yml'), []);
-    }
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
