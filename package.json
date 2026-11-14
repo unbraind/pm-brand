@@ -127,8 +127,7 @@
     "build:check": "node scripts/dist-check.ts",
     "test:git": "node scripts/git-acceptance.ts",
     "banners:build": "npm run build && node scripts/banners.ts",
-    "banners:check": "node scripts/banners.ts --check",
-    "release:check:all": "npm run release:check && bun run release:check"
+    "banners:check": "node scripts/banners.ts --check"
   },
   "docstringGate": {
     "sources": [

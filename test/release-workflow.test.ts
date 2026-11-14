@@ -60,7 +60,6 @@ test('package-owned approval and preparation inputs are preserved', () => {
   "reconcile-only": "${{ (github.event_name == 'schedule' && github.event.schedule == '41 * * * *') || inputs.retire-unpublished == true }}",
   "retire-unpublished": "${{ github.event_name == 'workflow_dispatch' && inputs.retire-unpublished == true }}",
   "release-enabled": "${{ github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' }}",
-  "node-version": "26",
-  "verify-script": "release:check:all"
+  "node-version": "26"
 });
 });

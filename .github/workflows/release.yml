@@ -29,4 +29,3 @@ jobs:
       release-enabled: ${{ github.repository == 'unbraind/pm-brand' && github.ref ==
         'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' }}
       node-version: "26"
-      verify-script: release:check:all

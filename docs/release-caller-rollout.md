@@ -6,7 +6,7 @@ released pm-ops validator and explicitly permits empty changelog sections in
 generation, checking and release notes. Dependabot covers the SHA through its
 root github-actions ecosystem.
 
-Package-owned inputs: `{"reconcile-only":"${{ (github.event_name == 'schedule' && github.event.schedule == '41 * * * *') || inputs.retire-unpublished == true }}","retire-unpublished":"${{ github.event_name == 'workflow_dispatch' && inputs.retire-unpublished == true }}","release-enabled":"${{ github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' }}","node-version":"26","verify-script":"release:check:all"}`. Existing daily schedules
+Package-owned inputs: `{"reconcile-only":"${{ (github.event_name == 'schedule' && github.event.schedule == '41 * * * *') || inputs.retire-unpublished == true }}","retire-unpublished":"${{ github.event_name == 'workflow_dispatch' && inputs.retire-unpublished == true }}","release-enabled":"${{ github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' }}","node-version":"26"}`. Existing daily schedules
 are retained, with canonical hourly reconciliation where scheduled releases exist.
 
 Cross-repository npm OIDC was proven by the merged pm-jira pilot in
@@ -19,3 +19,6 @@ Only the orchestrator merges, dispatches and verifies publication.
 The caller contracts replace assertions about removed private release implementation.
 Implementation behavior belongs to the pinned pm-ops release harness. Package-owned
 approval, script and permission contracts remain checked locally.
+
+The pinned shared workflow runs release:check through npm and Bun directly.
+No additional package wrapper duplicates those gate runs.
