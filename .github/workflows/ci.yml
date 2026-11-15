@@ -1,7 +1,5 @@
 name: CI
 on:
-  push:
-    branches: [main]
   pull_request: {}
   workflow_dispatch: {}
 permissions:
@@ -13,8 +11,10 @@ jobs:
   verify:
     # Strict required checks on main prevent merging checks against an older policy.
     env:
+      PM_TEST_DEPTH: quick
       IDENTITY_BASE_SHA: ${{ github.event.pull_request.base.sha || (github.event_name == 'push' && github.sha) || '' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -25,19 +25,56 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Detect code changes
+        id: changes
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          code=true
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
+            code=false
+            git diff --name-only --no-renames -z "$BASE_SHA...$HEAD_SHA" > "$RUNNER_TEMP/ci-changed-paths"
+            while IFS= read -r -d '' path; do
+              case "$path" in
+                # Executable tracker files use the same code tier in every package.
+                .agents/pm/*.mjs|.agents/pm/*.cjs|.agents/pm/*.js|.agents/pm/*.ts) code=true ;;
+                .agents/pm/*|*.md|docs/*|CHANGELOG.md|LICENSE) ;;
+                *) code=true ;;
+              esac
+            done < "$RUNNER_TEMP/ci-changed-paths"
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ matrix.node }}
           cache: npm
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - if: steps.changes.outputs.code == 'true'
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       - run: npm ci
-      - run: npm run release:check
-      - if: matrix.node == 26
-        # Dependabot maintains package-lock.json; Bun consumes that same graph.
-        run: bun install --no-save
-      - if: matrix.node == 26
-        run: bun run release:check
-      - if: matrix.node == 26
-        run: bun test ./test/bun.acceptance.ts
-      - if: matrix.node == 26
+      - name: Documentation and tracker gates
+        if: steps.changes.outputs.code != 'true'
+        run: |
+          ./node_modules/.bin/pm health --strict-exit --require-merge-drivers
+          npm run identity:check
+          npm run changelog:check
+          npm run pack:dry-run --ignore-scripts
+          node --test test/identity.test.ts test/release-approval.test.ts test/workflows.test.ts
+      - name: Node 22 build and quick tests
+        if: steps.changes.outputs.code == 'true' && matrix.node == 22
+        run: npm test
+      - name: Quick npm release gate
+        if: steps.changes.outputs.code == 'true' && matrix.node == 26
+        run: npm run release:check
+      # Packed acceptance already covers Bun project/global and bun x tarball installs.
+      - name: Bun package graph and native runtime smoke
+        if: steps.changes.outputs.code == 'true' && matrix.node == 26
+        run: |
+          bun install --no-save
+          bun test ./test/bun.acceptance.ts
+      - name: Git consumer acceptance
+        if: steps.changes.outputs.code == 'true' && matrix.node == 26
         run: npm run test:git

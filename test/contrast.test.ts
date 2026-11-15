@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 /** Contract audit: text and focus must pass; chip borders are decorative. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -34,7 +35,7 @@ test('rgba rejects a long malformed alpha without excessive backtracking', () =>
     import assert from 'node:assert/strict';
     import { parseColor } from './dist/contrast.js';
     assert.throws(() => parseColor('rgba(9,9,9,' + '9'.repeat(200_000) + '!)'), TypeError);
-  `], { encoding: 'utf8', timeout: 10_000, killSignal: 'SIGKILL' });
+  `], { encoding: 'utf8', timeout: testTime(10_000), killSignal: 'SIGKILL' });
   assert.equal(result.status, 0, result.error?.message ?? result.stderr);
 });
 

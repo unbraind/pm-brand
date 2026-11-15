@@ -1,3 +1,5 @@
+import { testTime } from './support/time.ts';
+import { testDepth } from './support/depth.ts';
 /** Review regressions: topology must survive anchoring, and grammar precedes normalization. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -74,7 +76,7 @@ test('renderer mutation model refuses all rejected namespace prefix entity quote
   const domains = new Set<number>();
   /** Reproducible mutations and replays of older original byte strings. */
   const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
-  for (let sequence = 0; sequence < 500; sequence++) {
+  for (let sequence = 0; sequence < testDepth(500); sequence++) {
     const valid = `<svg xmlns="http://www.w3.org/2000/svg" width="${1 + next() % 100}" height="20"><g><rect width="10" height="10"/></g><text>A&amp;B</text></svg>`;
     const history: { source: string; domain: number }[] = [{ source: valid, domain: 0 }];
     for (let step = 0; step < 8; step++) {
@@ -110,8 +112,8 @@ test('renderer mutation model refuses all rejected namespace prefix entity quote
       }
     }
   }
-  assert.equal(domains.size, 5); assert.ok(replays > 500); assert.ok(rejected > 1000); assert.ok(accepted > 1000);
-  console.log(`Renderer mutation model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${rejected} rejected-side checks, ${accepted} accepted-side controls, ${xmlRefusals} stricter XML refusals, zero rasters`);
+  assert.equal(domains.size, 5); assert.ok(replays > testDepth(500)); assert.ok(rejected > testDepth(500) * 2); assert.ok(accepted > testDepth(500) * 2);
+  console.log(`Renderer mutation model: ${testDepth(500)} sequences, ${testDepth(500) * 8} transitions, ${replays} older-input replays, ${rejected} rejected-side checks, ${accepted} accepted-side controls, ${xmlRefusals} stricter XML refusals, zero rasters`);
 });
 
 test('namespace identity never promotes an empty reset or missing default into SVG', () => {
@@ -123,7 +125,7 @@ test('namespace identity never promotes an empty reset or missing default into S
   assert.equal(new Resvg(after, options).innerBBox(), undefined);
 });
 
-test('namespace model agrees with independent SVG geometry across 500 replay sequences', async () => {
+test('namespace model agrees with independent SVG geometry across depth-selected replay sequences', async () => {
   type Model = { root: number; prefix: string; qualified: boolean[]; declarations: number[] };
   const options = { font: { loadSystemFonts: false } };
   /** Serialize declarations and qualified names without using the production namespace resolver. */
@@ -144,7 +146,7 @@ test('namespace model agrees with independent SVG geometry across 500 replay seq
   const domains = new Set<string>();
   /** Reproducible transitions through namespace declarations, QName identity and older inputs. */
   const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
-  for (let sequence = 0; sequence < 500; sequence++) {
+  for (let sequence = 0; sequence < testDepth(500); sequence++) {
     let model: Model = { root: next() % 3, prefix: ['s', 'constructor', '__proto__'][next() % 3], qualified: [true, true, true, true], declarations: [0, 0, 0, 0] };
     const history = [structuredClone(model)];
     for (let step = 0; step < 8; step++) {
@@ -164,8 +166,8 @@ test('namespace model agrees with independent SVG geometry across 500 replay seq
       }
     }
   }
-  assert.ok(replays > 500); assert.ok(refused > 500); assert.ok(accepted > 500); assert.equal(domains.size, 3);
-  console.log(`Namespace model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${accepted} accepted, ${refused} refusals, zero rasters`);
+  assert.ok(replays > testDepth(500)); assert.ok(refused > testDepth(500)); assert.ok(accepted > testDepth(500)); assert.equal(domains.size, 3);
+  console.log(`Namespace model: ${testDepth(500)} sequences, ${testDepth(500) * 8} transitions, ${replays} older-input replays, ${accepted} accepted, ${refused} refusals, zero rasters`);
 });
 
 test('XML parser limits and semantic policy refuse independently with exact typed remedies', () => {
@@ -217,7 +219,7 @@ test('XML conformance retains decoded source values and distinguishes changed CD
   assert.equal(parsed[0].fields['aria-label'], 'A]]>B <&🚀');
 });
 
-test('equivalent XML serialization model replays 500 random SVG sequences without semantic changes', async () => {
+test('equivalent XML serialization model replays depth-selected random SVG sequences without semantic changes', async () => {
   const alphabet = ['A', 'B', ']]>', '<&', '"', "'", '🚀', 'é', '\u00a0', '\u2028', ' '];
   let seed = 0x5e21a1, replays = 0;
   /** Deterministic independent source-value schedule. */
@@ -240,7 +242,7 @@ test('equivalent XML serialization model replays 500 random SVG sequences withou
     const noise = variant % 2 ? '<!--serialize--><?agent compare?>' : '';
     return `${variant % 2 ? '\ufeff<?xml version="1.0"?>\r\n' : ''}<${prefix}svg ${ns} ${attributes}>${noise}<${prefix}title id="title">${text(model.title)}</${prefix}title><${prefix}g><${prefix}rect id="shape" x="${model.x}" fill="${model.fill}"/><${prefix}text id="label">${text(model.text)}</${prefix}text></${prefix}g></${prefix}svg>`;
   };
-  for (let sequence = 0; sequence < 500; sequence++) {
+  for (let sequence = 0; sequence < testDepth(500); sequence++) {
     /** Random source strings always include the formerly misclassified attribute delimiter. */
     const value = (): string => 'A]]>B' + Array.from({ length: 1 + next() % 20 }, () => alphabet[next() % alphabet.length]).join('');
     let model: Model = { label: value(), title: value(), text: value(), x: next() % 100, fill: next() % 2 ? '#ff0000' : '#ffffff' };
@@ -258,8 +260,8 @@ test('equivalent XML serialization model replays 500 random SVG sequences withou
       }
     }
   }
-  assert.ok(replays > 500);
-  console.log(`XML serialization model: 500 sequences, 4000 transitions, ${replays} older-input replays, zero changes`);
+  assert.ok(replays > testDepth(500));
+  console.log(`XML serialization model: ${testDepth(500)} sequences, ${testDepth(500) * 8} transitions, ${replays} older-input replays, zero changes`);
 });
 
 test('document boundary references agree with the independent XML parser and preserve legal controls', () => {
@@ -275,13 +277,13 @@ test('document boundary references agree with the independent XML parser and pre
   }
 });
 
-test('document context model preserves lexical boundaries across 500 replay sequences', async () => {
+test('document context model preserves lexical boundaries across depth-selected replay sequences', async () => {
   const document = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>';
   let seed = 0xd0c, replays = 0, refused = 0;
   /** Deterministic independent input schedule, including older source replays. */
   const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
   type State = { source: string; legal: boolean };
-  for (let sequence = 0; sequence < 500; sequence++) {
+  for (let sequence = 0; sequence < testDepth(500); sequence++) {
     const history: State[] = [{ source: document, legal: true }];
     for (let step = 0; step < 8; step++) {
       const point = [9, 10, 13, 32][next() % 4], hex = next() % 2 === 0;
@@ -303,8 +305,8 @@ test('document context model preserves lexical boundaries across 500 replay sequ
       }
     }
   }
-  assert.ok(replays > 500); assert.ok(refused > 1000);
-  console.log(`Document context model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${refused} refusals`);
+  assert.ok(replays > testDepth(500)); assert.ok(refused > testDepth(500) * 2);
+  console.log(`Document context model: ${testDepth(500)} sequences, ${testDepth(500) * 8} transitions, ${replays} older-input replays, ${refused} refusals`);
 });
 
 test('metadata order changes are localized accessibility findings without paint noise', () => {
@@ -320,7 +322,7 @@ test('metadata order changes are localized accessibility findings without paint 
   }
 });
 
-test('metadata model preserves ordered title and description membership across 500 replay sequences', async () => {
+test('metadata model preserves ordered title and description membership across depth-selected replay sequences', async () => {
   const parents = ['root', 'group', 'outline'] as const;
   const tags = new Map(Array.from({ length: 5 }, (_, i) => [[`t${i}`, 'title'], [`d${i}`, 'desc']]).flat() as [string, string][]);
   type Model = Record<typeof parents[number], string[]>;
@@ -334,7 +336,7 @@ test('metadata model preserves ordered title and description membership across 5
   const covered = new Set<string>();
   /** Reproducible operation choice independent of the implementation. */
   const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
-  for (let sequence = 0; sequence < 500; sequence++) {
+  for (let sequence = 0; sequence < testDepth(500); sequence++) {
     let model: Model = { root: ['t0', 'd0', 't1', 'd1'], group: ['t2', 'd2'], outline: ['t3', 'd3'] };
     const history = [structuredClone(model)];
     for (let step = 0; step < 8; step++) {
@@ -374,8 +376,8 @@ test('metadata model preserves ordered title and description membership across 5
       }
     }
   }
-  assert.ok(replays > 500); assert.equal(covered.size, 6); assert.ok(changes > 0);
-  console.log(`Metadata model: 500 sequences, 4000 transitions, ${replays} older-input replays, ${changes} order findings`);
+  assert.ok(replays > testDepth(500)); assert.equal(covered.size, 6); assert.ok(changes > 0);
+  console.log(`Metadata model: ${testDepth(500)} sequences, ${testDepth(500) * 8} transitions, ${replays} older-input replays, ${changes} order findings`);
 });
 
 test('topology model detects retained parent and order changes amid membership changes and replays', async () => {
@@ -394,7 +396,7 @@ test('topology model detects retained parent and order changes amid membership c
   let seed = 0x71ee, replays = 0, transitions = 0;
   /** Deterministic operation schedule independent of host randomness. */
   const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
-  for (let sequence = 0; sequence < 500; sequence++) {
+  for (let sequence = 0; sequence < testDepth(500); sequence++) {
     let model: Model = { root: ['constructor'], one: ['rect', 'text', 'title'], two: ['circle', 'desc', 'outline'] };
     const history: Model[] = [structuredClone(model)];
     for (let step = 0; step < 8; step++) {
@@ -434,13 +436,13 @@ test('topology model detects retained parent and order changes amid membership c
       }
     }
   }
-  assert.equal(transitions, 4000); assert.ok(replays > 500);
-  console.log(`Topology model: 500 sequences, ${transitions} transitions, ${replays} older-input replays`);
+  assert.equal(transitions, testDepth(500) * 8); assert.ok(replays > testDepth(500));
+  console.log(`Topology model: ${testDepth(500)} sequences, ${transitions} transitions, ${replays} older-input replays`);
 });
 
 test('arc flag lexical property rejects numeric aliases in every flag and arc segment', () => {
   const aliases = ['0.0', '1.0', '+0', '+1', '-0', '00', '01', '0e0', '1e0', '.0', '0e-999'];
-  for (let sample = 0; sample < 500; sample++) {
+  for (let sample = 0; sample < testDepth(500); sample++) {
     const command = sample % 2 ? 'a' : 'A', slot = 3 + (Math.floor(sample / 2) % 2), segment = Math.floor(sample / 4) % 3;
     const args = ['20', '20', '0', '0', '1', '40', '40']; args[slot] = aliases[Math.floor(sample / 12) % aliases.length];
     const prefix = '20 20 0 0 1 40 40 '.repeat(segment);
@@ -458,7 +460,7 @@ test('numeric lexical validation refuses long malformed scalars within a bounded
     import { compareSemanticAssets } from './dist/semantic-assets.js';
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" x="' + '9'.repeat(200000) + '!"/>';
     assert.equal(compareSemanticAssets({version:1,before:svg,after:svg}).ok, false);
-  `], { encoding: 'utf8', timeout: 10000, killSignal: 'SIGKILL' });
+  `], { encoding: 'utf8', timeout: testTime(10000), killSignal: 'SIGKILL' });
   assert.equal(result.status, 0, result.error?.message ?? result.stderr);
 });
 
@@ -472,7 +474,7 @@ test('review classes reach the actual CLI in a non-git tracker with no git execu
   for (const row of packedSemanticReviewCases()) for (const format of ['json', 'toon'] as const) {
     const file = join(root, 'request.json'); writeFileSync(file, JSON.stringify({ ...row.request, format, budget: 1000000 }));
     const output = spawnSync(process.execPath, [resolve('dist/cli.js'), 'semantic-diff', file], {
-      cwd: root, env: { PATH: bin, GIT_CEILING_DIRECTORIES: root }, encoding: 'utf8', timeout: 30000,
+      cwd: root, env: { PATH: bin, GIT_CEILING_DIRECTORIES: root }, encoding: 'utf8', timeout: testTime(30000),
     });
     assert.equal(output.status, row.expected.startsWith('unsupported_') ? 2 : row.expected === 'unchanged' ? 0 : 1, output.stderr);
     const result = (format === 'json' ? JSON.parse(output.stdout) : decode(output.stdout)) as SemanticAssetDiagnosis;
@@ -482,7 +484,7 @@ test('review classes reach the actual CLI in a non-git tracker with no git execu
   for (const format of ['json', 'toon']) {
     const file = join(root, 'color.json'); writeFileSync(file, JSON.stringify(renderedColorReviewRequest()));
     const output = spawnSync(process.execPath, [resolve('dist/cli.js'), 'diagnose', file, '--format', format], {
-      cwd: root, env: { PATH: bin, GIT_CEILING_DIRECTORIES: root }, encoding: 'utf8', timeout: 30000,
+      cwd: root, env: { PATH: bin, GIT_CEILING_DIRECTORIES: root }, encoding: 'utf8', timeout: testTime(30000),
     });
     assert.equal(output.status, 2, output.stderr); assert.equal(JSON.parse(output.stdout).code, 'invalid_color');
   }

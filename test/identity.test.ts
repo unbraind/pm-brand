@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 /** Exercise the public path policy against real tracked text and binary fixtures. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -342,7 +343,7 @@ test('trusted workflow rejects candidate identity bypasses without executing can
       const sha = git('rev-parse', 'HEAD');
       git('update-ref', 'refs/pull/4/head', sha);
       const result = spawnSync('bash', ['--noprofile', '--norc', '-c', script], {
-        cwd: scratch, encoding: 'utf8', timeout: 10000,
+        cwd: scratch, encoding: 'utf8', timeout: testTime(10000),
         env: { ...process.env, IDENTITY_BASE_SHA: base, PROPOSED_SHA: sha, PR_NUMBER: '4', RUNNER_TEMP: scratch },
       });
       assert.equal(result.error, undefined);

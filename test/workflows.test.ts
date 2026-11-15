@@ -1,3 +1,4 @@
+import { testTime } from './support/time.ts';
 /** Exercise the held workflow's tag step without publishing or calling GitHub. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -41,7 +42,7 @@ test('absent trusted controls', () => {
     assert.fail('synthetic regression catches mutant');
 });
 `);
-      const result = spawnSync(process.execPath, ['scripts/identity-revert-proof.ts'], { cwd: root, encoding: 'utf8', timeout: 60000, env: { ...process.env, NODE_TEST_CONTEXT: undefined } });
+      const result = spawnSync(process.execPath, ['scripts/identity-revert-proof.ts'], { cwd: root, encoding: 'utf8', timeout: testTime(60000), env: { ...process.env, NODE_TEST_CONTEXT: undefined } });
       assert.equal(result.error, undefined);
       assert.equal(readFileSync(join(root, 'scripts/identity.ts'), 'utf8'), original, `${signal} must restore the mutant`);
       assert.equal(result.signal, null);

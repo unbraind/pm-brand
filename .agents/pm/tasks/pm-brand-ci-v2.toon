@@ -1,0 +1,56 @@
+id: pm-brand-ci-v2
+title: Apply Fleet CI v2 quick and deep tiers
+description: Companion pm-cli-website-dyhg. Preserve required checks and all release evidence while reducing repeated PR gates.
+type: Task
+pm_format_version: 2
+status: in_progress
+priority: 2
+tags[2]: ci,performance
+created_at: "2026-11-15T14:47:19.503Z"
+updated_at: "2026-11-15T14:50:54.887Z"
+author: codex-sol
+comments[3]{created_at,author,text}:
+  "2026-11-15T14:47:23.133Z",codex-sol,"Required checks verified: verify (22), verify (26), analyze. CodeQL remains unfiltered. Inspecting docs inputs, deterministic property depth and harness deadlines; release caller and verifiers remain outside scope."
+  "2026-11-15T14:50:02.211Z",codex-sol,"Baseline main run 43679416505: verify (26) 15m05s including queue, 7m execution; verify (22) 22m21s including queue, 3m52s execution. Job-log API recovered durations after the run-log command returned empty. Topology and metadata property cases took 5.95s and 5.45s. Cheap tier retains identity, README/license/workflow contracts and package file allowlist. Packed acceptance proves Bun and bun x installs. Full local depth intentionally not run."
+  "2026-11-15T14:50:49.234Z",codex-sol,"Validation: typecheck passed (2.5s), lint passed (5s), seven touched suites passed at quick depth and scale 3 (82.7s), helper contract test passed (0.9s); strict unique-key YAML parse passed (actionlint unavailable). Original full npm release gates measured 3m14s on Node 26 and 3m37s on Node 22 in hosted CI. One quick coverage run is in progress with unchanged 100 percent thresholds."
+files[5]{path,scope}:
+  .github/workflows/ci-deep.yml,project
+  .github/workflows/ci.yml,project
+  .github/workflows/codeql.yml,project
+  test/support/depth.ts,project
+  test/support/time.ts,project
+tests[4]:
+  - command: npm run typecheck
+    scope: project
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-15T14:48:42.609Z"
+      source_kind: local_mutation
+      source_ref: ci/quick-pr-tier-deep-local-tier
+  - command: npm run lint
+    scope: project
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-15T14:48:44.537Z"
+      source_kind: local_mutation
+      source_ref: ci/quick-pr-tier-deep-local-tier
+  - command: env PM_TEST_DEPTH=quick PM_TEST_TIME_SCALE=3 node --test test/accessibility.test.ts test/font-coverage.test.ts test/semantic-assets.test.ts test/semantic-review.test.ts test/identity.test.ts test/contrast.test.ts test/workflows.test.ts
+    scope: project
+    timeout_seconds: 900
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-15T14:48:45.688Z"
+      source_kind: local_mutation
+      source_ref: ci/quick-pr-tier-deep-local-tier
+    updated_by: codex-sol
+    updated_at: "2026-11-15T14:49:15.557Z"
+  - command: node --test test/depth.test.ts
+    scope: project
+    provenance:
+      author: codex-sol
+      created_at: "2026-11-15T14:50:06.638Z"
+      source_kind: local_mutation
+      source_ref: ci/quick-pr-tier-deep-local-tier
+docs[1]{path,scope}:
+  docs/ci-tiers.md,project
+body: ""
