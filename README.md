@@ -383,15 +383,16 @@ supply the locally available Milestone 1 commit or ref. Fetch that history first
 when using a shallow checkout. A missing baseline fails before any mutation.
 Run `node scripts/text-revert-proof.ts <pre-fix-ref>` with the round-three parent
 to verify the old truncation exceeds the measurement budget (even with the new
-cap), and that removing the cap or tag mismatch check fails its regression test.
+cap), and that removing the cap fails its package regression test. Tag mutation
+is owned by the pinned canonical Daily Release workflow.
 
 To regenerate fonts, install fontTools 4.65.0 and brotli 1.2.0, then run
 `npm run fonts:build` and `npm run assets:build`. Font sources are pinned and every
 path-based asset is derived from them. Rebuild image snapshots only after reviewing
 an intentional design change.
 
-`npm run changelog:full` uses pm-changelog's `--no-pending-release`, keeping entries
-under **Unreleased**. The release workflow is dormant unless the owner explicitly
+`npm run changelog:full` renders the selected package release with explicit
+`--include-empty`, package-version and version-derived date inputs. The release workflow is dormant unless the owner explicitly
 sets the repository variable `PM_RELEASE_APPROVED=true`. Local npm publishing runs
 the prepublish checks and requires maintainer npm authentication. Dependabot
 scheduling is configured, but auto-merge has its own dormant opt-in while branch

@@ -22,3 +22,9 @@ approval, script and permission contracts remain checked locally.
 
 The pinned shared workflow runs release:check through npm and Bun directly.
 No additional package wrapper duplicates those gate runs.
+
+Round 2 preserves package changelog and publication checks independently of the
+shared release implementation. Obsolete copied-workflow verifiers, planners and
+mutation helpers are retired where present; active package hooks remain tested.
+Coverage thresholds are unchanged. Package-specific restored tests and exact gate
+receipts are recorded in the rollout tracker item.

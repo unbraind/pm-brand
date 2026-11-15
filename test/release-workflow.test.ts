@@ -1,6 +1,6 @@
 /** Contracts owned by callers while the released workflow owns release execution. */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
 import { isScalar, parseDocument } from 'yaml';
@@ -62,4 +62,8 @@ test('package-owned approval and preparation inputs are preserved', () => {
   "release-enabled": "${{ github.repository == 'unbraind/pm-brand' && github.ref == 'refs/heads/main' && vars.PM_RELEASE_APPROVED == 'true' }}",
   "node-version": "26"
 });
+});
+
+test('thin caller has no obsolete local release implementation artefacts', () => {
+  assert.equal(existsSync("scripts/tag-revert-proof.ts"), false, "Retired release-copy artefact: scripts/tag-revert-proof.ts");
 });
