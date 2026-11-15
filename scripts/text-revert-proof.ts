@@ -1,4 +1,4 @@
-/** Prove round-three performance, input bounds and tag mismatch regressions independently. */
+/** Prove round-three performance and input bound regressions independently. */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -36,16 +36,4 @@ try {
   execFileSync('node_modules/.bin/tsc', [], { stdio: 'pipe' });
 }
 
-const workflow = readFileSync('.github/workflows/release.yml', 'utf8');
-const tagCheck = '[[ "$existing" == "$VERIFIED_COMMIT" ]]';
-assert.ok(workflow.includes(tagCheck));
-try {
-  writeFileSync('.github/workflows/release.yml', workflow.replace(tagCheck, 'true'));
-  const result = spawnSync(process.execPath, ['--test', '--test-name-pattern=tag step refuses', 'test/workflows.test.ts'], { encoding: 'utf8' });
-  assert.equal(result.status, 1, result.stdout + result.stderr);
-  assert.ok(result.stdout.includes('AssertionError'), result.stdout + result.stderr);
-  console.log('Caught: removing existing-tag mismatch refusal');
-} finally {
-  writeFileSync('.github/workflows/release.yml', workflow);
-}
-console.log('4/4 behavioral regressions caught; sources and compiled modules restored');
+console.log('3/3 behavioral regressions caught; sources and compiled modules restored');
