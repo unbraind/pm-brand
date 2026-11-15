@@ -25,3 +25,4 @@
 - pm-brand kit ([pm-brand-kit](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/epics/pm-brand-kit.toon))
 - Accept approved author and committer identities with a trusted forward baseline ([pm-brand-identity](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/tasks/pm-brand-identity.toon))
 - Use the npm lockfile for Bun dependency verification ([pm-brand-bun-lock](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/tasks/pm-brand-bun-lock.toon))
+- Apply Fleet CI v2 quick and deep tiers ([pm-brand-ci-v2](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/tasks/pm-brand-ci-v2.toon))

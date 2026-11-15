@@ -1,3 +1,5 @@
+import { testTime } from './support/time.ts';
+import { testDepth } from './support/depth.ts';
 /** Static asset semantics, strict refusals, wire round trips and real SDK read-back invariants. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -170,7 +172,7 @@ test('emitted numbers remain finite and in range under extreme IEEE-754 fuzz', a
   const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed; };
   const bits = new DataView(new ArrayBuffer(8));
   const values = [NaN, Infinity, -Infinity, -.5, -1, 1e20, 0, 1, 4096, 4097, 300000, 300001];
-  for (let i = 0; i < 500; i++) { bits.setUint32(0, next()); bits.setUint32(4, next()); values.push(bits.getFloat64(0)); }
+  for (let i = 0; i < testDepth(500); i++) { bits.setUint32(0, next()); bits.setUint32(4, next()); values.push(bits.getFloat64(0)); }
   for (const n of values) {
     for (const field of ['before_nodes', 'after_nodes', 'changes'] as const) {
       const result = validateSemanticAssetNumbers({ ...base, summary: { ...base.summary, [field]: n } });
@@ -206,7 +208,7 @@ test('CLI compares assets in a non-git tracker with no git executable or raster 
     writeFileSync(fixture, JSON.stringify(input));
     for (const format of ['json', 'toon']) {
       const child = spawnSync(process.execPath, [cli, 'semantic-diff', fixture, '--format', format], {
-        cwd: root, env: { PATH: noGit, GIT_CEILING_DIRECTORIES: root }, encoding: 'utf8', timeout: 30000,
+        cwd: root, env: { PATH: noGit, GIT_CEILING_DIRECTORIES: root }, encoding: 'utf8', timeout: testTime(30000),
       });
       assert.equal(child.status, status, child.stderr); assert.equal(child.stderr, '');
       assert.deepEqual(status === 2 || format === 'json' ? JSON.parse(child.stdout) : decode(child.stdout),
@@ -216,7 +218,7 @@ test('CLI compares assets in a non-git tracker with no git executable or raster 
   const parsed = parseStaticSvg('<svg xmlns="http://www.w3.org/2000/svg"/>'); assert.ok(Array.isArray(parsed)); assert.equal(parsed.length, 1);
 });
 
-test('500 seeded model sequences replay older assets and read all native state back through the real SDK', async t => {
+test('seeded model sequences replay older assets and read all native state back through the real SDK', async t => {
   const root = mkdtempSync(join(tmpdir(), 'brand-semantic-model-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const pmRoot = join(root, '.agents/pm'), client = new sdk.PmClient({ pmRoot, noExtensions: true });
@@ -234,7 +236,7 @@ test('500 seeded model sequences replay older assets and read all native state b
   let seed = 0x5eeda, replays = 0;
   /** Stable pseudo-random transitions exercise six independent operations. */
   const next = (): number => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
-  for (let sequence = 0; sequence < 500; sequence++) {
+  for (let sequence = 0; sequence < testDepth(500); sequence++) {
     let model = { color: '#ffffff', text: 'Ready', x: 0, label: 'Status' };
     const history = [structuredClone(model)];
     for (let operation = 0; operation < 12; operation++) {
@@ -263,6 +265,6 @@ test('500 seeded model sequences replay older assets and read all native state b
     }
     assert.deepEqual((await sdk.readLocatedItem(located)).document, nativeModel);
   }
-  assert.ok(replays > 500); assert.deepEqual((await client.listAllComplete({ includeBody: true })).items, wholeModel);
-  console.log(`Semantic model: 500 sequences, 6000 transitions, ${replays} older-input replays, 500 complete native SDK read-backs`);
+  assert.ok(replays > testDepth(500)); assert.deepEqual((await client.listAllComplete({ includeBody: true })).items, wholeModel);
+  console.log(`Semantic model: ${testDepth(500)} sequences, ${testDepth(500) * 12} transitions, ${replays} older-input replays, ${testDepth(500)} complete native SDK read-backs`);
 });

@@ -1,3 +1,5 @@
+import { testTime } from './support/time.ts';
+import { testDepth } from './support/depth.ts';
 /** Coverage, strict boundaries, wire properties and real non-git SDK state preservation. */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -145,7 +147,7 @@ test('producer number guards reject extreme counts and positions on both sides o
   /** Reproducible arbitrary IEEE-754 patterns. */
   const next = () => { seed = (Math.imul(seed, 1103515245) + 12345) >>> 0; return seed; };
   const bits = new DataView(new ArrayBuffer(8));
-  for (let index = 0; index < 500; index += 1) {
+  for (let index = 0; index < testDepth(500); index += 1) {
     bits.setUint32(0, next()); bits.setUint32(4, next());
     const number = bits.getFloat64(0);
     assert.equal(preflightFontCoverage({ version: 1, labels: [], budget: number }).ok,
@@ -193,7 +195,7 @@ test('font CLI works without git and reports pass, glyph failure and typed input
   const input = join(root, 'labels.json');
   /** Explicit runtime and empty PATH ensure the command cannot invoke git. */
   const run = (args: string[]) => spawnSync(process.execPath, [cli, 'font-coverage', input, ...args], {
-    cwd: root, env: { PATH: '', GIT_CEILING_DIRECTORIES: tmpdir() }, encoding: 'utf8', timeout: 15000,
+    cwd: root, env: { PATH: '', GIT_CEILING_DIRECTORIES: tmpdir() }, encoding: 'utf8', timeout: testTime(15000),
   });
   try {
     for (const format of ['json', 'toon']) {
@@ -213,7 +215,7 @@ test('font CLI works without git and reports pass, glyph failure and typed input
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test('500 seeded operation sequences replay old inputs, preserve native SDK state and round-trip all producers', async t => {
+test('seeded operation sequences replay old inputs, preserve native SDK state and round-trip all producers', async t => {
   const root = mkdtempSync(join(tmpdir(), 'brand-font-model-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const pmRoot = join(root, '.agents/pm');
@@ -235,7 +237,7 @@ test('500 seeded operation sequences replay old inputs, preserve native SDK stat
   let seed = 0x54a11, replays = 0;
   /** Seeded operation selection; no handwritten input normalization. */
   const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
-  for (let sequence = 0; sequence < 500; sequence += 1) {
+  for (let sequence = 0; sequence < testDepth(500); sequence += 1) {
     let state: FontCoverageLabel[] = [], model: FontCoverageLabel[] = [];
     const snapshots: { wire: string; model: FontCoverageLabel[] }[] = [];
     for (let operation = 0; operation < 12; operation += 1) {
@@ -273,7 +275,7 @@ test('500 seeded operation sequences replay old inputs, preserve native SDK stat
     assert.deepEqual(report.format === 'json' ? JSON.parse(report.text) : decode(report.text), report.result);
     assert.deepEqual((await sdk.readLocatedItem(located)).document, nativeModel, `SDK read-back sequence ${sequence}`);
   }
-  assert.ok(replays > 500, `older input replays: ${replays}`);
+  assert.ok(replays > testDepth(500), `older input replays: ${replays}`);
   assert.deepEqual((await client.listAllComplete({ includeBody: true })).items, wholeModel);
-  console.log(`Font model: 500 sequences, 6000 operations, ${replays} older-input replays, 500 native SDK read-backs`);
+  console.log(`Font model: ${testDepth(500)} sequences, ${testDepth(500) * 12} operations, ${replays} older-input replays, ${testDepth(500)} native SDK read-backs`);
 });

@@ -1,3 +1,4 @@
+import { testTime } from '../test/support/time.ts';
 /** Exercise the same tarball through local, global and runner installs without touching operator installations. */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -13,7 +14,7 @@ import type { SemanticReviewCase } from './semantic-review-fixtures.ts';
 function checkCommand(command: string, prefix: string[], cwd: string, childEnv: NodeJS.ProcessEnv, fixture: string, fontFixture: string, semanticFixture: string, reviewFixtures: readonly { file: string; expected: SemanticReviewCase['expected'] }[], colorFixture: string): void {
   for (const format of ['json', 'toon']) {
     const result = spawnSync(command, [...prefix, 'diagnose', fixture, '--format', format, '--budget', '512'], {
-      cwd, env: childEnv, encoding: 'utf8', timeout: 180_000,
+      cwd, env: childEnv, encoding: 'utf8', timeout: testTime(180_000),
     });
     assert.equal(result.error, undefined);
     assert.equal(result.status, 1, result.stderr);
@@ -24,7 +25,7 @@ function checkCommand(command: string, prefix: string[], cwd: string, childEnv: 
     assert.deepEqual(data.summary, { total: 3, evaluated: 2, decorative: 1, failed: 2, text_failed: 1, focus_failed: 1 });
     assert.equal((data.failures as unknown[]).length, 2);
     const fonts = spawnSync(command, [...prefix, 'font-coverage', fontFixture, '--format', format, '--budget', '512'], {
-      cwd, env: childEnv, encoding: 'utf8', timeout: 180_000,
+      cwd, env: childEnv, encoding: 'utf8', timeout: testTime(180_000),
     });
     assert.equal(fonts.error, undefined);
     assert.equal(fonts.status, 1, fonts.stderr);
@@ -33,7 +34,7 @@ function checkCommand(command: string, prefix: string[], cwd: string, childEnv: 
     assert.deepEqual(coverage.summary, { labels: 4, failed: 3, code_points: 19, supported: 14, unsupported: 5, invalid: 0 });
     assert.equal((coverage.labels as unknown[]).length, 3);
     const semantic = spawnSync(command, [...prefix, 'semantic-diff', semanticFixture, '--format', format, '--budget', '512'], {
-      cwd, env: childEnv, encoding: 'utf8', timeout: 180_000,
+      cwd, env: childEnv, encoding: 'utf8', timeout: testTime(180_000),
     });
     assert.equal(semantic.error, undefined);
     assert.equal(semantic.status, 1, semantic.stderr);
@@ -43,7 +44,7 @@ function checkCommand(command: string, prefix: string[], cwd: string, childEnv: 
     assert.equal((changes.findings as unknown[]).length, 2);
     for (const row of reviewFixtures) {
       const review = spawnSync(command, [...prefix, 'semantic-diff', row.file, '--format', format, '--budget', '1000000'], {
-        cwd, env: childEnv, encoding: 'utf8', timeout: 180_000,
+        cwd, env: childEnv, encoding: 'utf8', timeout: testTime(180_000),
       });
       assert.equal(review.error, undefined);
       assert.equal(review.status, row.expected.startsWith('unsupported_') ? 2 : row.expected === 'unchanged' ? 0 : 1, review.stderr);
@@ -56,7 +57,7 @@ function checkCommand(command: string, prefix: string[], cwd: string, childEnv: 
         else assert.ok(findings.some(finding => finding.field === row.expected));
       }
     }
-    const color = spawnSync(command, [...prefix, 'diagnose', colorFixture, '--format', format], { cwd, env: childEnv, encoding: 'utf8', timeout: 180_000 });
+    const color = spawnSync(command, [...prefix, 'diagnose', colorFixture, '--format', format], { cwd, env: childEnv, encoding: 'utf8', timeout: testTime(180_000) });
     assert.equal(color.error, undefined); assert.equal(color.status, 2, color.stderr); assert.equal(JSON.parse(color.stdout).code, 'invalid_color');
   }
 }
@@ -87,7 +88,7 @@ export function acceptAccessibilityInstalls(tarball: string, scratch: string): v
   }
   const npmRoot = join(scratch, 'npm-global');
   const npmInstall = spawnSync('npm', ['install', '--global', '--prefix', npmRoot, '--ignore-scripts', '--no-audit', '--no-fund', artifact, '@unbrained/pm-cli@2026.10.23'], {
-    cwd: scratch, env: childEnv, encoding: 'utf8', timeout: 180_000,
+    cwd: scratch, env: childEnv, encoding: 'utf8', timeout: testTime(180_000),
   });
   assert.equal(npmInstall.status, 0, npmInstall.stderr);
   // Invoke the real global symlinks, including the globally installed host SDK.
@@ -107,7 +108,7 @@ export function acceptAccessibilityInstalls(tarball: string, scratch: string): v
   const binProbe = spawnSync('bun', ['pm', 'bin', '--global'], { cwd: bunRoot, env: bunEnv, encoding: 'utf8' });
   assert.equal(binProbe.status, 0, binProbe.stderr);
   assert.equal(binProbe.stdout.trim(), bunBin, 'Verify isolated Bun global destination before installing');
-  const bunInstall = spawnSync('bun', ['add', '--global', '--ignore-scripts', artifact], { cwd: bunRoot, env: bunEnv, encoding: 'utf8', timeout: 180_000 });
+  const bunInstall = spawnSync('bun', ['add', '--global', '--ignore-scripts', artifact], { cwd: bunRoot, env: bunEnv, encoding: 'utf8', timeout: testTime(180_000) });
   assert.equal(bunInstall.status, 0, bunInstall.stderr);
   checkCommand(process.execPath, [join(bunBin, 'pm-brand')], bunRoot, bunEnv, fixture, fontFixture, semanticFixture, reviewFixtures, colorFixture);
   console.log('Packed CLI bun global: 2/2 formats passed');

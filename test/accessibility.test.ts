@@ -1,3 +1,5 @@
+import { testTime } from './support/time.ts';
+import { testDepth } from './support/depth.ts';
 /** Consumer fault fixtures, strict boundary fuzzing and real SDK output accounting. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -134,7 +136,7 @@ test('producer number guard refuses extreme output and inconsistent count domain
   let seed = 0xbadf00d;
   /** Fuzz arbitrary IEEE-754 bit patterns without generating non-reproducible failures. */
   const next = () => { seed = (Math.imul(seed, 1103515245) + 12345) >>> 0; return seed; };
-  for (let sample = 0; sample < 500; sample += 1) {
+  for (let sample = 0; sample < testDepth(500); sample += 1) {
     bits.setUint32(0, next()); bits.setUint32(4, next());
     const value = bits.getFloat64(0);
     assert.equal(diagnoseAccessibility({ version: 1, pairs: [], budget: value }).ok,
@@ -182,7 +184,7 @@ test('CLI works without git, refuses unusable flags and bounds regular file read
   const input = join(root, 'component.json');
   const childEnv = { PATH: '', GIT_CEILING_DIRECTORIES: tmpdir() };
   /** Execute the packed-shaped bin using an explicit runtime and no git on PATH. */
-  const run = (args: string[]) => spawnSync(process.execPath, [cli, ...args], { cwd: root, env: childEnv, encoding: 'utf8', timeout: 15000 });
+  const run = (args: string[]) => spawnSync(process.execPath, [cli, ...args], { cwd: root, env: childEnv, encoding: 'utf8', timeout: testTime(15000) });
   try {
     writeFileSync(input, JSON.stringify({ version: 1, pairs: [pair()] }));
     const result = run(['diagnose', input, '--format', 'json', '--budget', '512']);
@@ -207,7 +209,7 @@ test('CLI works without git, refuses unusable flags and bounds regular file read
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test('500 seeded operation sequences preserve replay, whitespace and every produced report round trip', async t => {
+test('seeded operation sequences preserve replay, whitespace and every produced report round trip', async t => {
   const root = mkdtempSync(join(tmpdir(), 'brand-model-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const pmRoot = join(root, '.agents/pm');
@@ -233,7 +235,7 @@ test('500 seeded operation sequences preserve replay, whitespace and every produ
   const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed >>> 8; };
   const colors = ['#000000', '#FFFFFF', '#777777', 'rgba(0, 0, 0, .5)', 'transparent'];
   let replays = 0;
-  try { for (let sequence = 0; sequence < 500; sequence += 1) {
+  try { for (let sequence = 0; sequence < testDepth(500); sequence += 1) {
     let state: RenderedAccessibilityPair[] = [];
     const snapshots: { wire: string; model: RenderedAccessibilityPair[] }[] = [];
     // A simple reference model stores ordered rendered comparisons, never normalized expected values.
@@ -267,7 +269,7 @@ test('500 seeded operation sequences preserve replay, whitespace and every produ
     assert.ok(sdk.attachOutputTokenAccounting(report.result, () => report.text).token_accounting.total_estimated_tokens <= 512);
     assert.deepEqual((await sdk.readLocatedItem(located)).document, trackerModel, `SDK read-back after sequence ${sequence}`);
   }
-    assert.ok(replays > 500, `expected older-input replays, got ${replays}`);
+    assert.ok(replays > testDepth(500), `expected older-input replays, got ${replays}`);
     assert.deepEqual((await client.listAllComplete({ includeBody: true })).items, wholeModel);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
