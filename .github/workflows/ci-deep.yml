@@ -9,9 +9,10 @@ permissions:
   contents: read
 concurrency:
   group: ci-deep-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   deep:
+    name: deep (${{ matrix.node }}, ${{ matrix.package-manager }})
     runs-on: ${{ vars.PM_LOCAL_DEEP != 'off' && fromJSON('["self-hosted","pm-local"]') || 'ubuntu-latest' }}
     timeout-minutes: 120
     env:
@@ -22,6 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         node: [22, 26]
+        package-manager: [npm, bun]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -36,8 +38,12 @@ jobs:
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       - run: bun --version
       - run: npm ci
-      - run: npm run release:check
+      - name: Full npm release gate
+        if: matrix.package-manager == 'npm'
+        run: npm run release:check
       - run: bun install --no-save
-      - run: bun run release:check
+      - name: Full Bun release gate
+        if: matrix.package-manager == 'bun'
+        run: bun run release:check
       - run: bun test ./test/bun.acceptance.ts
       - run: npm run test:git

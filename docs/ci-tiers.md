@@ -6,7 +6,7 @@ manual dispatch use hosted Ubuntu, quick deterministic prefixes (50 of 500),
 full. Input alphabets and all per-case assertions are unchanged; replay and
 success/refusal thresholds derive from the generated sequence count.
 
-| Check | Code PR 22 | Code PR 26 | Docs/tracker PR, both | Deep 22 + 26 |
+| Check | Code PR 22 | Code PR 26 | Docs/tracker PR, both | Deep 22/26 × npm/Bun |
 | --- | --- | --- | --- | --- |
 | npm ci, prepare/build, merge drivers | yes | yes | yes | yes |
 | Strict pm health, identity/path policy | via tests | gate | yes | npm + Bun |
@@ -30,8 +30,9 @@ tarball acquisition, so the Bun graph/native runtime smoke adds no second gate.
 
 Deep runs on main pushes, dispatch and daily at 01:13 UTC, away from release
 03:23 and hourly :41 reconciliation and weekly CodeQL Monday 02:31. It retains
-both npm and Bun full release gates on Node 22/26 under distinct `deep` check
-names. Jobs have a 120-minute limit and cancellation per ref. Local `pm-local`
+both npm and Bun full release gates on Node 22/26 under distinct
+`deep (22, npm)`, `deep (22, bun)`, `deep (26, npm)`, `deep (26, bun)` check names,
+with one full gate per job. Jobs have a 120-minute limit and queuing per ref without cancelling active runs. Local `pm-local`
 runners use persistent npm caches and preinstalled Bun; `PM_LOCAL_DEEP=off`
 selects hosted Ubuntu. Deep sets `PM_TEST_TIME_SCALE=3`. Scaled child watchdogs
 validate finite positive factors and round up to integer milliseconds. Product
@@ -43,3 +44,14 @@ the CLI review case at 13.29s and topology/metadata/renderer/XML property cases
 at 4.90–5.95s. Full depth is not run locally; deep CI certifies it after merge.
 The owner fleet measurement was 39,929 runner-minutes/day and median PR wall
 time 45–90 minutes, including about 28 minutes queueing.
+
+Template follow-up: executable tracker files (`mjs`, `cjs`, `js`, `jsx`, `ts`,
+`tsx`, `mts`, `cts`, `sh`), tracker extensions and executable files under `docs/`
+select the code tier, including nested paths. CodeQL is a required check
+(`analyze`), so its paths remain unfiltered. Existing hosted-only npm cache restoration and Bun setup, with
+`bun --version` on local runners, are retained. No quick-depth reduction or
+sharding was needed from the latest successful PR execution measurements.
+
+Follow-up baseline: [successful PR run 43726735608](https://github.com/unbraind/pm-brand/actions/runs/43726735608).
+Node 22/26 execution: 40s / 3m24s; created-to-completed including queue:
+109m48s / 105m57s. Both executions fit the approximately 15-minute target.
