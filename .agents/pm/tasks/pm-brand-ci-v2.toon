@@ -5,13 +5,11 @@ type: Task
 pm_format_version: 2
 status: in_progress
 priority: 2
-tags[3]: ci,"gh:unbraind/pm-brand#51",performance
+tags[4]: ci,"gh:unbraind/pm-brand#51","gh:unbraind/pm-brand#52",performance
 created_at: "2026-11-15T14:47:19.503Z"
-updated_at: "2026-11-16T08:29:23.894Z"
-assignee: codex-sol
-claim_principal: codex-sol
+updated_at: "2026-11-16T08:37:09.620Z"
 author: codex-sol
-comments[8]{created_at,author,text}:
+comments[9]{created_at,author,text}:
   "2026-11-15T14:47:23.133Z",codex-sol,"Required checks verified: verify (22), verify (26), analyze. CodeQL remains unfiltered. Inspecting docs inputs, deterministic property depth and harness deadlines; release caller and verifiers remain outside scope."
   "2026-11-15T14:50:02.211Z",codex-sol,"Baseline main run 43679416505: verify (26) 15m05s including queue, 7m execution; verify (22) 22m21s including queue, 3m52s execution. Job-log API recovered durations after the run-log command returned empty. Topology and metadata property cases took 5.95s and 5.45s. Cheap tier retains identity, README/license/workflow contracts and package file allowlist. Packed acceptance proves Bun and bun x installs. Full local depth intentionally not run."
   "2026-11-15T14:50:49.234Z",codex-sol,"Validation: typecheck passed (2.5s), lint passed (5s), seven touched suites passed at quick depth and scale 3 (82.7s), helper contract test passed (0.9s); strict unique-key YAML parse passed (actionlint unavailable). Original full npm release gates measured 3m14s on Node 26 and 3m37s on Node 22 in hosted CI. One quick coverage run is in progress with unchanged 100 percent thresholds."
@@ -20,6 +18,7 @@ comments[8]{created_at,author,text}:
   "2026-11-16T08:24:23.970Z",codex-sol,"Batch 2 template follow-up: split deep validation into Node 22/26 x npm/Bun with one conditional full release gate per job; preserve runner selection and full depth/time scale; disable deep cancellation; extend executable tracker/docs routing. Required CodeQL check remains unfiltered. Existing hosted-only npm cache restoration and Bun installation plus version logging already conform. Release callers, sync workflows, verifier scripts, protection and variables stay unchanged."
   "2026-11-16T08:29:00.053Z",codex-sol,"Latest successful PR run https://github.com/unbraind/pm-brand/actions/runs/43726735608: Node 22/26 execution 40s/3m24s; created-to-completed including queue 109m48s/105m57s. Both executions fit the approximately 15-minute target, so item 6 needs no quick-depth or sharding change. Items 1, 2 and 5 changed; item 3 exempt because CodeQL is required; item 4 already conforms. Added strict unique-key YAML, one-gate matrix, runner setup and executable-path behavioral contracts."
   "2026-11-16T08:29:23.884Z",codex-sol,"Final local proof passed through pm test --run --only-last --progress: strict unique-key YAML parsing of every workflow, workflow contracts, npm run typecheck and npm run lint. actionlint is unavailable. Initial helper annotation/build setup issues were corrected before the passing rerun. No full-depth run attempted locally; deep certification remains after merge. PR observation is bounded to 30 minutes after the final push."
+  "2026-11-16T08:37:06.562Z",codex-sol,"PR https://github.com/unbraind/pm-brand/pull/52, implementation head 92b76ceabcf3ecaad1830484dc0931827f83c3e2: all required checks passed. analyze: execution 0m55s, created-to-completed 2m34s; verify (22): execution 0m34s, created-to-completed 1m37s; verify (26): execution 3m23s, created-to-completed 6m22s. Job API timestamps include queue in wall time. Slowest logged tests: review classes reach the actual CLI in a non-git tracker with no git executable 12.64s; main compatibility catches removed exports and changed signatures plus new root Node imports 4.77s; main baseline regenerates from its recorded main commit and every existing API signature is preserved 3.18s; CLI works without git, refuses unusable flags and bounds regular file reads 2.56s; root browser graph gains no Node edge or dependency relative to main 2.00s. Local workflow contracts, strict YAML, typecheck, lint and committed identity/private-path gates passed. Full-depth certification remains after merge. Final tracker-only receipt will be pushed with claim released; final-head CI is recorded in the PR body during the bounded watch."
 files[6]{path,scope}:
   .github/workflows/ci-deep.yml,project
   .github/workflows/ci.yml,project
