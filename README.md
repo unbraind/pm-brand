@@ -42,7 +42,7 @@ For a local build, run this in the source checkout. It packs the checkout and in
 
 ```sh
 npm ci
-tarball=$(npm pack --silent)
+tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
 archive="$(pwd)/$tarball"
 consumer=$(mktemp -d -t pm-brand.XXXXXX)
 cd "$consumer"
@@ -50,7 +50,10 @@ npm install "$archive"
 npx --no-install pm-brand --help
 ```
 
-Daily and manual releases run from `main` when `PM_RELEASE_APPROVED` is enabled. The workflow publishes through npm trusted publishing with provenance.
+Automated npm publication requires the maintainer to configure a GitHub Actions
+[trusted publisher](https://docs.npmjs.com/trusted-publishers/) for this repository
+with workflow filename `release.yml`. `PM_RELEASE_APPROVED=true` gates daily and manual
+releases on `main`. The trusted publisher authorizes the workflow to publish to npm through OIDC. The workflow publishes with provenance.
 
 This is an asset and SDK library with documented subpath exports and standalone
 `pm-brand diagnose` and `pm-brand font-coverage` commands. A pm integration imports
