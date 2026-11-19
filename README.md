@@ -41,13 +41,15 @@ bun add pm-brand
 For a local build, run this in the source checkout. It packs the checkout and installs the archive in a fresh consumer directory.
 
 ```sh
-npm ci
-tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
-archive="$(pwd)/$tarball"
-consumer=$(mktemp -d -t pm-brand.XXXXXX)
-cd "$consumer"
-npm install "$archive"
-npx --no-install pm-brand --help
+(
+  npm ci
+  tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
+  archive="$(pwd)/$tarball"
+  consumer=$(mktemp -d -t pm-brand.XXXXXX)
+  cd "$consumer"
+  npm install "$archive"
+  npx --no-install pm-brand --help
+)
 ```
 
 Automated npm publication requires the maintainer to configure a GitHub Actions
