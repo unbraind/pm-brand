@@ -12,7 +12,7 @@ One shared identity for pm-cli.unbrained.dev, pm-web, pm-gpt, pm-mcp and pm-sear
 cool form paper, carbon-blue ink, canary and rose copies, and violet stamp ink.
 [CONTRACT.md](CONTRACT.md) defines the visual grammar and every public token.
 
-**Before the first npm release, depend on an exact commit.**
+**To consume an exact source revision, pin the commit.**
 
 ```json
 { "dependencies": { "pm-brand": "github:unbraind/pm-brand#<40-character-commit>" } }
@@ -28,27 +28,34 @@ dependency preparation. CI verifies them against a clean build.
 
 ## Install and release approval
 
-The first npm release is pending the maintainer's interactive bootstrap. After
-that first publish, the maintainer configures npm trusted publishing for
-`release.yml` and sets the repository variable `PM_RELEASE_APPROVED` to `true`.
-The daily workflow and manual dispatch both require this variable and `main`.
-Publishing uses OIDC with provenance and the explicit `latest` dist-tag; no stored
-npm token is needed. Same-day collision versions such as `2026.10.27-1` remain
-the newest daily release on `latest`.
-
-After the first release, install the library and its CSS/assets with either:
+Install the library and its CSS assets from npm or Bun.
 
 ```sh
 npm install pm-brand
+```
+
+```sh
 bun add pm-brand
 ```
 
-This is an asset and SDK library with documented subpath exports and a standalone
+For a local build, run this in the source checkout. It packs the checkout and installs the archive in a fresh consumer directory.
+
+```sh
+npm ci
+tarball=$(npm pack --silent)
+archive="$(pwd)/$tarball"
+consumer=$(mktemp -d -t pm-brand.XXXXXX)
+cd "$consumer"
+npm install "$archive"
+npx --no-install pm-brand --help
+```
+
+Daily and manual releases run from `main` when `PM_RELEASE_APPROVED` is enabled. The workflow publishes through npm trusted publishing with provenance.
+
+This is an asset and SDK library with documented subpath exports and standalone
 `pm-brand diagnose` and `pm-brand font-coverage` commands. A pm integration imports
 its exports directly. npm and Bun install the pm SDK peer for report accounting.
-Before the first npm release, the exact-commit Git dependency below remains
-available. Daily releases version the verified artifact automatically when main
-changes; unchanged tagged source skips publication.
+Daily releases version the verified artifact when `main` changes. Unchanged tagged source skips publication.
 
 ## CSS
 
