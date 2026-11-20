@@ -41,16 +41,28 @@ bun add pm-brand
 For a local build, run this in the source checkout. It packs the checkout and installs the archive in a fresh consumer directory.
 
 ```sh
-npm ci
-tarball=$(npm pack --silent)
-archive="$(pwd)/$tarball"
-consumer=$(mktemp -d -t pm-brand.XXXXXX)
-cd "$consumer"
-npm install "$archive"
-npx --no-install pm-brand --help
+(
+  npm ci || exit 1
+  tarball=$(npm pack --silent) && test -n "$tarball" && test -f "$tarball" || exit 1
+  packed_version=$(node -p 'require("./package.json").version') || exit 1
+  archive="$(pwd)/$tarball"
+  consumer=$(mktemp -d -t pm-brand.XXXXXX) && test -n "$consumer" && cd "$consumer" || exit 1
+  npm install "$archive" || exit 1
+  npx --no-install pm-brand --help || exit 1
+  installed_version=$(node -p 'require("./node_modules/pm-brand/package.json").version') || exit 1
+  test "$installed_version" = "$packed_version" || {
+    printf 'Expected version %s, installed %s.\n' "$packed_version" "$installed_version" >&2
+    exit 1
+  }
+)
 ```
 
-Daily and manual releases run from `main` when `PM_RELEASE_APPROVED` is enabled. The workflow publishes through npm trusted publishing with provenance.
+Automated npm publication requires the maintainer to configure a GitHub Actions
+[trusted publisher](https://docs.npmjs.com/trusted-publishers/) for this repository
+with workflow filename `release.yml` and select `npm publish` under **Allowed actions**.
+Trusted publishers created after September 3, 2026 default to
+`npm stage publish` only. `PM_RELEASE_APPROVED=true` gates daily and manual
+releases on `main`. The trusted publisher authorizes the workflow to publish to npm through OIDC. The workflow publishes with provenance.
 
 This is an asset and SDK library with documented subpath exports and standalone
 `pm-brand diagnose` and `pm-brand font-coverage` commands. A pm integration imports
