@@ -12,12 +12,12 @@ test('identity scans UTF-8 regardless of extension and skips NUL or invalid UTF-
   const script = resolve('scripts/identity.ts');
   try {
     execFileSync('git', ['init', '--quiet', '-b', 'main', scratch]);
-    execFileSync('git', ['-c', 'user.name=SteveBot', '-c', 'user.email=1153461+unbraind@users.noreply.github.com', 'commit', '--quiet', '--allow-empty', '-m', 'Synthetic identity fixture'], { cwd: scratch });
+    execFileSync('git', ['-c', 'user.name=unbrained', '-c', 'user.email=1153461+unbraind@users.noreply.github.com', 'commit', '--quiet', '--allow-empty', '-m', 'Synthetic identity fixture'], { cwd: scratch });
     mkdirSync(join(scratch, '.github'));
     writeFileSync(join(scratch, '.github/approved-git-identities.txt'), readFileSync('.github/approved-git-identities.txt'));
     writeFileSync(join(scratch, '.github/identity-baseline.txt'), execFileSync('git', ['rev-parse', 'HEAD'], { cwd: scratch }));
     execFileSync('git', ['add', '.github'], { cwd: scratch });
-    execFileSync('git', ['-c', 'user.name=SteveBot', '-c', 'user.email=1153461+unbraind@users.noreply.github.com', 'commit', '--quiet', '-m', 'Adopt trusted fixture controls'], { cwd: scratch });
+    execFileSync('git', ['-c', 'user.name=unbrained', '-c', 'user.email=1153461+unbraind@users.noreply.github.com', 'commit', '--quiet', '-m', 'Adopt trusted fixture controls'], { cwd: scratch });
     execFileSync('git', ['update-ref', 'refs/remotes/origin/main', 'HEAD'], { cwd: scratch });
     const privatePath = '/' + 'home/example';
     writeFileSync(join(scratch, 'nul.data'), Buffer.from(`binary\0${privatePath}`));
@@ -52,7 +52,7 @@ function history(run: (scratch: string, git: (...args: string[]) => string, comm
   /** Append a commit with independently controlled author and committer emails. */
   const commit = (author = publicEmail, committer = publicEmail): string => {
     execFileSync('git', ['commit', '--quiet', '--allow-empty', '-m', 'Synthetic public fixture'], {
-      cwd: scratch, env: { ...process.env, GIT_AUTHOR_NAME: 'SteveBot', GIT_AUTHOR_EMAIL: author, GIT_COMMITTER_NAME: 'GitHub', GIT_COMMITTER_EMAIL: committer },
+      cwd: scratch, env: { ...process.env, GIT_AUTHOR_NAME: 'unbrained', GIT_AUTHOR_EMAIL: author, GIT_COMMITTER_NAME: 'GitHub', GIT_COMMITTER_EMAIL: committer },
     });
     return git('rev-parse', 'HEAD');
   };
@@ -90,7 +90,7 @@ test('an unapproved author or committer names the full commit, offending role an
     const sha = role === 'author' ? commit(bad) : commit(undefined, bad);
     const result = audit(scratch);
     assert.equal(result.status, 1);
-    assert.ok(String(result.stderr).includes(`${sha} ${role} ${role === 'author' ? 'SteveBot' : 'GitHub'} <${bad}>`), String(result.stderr));
+    assert.ok(String(result.stderr).includes(`${sha} ${role} ${role === 'author' ? 'unbrained' : 'GitHub'} <${bad}>`), String(result.stderr));
   });
 });
 
@@ -103,7 +103,7 @@ test('a PR cannot approve its own email, delete the adopted control or advance t
     if (attack === 'advance') writeFileSync(join(scratch, '.github/identity-baseline.txt'), `${sha}\n`);
     const result = audit(scratch);
     assert.equal(result.status, 1);
-    assert.ok(String(result.stderr).includes(`${sha} author SteveBot <${bad}>`), String(result.stderr));
+    assert.ok(String(result.stderr).includes(`${sha} author unbrained <${bad}>`), String(result.stderr));
   });
 });
 
@@ -207,7 +207,7 @@ test('valid proposed policy changes are surfaced without becoming active', () =>
     const sha = commit('new-public@example.invalid');
     result = audit(scratch);
     assert.equal(result.status, 1);
-    assert.ok(String(result.stderr).includes(`${sha} author SteveBot <new-public@example.invalid>`));
+    assert.ok(String(result.stderr).includes(`${sha} author unbrained <new-public@example.invalid>`));
   });
 });
 
@@ -220,7 +220,7 @@ test('base-only identities are checked for both behind and diverged PR heads', (
     if (diverged) commit();
     const result = audit(scratch);
     assert.equal(result.status, 1);
-    assert.ok(String(result.stderr).includes(`${sha} author SteveBot <base-only@example.invalid>`));
+    assert.ok(String(result.stderr).includes(`${sha} author unbrained <base-only@example.invalid>`));
   });
 });
 
@@ -240,7 +240,7 @@ test('stale pinned policy bases are rejected after main revokes a previously app
     assert.match(String(result.stderr), /Stale identity policy base/u);
     const refreshed = audit(scratch, git('rev-parse', 'origin/main'));
     assert.equal(refreshed.status, 1);
-    assert.ok(String(refreshed.stderr).includes(`${sha} author SteveBot <noreply@github.com>`));
+    assert.ok(String(refreshed.stderr).includes(`${sha} author unbrained <noreply@github.com>`));
   });
 });
 
@@ -305,7 +305,7 @@ test('forward adoption accepts inherited squash history and dependency commits w
     const bad = commit('unexpected@example.invalid');
     const rejected = audit(scratch);
     assert.equal(rejected.status, 1);
-    assert.ok(String(rejected.stderr).includes(`${bad} author SteveBot <unexpected@example.invalid>`));
+    assert.ok(String(rejected.stderr).includes(`${bad} author unbrained <unexpected@example.invalid>`));
   }, 'legacy-squash@example.invalid');
 });
 
