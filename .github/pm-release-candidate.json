@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "repository": "unbraind/pm-brand",
-  "baseSha": "c9e4266d7a0433ee71ef977974f2be55c00b02fa",
-  "version": "2026.11.20",
-  "runId": 44731502942,
+  "baseSha": "798544be0e4cb58f49cde49ef1d681a2ab017838",
+  "version": "2026.11.21",
+  "runId": 44899131656,
   "runAttempt": 1,
   "configDigest": "991d1f6f23f2a5899b32d8b75d7b799dc5204add588f8bb3d4ae745e6254fa92"
 }
