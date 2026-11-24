@@ -1,0 +1,25 @@
+id: pm-brand-74ga
+title: Keep published dependency updates in the generated changelog
+description: "Fleet changelog standard: every pm-changelog invocation in package.json passes --dependency-updates so regeneration keeps published dependency bullets. pm-brand's squash-merge subjects do not match the Dependabot conventional-commit shape, so no bullets are restored today; the flag keeps future Dependabot-shaped merges in the generated changelog."
+type: Chore
+status: in_progress
+priority: 2
+tags[2]: changelog,maintenance
+created_at: "2026-11-24T01:25:30.025Z"
+updated_at: "2026-11-24T05:49:09.261Z"
+author: codex-agent
+comments[3]{created_at,author,text}:
+  "2026-11-24T01:25:41.887Z",codex-agent,"Added --dependency-updates to the changelog, changelog:full, changelog:check and release:notes package scripts and regenerated with fetched tags. Restored 0 dependency bullets versus main: this package's squash-merge subjects do not match the Dependabot conventional-commit shape, so its published changelog carries no dependency bullets to keep. The flag keeps future Dependabot-shaped merges in the generated changelog. Revert proof: removing only the flag from the package scripts makes test/release-workflow.test.ts fail 1 of 8 tests; restoring the flag passes 8 of 8."
+  "2026-11-24T05:45:35.159Z",codex-agent,"Resumed the existing branch and verified that all four changelog scripts pass the dependency flag. Rechecking the regression, generated output, and package gates."
+  "2026-11-24T05:49:06.267Z",codex-agent,"Kept the existing script, changelog, and tracker changes and strengthened the regression to cover each entry point and any additional direct invocation. Full regeneration restored 0 dependency bullets versus main and omitted 0 published bullets. Removing only the flag from each of the four package scripts separately failed the assertion for that script; the focused regression passed after restoration. Typecheck, lint, build, and 73 focused tests passed."
+files[3]{path,scope}:
+  CHANGELOG.md,project
+  package.json,project
+  test/release-workflow.test.ts,project
+tests[3]{command,scope,provenance{author,created_at,source_kind,source_ref}}:
+  node --test --test-concurrency=2 test/release-workflow.test.ts,project,codex-agent,"2026-11-24T01:25:54.018Z",local_mutation,fix/changelog-keep-dependency-updates
+  "npm run changelog:check",project,codex-agent,"2026-11-24T01:25:56.982Z",local_mutation,fix/changelog-keep-dependency-updates
+  "npm run release:notes",project,codex-agent,"2026-11-24T01:26:00.088Z",local_mutation,fix/changelog-keep-dependency-updates
+docs[1]{path,scope}:
+  CHANGELOG.md,project
+body: ""
