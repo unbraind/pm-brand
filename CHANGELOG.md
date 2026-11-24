@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Other
+
+- Keep published dependency updates in the generated changelog ([pm-brand-74ga](https://github.com/unbraind/pm-brand/blob/main/.agents/pm/chores/pm-brand-74ga.toon))
+
 ## 2026.11.21 - 2026-11-21
 
 No changes.
